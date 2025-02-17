@@ -41,4 +41,5 @@ public class  User {
     }
 
     public void saveSchedule(){}
+    public void loadSchedule(){}
 }
