@@ -10,7 +10,8 @@ public class Course {
     private int[] duration;
     private String professor;
     private URL rateMyProfessorLink;
-    public Course(String name, String description, int[] startTime, int[] duration, String professor) {
+    private int seatsOpen;
+    public Course(String name, String description, int[] startTime, int[] duration, String professor, int seatsOpen) {
 
     }
 
