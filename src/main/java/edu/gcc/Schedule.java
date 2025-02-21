@@ -4,7 +4,7 @@ public class Schedule {
     private Course[] courses;
 
     public Schedule() {
-
+        //TODO CalebVanEe
     }
 
     public Schedule(String searchQueries) {
