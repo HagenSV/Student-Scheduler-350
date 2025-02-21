@@ -9,6 +9,7 @@ public class Course {
     private boolean MWForTR;
     private int[] duration;
     private String professor;
+    private boolean hasSeats;
     private URL rateMyProfessorLink;
     public Course(String name, String description, int[] startTime, int[] duration, String professor) {
 
