@@ -71,8 +71,14 @@ public class Main {
                     break;
                 case "calendar":
                     //Prints a calendar representation of the schedule
-                    for (int i = 0; i < 210; i++){
-
+                    System.out.println("  Time   |   Mon   |   Tue   |   Wed   |   Thu   |   Fri   |");
+                    for (int i = 0; i < 55; i++){
+                        System.out.print(formatTime(i*15));
+                        System.out.print(" |");
+                        for (int j = 0; j < 5; j++){
+                            System.out.print("         |");
+                        }
+                        System.out.println();
                     }
                     break;
                 case "search":
@@ -119,13 +125,14 @@ public class Main {
         System.out.println("Thank you for using Student Scheduler");
     }
 
-    private String formatTime(int time){
+    private static String formatTime(int time){
         int hour = time/60+8;
         int minute = time%60;
-        boolean morning = time < 12;
+        boolean morning = hour < 12;
 
-        return String.format("%d:%s%d %s",
-                hour,
+        return String.format("%s%d:%s%d %s",
+                (hour-1)% 12 + 1 < 10 ? " " : "",
+                (hour-1) % 12 + 1,
                 minute < 10 ? "0" : "",
                 minute,
                 morning ? "AM" : "PM"
