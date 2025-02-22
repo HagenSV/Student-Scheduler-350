@@ -7,7 +7,7 @@ public class Main {
 
     private static final ArrayList<User> users = new ArrayList<>();
     private static Search search;
-    private static ArrayList<Course> courses = new ArrayList<>();
+    private static final ArrayList<Course> courses = new ArrayList<>();
     public static void main(String[] args) {
         run();
     }
@@ -71,6 +71,9 @@ public class Main {
                     break;
                 case "calendar":
                     //Prints a calendar representation of the schedule
+                    for (int i = 0; i < 210; i++){
+
+                    }
                     break;
                 case "search":
                     //Search
@@ -114,5 +117,18 @@ public class Main {
             }
         }
         System.out.println("Thank you for using Student Scheduler");
+    }
+
+    private String formatTime(int time){
+        int hour = time/60+8;
+        int minute = time%60;
+        boolean morning = time < 12;
+
+        return String.format("%d:%s%d %s",
+                hour,
+                minute < 10 ? "0" : "",
+                minute,
+                morning ? "AM" : "PM"
+        );
     }
 }
