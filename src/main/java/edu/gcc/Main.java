@@ -7,7 +7,7 @@ public class Main {
 
     private static final ArrayList<User> users = new ArrayList<>();
     private static Search search;
-    private static ArrayList<Course> courses;
+    private static ArrayList<Course> courses = new ArrayList<>();
     public static void main(String[] args) {
         run();
     }
@@ -47,7 +47,7 @@ public class Main {
         //Main program loop
         while (!cmd.equals("exit")){
             System.out.println("Please enter a command or 'help' for options");
-            System.out.print("samuel> ");
+            System.out.print("> ");
             String[] input = s.nextLine().split(" ");
             cmd = input[0];
             switch (cmd) {
@@ -64,17 +64,50 @@ public class Main {
                     break;
                 case "list":
                     //Prints a list of the classes the user is in
+                    Course[] enrolled = currentUser.getSchedule().getCourses();
+                    for (Course c : enrolled){
+                        System.out.println(c);
+                    }
                     break;
                 case "calendar":
                     //Prints a calendar representation of the schedule
+                    break;
                 case "search":
                     //Search
+                    break;
                 case "add":
                     //Adds class to schedule
-                    //currentUser.getSchedule().addCourse();
+                    if (input.length < 2){
+                        System.out.println("Proper usage: add <course_id>");
+                        break;
+                    }
+                    try {
+                        int cid = Integer.parseInt(input[1]);
+                        Course add = courses.get(cid);
+                        currentUser.getSchedule().addCourse(add);
+                    } catch (NumberFormatException e){
+                        System.out.printf("Error: %s is not a number\n",input[1]);
+                    } catch (IndexOutOfBoundsException e){
+                        System.out.println("Invalid course id "+input[1]);
+                    }
+                    break;
+
                 case "remove":
                     //Removes class from schedule
-                    //currentUser.getSchedule().removeCourse()
+                    if (input.length < 2){
+                        System.out.println("Proper usage: remove <course_id>");
+                        break;
+                    }
+                    try {
+                        int cid = Integer.parseInt(input[1]);
+                        Course add = courses.get(cid);
+                        currentUser.getSchedule().removeCourse(add);
+                    } catch (NumberFormatException e){
+                        System.out.printf("Error: %s is not a number\n",input[1]);
+                    } catch (IndexOutOfBoundsException e){
+                        System.out.println("Invalid course id "+input[1]);
+                    }
+                    break;
                 default:
                     //Provide feedback on invalid command
                     System.out.println("Unknown Command: "+cmd);
