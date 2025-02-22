@@ -1,5 +1,9 @@
 package edu.gcc;
 
+import com.sun.net.httpserver.HttpServer;
+
+import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -9,6 +13,13 @@ public class Main {
     private static Search search;
     private static final ArrayList<Course> courses = new ArrayList<>();
     public static void main(String[] args) {
+        try {
+            HttpServer server = HttpServer.create(new InetSocketAddress(3000), 0);
+            server.start();
+        } catch (IOException e){
+            System.exit(-1);
+        }
+
         run();
     }
     public static void run() {
@@ -93,7 +104,11 @@ public class Main {
                     try {
                         int cid = Integer.parseInt(input[1]);
                         Course add = courses.get(cid);
-                        currentUser.getSchedule().addCourse(add);
+                        boolean success = currentUser.getSchedule().addCourse(add);
+                        if (!success){
+                            System.out.println("Failed to add course to schedule");
+                            //TODO: provide detailed conflicts
+                        }
                     } catch (NumberFormatException e){
                         System.out.printf("Error: %s is not a number\n",input[1]);
                     } catch (IndexOutOfBoundsException e){
