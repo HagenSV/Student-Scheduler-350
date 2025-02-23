@@ -1,6 +1,7 @@
 package edu.gcc;
 
 import java.net.URL;
+import java.util.ArrayList;
 
 public class Course {
     private String name;
@@ -8,11 +9,18 @@ public class Course {
     private int[] startTime;
     private boolean MWForTR;
     private int[] duration;
-    private String professor;
-    private boolean hasSeats;
+    private ArrayList<String> professors;
+    private boolean isOpen;
+    private boolean[] daysMeet;
     private URL rateMyProfessorLink;
-    public Course(String name, String description, int[] startTime, int[] duration, String professor) {
-
+    public Course(String name, int[] startTime, int[] duration, boolean isOpen, ArrayList<String> professors, boolean MWForTR, boolean[] daysMeet) {
+        this.name = name;
+        this.startTime = startTime;
+        this.duration = duration;
+        this.MWForTR = MWForTR;
+        this.professors = professors;
+        this.isOpen = isOpen;
+        this.daysMeet = daysMeet;
     }
 
     public URL getRateMyProfessorLink(){return null;}
@@ -21,10 +29,11 @@ public class Course {
     public String getName() {
         return name;
     }
-
+    public boolean getIsOpen(){return isOpen;}
     public String getDescription() {
         return description;
     }
+    public boolean[] getDaysMeet(){return daysMeet;}
 
     public int[] getStartTime() {
         return startTime;
@@ -35,10 +44,15 @@ public class Course {
         return duration;
     }
 
-    public String getProfessor() {
-        return professor;
+    public ArrayList<String> getProfessor() {
+        return professors;
     }
     public boolean hasConflict(Course course){
         return false;
+    }
+
+    @Override
+    public String toString(){
+        return null;
     }
 }
