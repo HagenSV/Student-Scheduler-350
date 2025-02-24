@@ -1,10 +1,12 @@
 package edu.gcc;
 
+import java.util.ArrayList;
+
 public class Schedule {
-    private Course[] courses;
+    private ArrayList<Course> courses;
 
     public Schedule() {
-        //TODO CalebVanEe
+        courses = new ArrayList<>();
     }
 
     public Schedule(String searchQueries) {
@@ -12,20 +14,39 @@ public class Schedule {
     }
 
     public boolean addCourse(Course course) {
-        return false;
+        courses.add(course);
+        if (!this.getConflicts().isEmpty()) {
+            courses.remove(course);
+            return false;
+        }
+        return true;
     }
 
     public boolean removeCourse(Course course) {
-        return false;
+        return courses.remove(course);
     }
 
-    public void generateSchedule(String[] searchQueries) {    }
+    public void generateSchedule(String[] searchQueries) {
+    }
 
-    public Course[] getCourses() {
+    public ArrayList<Course> getCourses() {
         return courses;
     }
 
-    public Course[] getConflicts() {
-        return null;
+    /**
+     * Finds conflicting classes and returns an arraylist of courses that conflict
+     *
+     * @return arraylist of courses that conflict
+     */
+    public ArrayList<Course> getConflicts() {
+        ArrayList<Course> conflicts = new ArrayList<>();
+        for (Course c : courses) {
+            for (Course other: courses)
+                if (!c.getName().equals(other.getName()) && c.hasConflict(other)) {
+                    conflicts.add(c);
+                    break;
+                }
+        }
+        return conflicts;
     }
 }
