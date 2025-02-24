@@ -74,16 +74,31 @@ public class Main {
                     //Prints a calendar representation of the schedule
                     System.out.println("  Time   |   Mon   |   Tue   |   Wed   |   Thu   |   Fri   |");
                     for (int i = 0; i < 55; i++){
-                        System.out.print(formatTime(i*15));
+                        int currentTime = i*15;
+                        System.out.print(formatTime(currentTime));
                         System.out.print(" |");
                         for (int j = 0; j < 5; j++){
-                            System.out.print("         |");
+                            boolean timeFilled = false;
+                            for (Course c : currentUser.getSchedule().getCourses()){
+                                int startTime = c.getStartTime()[j];
+                                if (startTime >= currentTime && startTime+c.getDuration()[j] <= currentTime){
+                                    //TODO get and display course dept and code
+                                    //System.out.print(c.getDept());
+                                    //System.out.print(c.getCode());
+                                    //System.out.print(c.getSection());
+                                    timeFilled = true;
+                                }
+                            }
+                            if (!timeFilled) {
+                                System.out.print("         |");
+                            }
                         }
                         System.out.println();
                     }
                     break;
                 case "search":
-                    //Search
+                    //TODO: implement this when search is working
+                    System.out.println("Not implemented");
                     break;
                 case "add":
                     //Adds class to schedule
