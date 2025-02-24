@@ -66,6 +66,7 @@ public class Main {
                     //Prints a list of the classes the user is in
                     Course[] enrolled = currentUser.getSchedule().getCourses();
                     for (Course c : enrolled){
+                        //Needs to string defined
                         System.out.println(c);
                     }
                     break;
@@ -94,6 +95,7 @@ public class Main {
                         int cid = Integer.parseInt(input[1]);
                         Course add = courses.get(cid);
                         currentUser.getSchedule().addCourse(add);
+                        currentUser.saveSchedule();
                     } catch (NumberFormatException e){
                         System.out.printf("Error: %s is not a number\n",input[1]);
                     } catch (IndexOutOfBoundsException e){
@@ -111,6 +113,7 @@ public class Main {
                         int cid = Integer.parseInt(input[1]);
                         Course add = courses.get(cid);
                         currentUser.getSchedule().removeCourse(add);
+                        currentUser.saveSchedule();
                     } catch (NumberFormatException e){
                         System.out.printf("Error: %s is not a number\n",input[1]);
                     } catch (IndexOutOfBoundsException e){
