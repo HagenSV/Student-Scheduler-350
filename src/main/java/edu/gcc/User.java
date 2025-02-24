@@ -1,9 +1,6 @@
 package edu.gcc;
 
-import java.net.URL;
-import java.io.*;
 import java.util.ArrayList;
-import java.util.Scanner;
 
 public class  User {
     private String username;
@@ -40,6 +37,8 @@ public class  User {
         yearJoinedMinor = joiningYear;
         return true;
     }
+    public boolean addMinor(String minor, int joiningYear){return false;}
+    public boolean removeMinor(String minor){return false;}
 
     public boolean removeMinor(String minor){
         return minors.remove(minor);
@@ -70,6 +69,13 @@ public class  User {
         return minors;
     }
 
+    public Schedule getSchedule(){
+        return schedule;
+    }
+
+    public void saveSchedule(){}
+    public void loadSchedule(){}
+}
     /**
      *  Saves the User's schedule to a text file that can be loaded later
      */
