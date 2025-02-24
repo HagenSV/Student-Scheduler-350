@@ -9,6 +9,10 @@ public class Schedule {
         courses = new ArrayList<>();
     }
 
+    public Schedule(ArrayList<Course> courses) {
+        this.courses = courses;
+    }
+
     public Schedule(String searchQueries) {
 
     }

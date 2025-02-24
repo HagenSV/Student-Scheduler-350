@@ -13,7 +13,7 @@ public class Course {
     private boolean isOpen;
     private boolean[] daysMeet;
     private URL rateMyProfessorLink;
-    public Course(String name, int[] startTime, int[] duration, boolean isOpen, ArrayList<String> professors, boolean MWForTR, boolean[] daysMeet) {
+    public Course(String name, int[] startTime, int[] duration, boolean isOpen, ArrayList<String> professors, boolean MWForTR, boolean[] daysMeet, URL rateMyProfessorLink) {
         this.name = name;
         this.startTime = startTime;
         this.duration = duration;
@@ -21,10 +21,15 @@ public class Course {
         this.professors = professors;
         this.isOpen = isOpen;
         this.daysMeet = daysMeet;
+        this.rateMyProfessorLink = rateMyProfessorLink;
     }
 
-    public URL getRateMyProfessorLink(){return null;}
-    public void setRateMyProfessorLink(){}
+    public URL getRateMyProfessorLink(){
+        return rateMyProfessorLink;
+    }
+    public void setRateMyProfessorLink(URL newLink){
+        rateMyProfessorLink = newLink;
+    }
 
     public String getName() {
         return name;
