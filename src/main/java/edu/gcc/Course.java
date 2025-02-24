@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 public class Course {
     private String name;
-
+    // I hate this
     private String description;
     private int[] startTime;
     private boolean MWForTR;
