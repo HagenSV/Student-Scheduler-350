@@ -40,6 +40,10 @@ public class  User {
         return minors;
     }
 
+    public Schedule getSchedule(){
+        return schedule;
+    }
+
     public void saveSchedule(){}
     public void loadSchedule(){}
 }
