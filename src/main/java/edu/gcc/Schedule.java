@@ -17,6 +17,11 @@ public class Schedule {
 
     }
 
+    /**
+     * Adds a specified course to the schedule
+     * @param course the course to be added
+     * @return whether the course was added successfully false if it conflicts with the other courses in the schedule
+     */
     public boolean addCourse(Course course) {
         courses.add(course);
         if (!this.getConflicts().isEmpty()) {
@@ -26,6 +31,11 @@ public class Schedule {
         return true;
     }
 
+    /**
+     * Removes the specified course from the schedule
+     * @param course the course to be removed
+     * @return whether the course was successfully removed, false if it did not exist in the schedule
+     */
     public boolean removeCourse(Course course) {
         return courses.remove(course);
     }
