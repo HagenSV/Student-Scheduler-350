@@ -1,6 +1,10 @@
 package edu.gcc;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 public class  User {
     private String username;
@@ -20,6 +24,12 @@ public class  User {
         this.completedCourses = completedCourses;
     }
 
+    /**
+     * Adds a major to the list of User majors
+     * @param major name of the major
+     * @param joiningYear the year that the major was added to the User
+     * @return whether adding the major was successful, false if already added
+     */
     public boolean addMajor(String major, int joiningYear) {
         if (majors.contains(major))
             return false;
@@ -27,9 +37,22 @@ public class  User {
         yearJoinedMajor = joiningYear;
         return true;
     }
+
+    /**
+     * Removes the specified major from the User
+     * @param major the major to remove
+     * @return whether removing the major was successful, false it does not exist
+     */
     public boolean removeMajor(String major) {
         return majors.remove(major);
     }
+
+    /**
+     * Adds a minor to the list of User minors
+     * @param minor name of the minor
+     * @param joiningYear the year that the major was added to the User
+     * @return whether adding the minor was successful, false if already added
+     */
     public boolean addMinor(String minor, int joiningYear) {
         if (minors.contains(minor))
             return false;
@@ -37,13 +60,21 @@ public class  User {
         yearJoinedMinor = joiningYear;
         return true;
     }
-    public boolean addMinor(String minor, int joiningYear){return false;}
-    public boolean removeMinor(String minor){return false;}
 
+    /**
+     * Removes the specified minor from the User
+     * @param minor the minor to remove
+     * @return whether removal was successful, false if does not exist
+     */
     public boolean removeMinor(String minor){
         return minors.remove(minor);
     }
 
+    /**
+     * Updates the user schedule if the candidate schedule has no conflicts
+     * @param schedule the updated schedule
+     * @return whether it was updated successfully, false if there is a conflict with the new schedule
+     */
     public boolean updateSchedule(Schedule schedule) {
         if (!schedule.getConflicts().isEmpty())
             return false;
@@ -73,9 +104,6 @@ public class  User {
         return schedule;
     }
 
-    public void saveSchedule(){}
-    public void loadSchedule(){}
-}
     /**
      *  Saves the User's schedule to a text file that can be loaded later
      */
@@ -97,18 +125,9 @@ public class  User {
                 }
                 stringBuilder.append(" ");
 
-                // Add MWForTR
+                // Add MWForTR and duration
                 stringBuilder.append(c.getMWForTR()).append(" ");
-
-                // Add duration, durations separated by ,
-                int[] duration = c.getDuration();
-                stringBuilder.append(duration.length).append(",");
-                for (int i = 0; i < startTime.length; i++) {
-                    if (i > 0)
-                        stringBuilder.append(",");
-                    stringBuilder.append(duration[i]);
-                }
-                stringBuilder.append(" ");
+                stringBuilder.append(c.getDuration()).append(" ");
 
                 // Add professors, professors separated by ,
                 for (int i = 0; i < c.getProfessor().size(); i++) {
@@ -130,8 +149,13 @@ public class  User {
                 }
                 stringBuilder.append(" ");
 
-                // Add rate my professor link
-                stringBuilder.append(c.getRateMyProfessorLink());
+                // Add department, courseCode, credits, numSeats, section and isLab
+                stringBuilder.append(c.getDepartment()).append(" ");
+                stringBuilder.append(c.getCourseCode()).append(" ");
+                stringBuilder.append(c.getCredits()).append(" ");
+                stringBuilder.append(c.getNumSeats()).append(" ");
+                stringBuilder.append(c.getSection()).append(" ");
+                stringBuilder.append(c.getIsLab()).append(" ");
 
                 // Finally write course into line
                 writer.println(stringBuilder);
@@ -158,7 +182,6 @@ public class  User {
 
                     // Loads the name and description
                     String name = byEntry.next();
-                    String description = byEntry.next();
 
                     // Loads the startTime array
                     String timeString = byEntry.next();
@@ -169,17 +192,9 @@ public class  User {
                     for (int i = 0; i < startTimeSize; i++)
                         startTime[i] = Integer.parseInt(parseTime.next());
 
-                    // Loads MWForTR
+                    // Loads MWForTR and duration
                     boolean MWForTR = Boolean.parseBoolean(byEntry.next());
-
-                    // Loads the duration
-                    String durationString = byEntry.next();
-                    Scanner parseDuration = new Scanner(durationString);
-                    parseDuration.useDelimiter(",");
-                    int durationSize = Integer.parseInt(parseDuration.next());
-                    int[] duration = new int[durationSize];
-                    for (int i = 0; i < durationSize; i++)
-                        duration[i] = Integer.parseInt(parseDuration.next());
+                    int duration = Integer.parseInt(byEntry.next());
 
                     // Loads the Professors
                     ArrayList<String> professors = new ArrayList<>();
@@ -198,12 +213,19 @@ public class  User {
                     for (int i = 0; i < 7; i++) {
                         if (daysMeetString.charAt(i) == 'T')
                             daysMeet[i] = true;
+                        else
+                            daysMeet[i] = false;
                     }
 
-                    // Loads RateMyProfessor link
-                    URL rateMyProfessorLink = new URL(byEntry.next());
+                    // Loads department, courseCode, credits, numSeats, section, and isLab
+                    String department = byEntry.next();
+                    String courseCode = byEntry.next();
+                    int credits = Integer.parseInt(byEntry.next());
+                    int numSeats = Integer.parseInt(byEntry.next());
+                    String section = byEntry.next();
+                    boolean isLab = Boolean.parseBoolean(byEntry.next());
 
-                    courses.add(new Course(name, startTime, duration, isOpen, professors, MWForTR, daysMeet, rateMyProfessorLink));
+                    courses.add(new Course(name, startTime, duration, isOpen, professors, MWForTR, daysMeet, department, courseCode, credits, numSeats, section, isLab));
                 }
                 schedule = new Schedule(courses);
             } catch (Exception e) {
