@@ -1,6 +1,7 @@
 package edu.gcc;
 
 import java.util.ArrayList;
+import java.util.Scanner;
 
 public class Schedule {
     private ArrayList<Course> courses;
@@ -13,8 +14,39 @@ public class Schedule {
         this.courses = courses;
     }
 
-    public Schedule(String searchQueries) {
+    /**
+     * Constructs a schedule based on a series of searchQueries, all classes separated by whitespace
+     * @param searchQueries
+     */
+    public Schedule(String[] searchQueries) {
+        ArrayList<Course> generatedSchedule = new ArrayList<>();
+        ArrayList<ArrayList<Integer>> courseDomains = new ArrayList<>();
+        ArrayList<Course> foundCourses = new ArrayList<>();
 
+        // Generate a 2d arraylist of all the searched courses start times
+        for (String courseCode: searchQueries) {
+            // TODO get courses by course code
+            foundCourses.add(null);
+            // TODO add ArrayList of course start times to get course
+            courseDomains.add(null);
+        }
+
+        // Call backtracking search, if domains not found, courses are null
+        courseDomains = backtrack(courseDomains, 0);
+        if (courseDomains == null) {
+            this.courses = null;
+            return;
+        }
+
+        // Domain found in backtracking search return schedule with the start times found
+        for (int i = 0; i < foundCourses.size(); i++) {
+            // Todo add courses by their code and start time to generatedSchedule
+        }
+        this.courses = generatedSchedule;
+    }
+
+    public ArrayList<ArrayList<Integer>> backtrack(ArrayList<ArrayList<Integer>> courseDomains, int nextVarToAssign) {
+        return null;
     }
 
     /**
