@@ -81,11 +81,12 @@ public class Main {
                             boolean timeFilled = false;
                             for (Course c : currentUser.getSchedule().getCourses()){
                                 int startTime = c.getStartTime()[j];
-                                if (startTime >= currentTime && startTime+c.getDuration()[j] <= currentTime){
+                                if (startTime >= currentTime && startTime+c.getDuration() <= currentTime){
                                     //TODO get and display course dept and code
-                                    //System.out.print(c.getDept());
-                                    //System.out.print(c.getCode());
-                                    //System.out.print(c.getSection());
+                                    System.out.print(c.getDepartment());
+                                    System.out.print(c.getCourseCode());
+                                    System.out.print(c.getSection());
+                                    System.out.print("|");
                                     timeFilled = true;
                                 }
                             }
