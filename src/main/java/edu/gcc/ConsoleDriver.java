@@ -159,11 +159,29 @@ public class ConsoleDriver {
             System.out.println("Proper usage: add <course_id>");
             return;
         }
+
+        boolean replace = options.length >= 3 && options[2].equalsIgnoreCase("replace");
+
         try {
+            Schedule schedule = currentUser.getSchedule();
             int cid = Integer.parseInt(options[1]);
             Course add = getCourse(cid);
             if (add == null){ return; }
-            currentUser.getSchedule().addCourse(add);
+            boolean added = schedule.addCourse(add);
+            if (!added && replace){
+                //List<Course> conflicts = schedule.getConflicts(add);
+                //for (Course c : conflicts){
+                //    schedule.removeCourse();
+                //}
+                //added = schedule.addCourse(add);
+                //if (!added){
+                //  System.out.println("An unknown error occurred");
+                //}
+            } else if (!added) {
+                System.out.println("Failed to add course to schedule");
+                System.out.println("Time conflict(s) with: <classes>");
+                System.out.printf("Run 'add %s replace' to remove conflicts and add course",options[1]);
+            }
             currentUser.saveSchedule();
         } catch (NumberFormatException e){
             System.out.printf("Error: %s is not a number\n",options[1]);
