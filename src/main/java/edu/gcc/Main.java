@@ -1,5 +1,8 @@
 package edu.gcc;
 
+import edu.gcc.webserver.WebServer;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -9,6 +12,11 @@ public class Main {
     private static Search search;
     private static final ArrayList<Course> courses = new ArrayList<>();
     public static void main(String[] args) {
+        try {
+            new WebServer();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         run();
     }
     public static void run() {
