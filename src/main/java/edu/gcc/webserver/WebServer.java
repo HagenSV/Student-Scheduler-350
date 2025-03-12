@@ -20,6 +20,7 @@ public class WebServer {
         server.setExecutor(threadPool);
         server.start();
 
-        server.createContext("/",new FileRequest(new File("server/test.txt")));
+        server.createContext("/",new FileRequest(new File("server/index.html")));
+        server.createContext("/static/",new DirectoryRequest(new File("server/static"),"/static/"));
     }
 }
