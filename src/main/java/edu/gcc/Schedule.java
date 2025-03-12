@@ -87,10 +87,8 @@ public class Schedule {
     public ArrayList<Course> getConflicts(Course course) {
         ArrayList<Course> conflicts = new ArrayList<>();
         for (Course c : courses) {
-            for (Course other: courses)
-                if (!c.getName().equals(other.getName()) && c.hasConflict(other)) {
+                if (c.hasConflict(course)) {
                     conflicts.add(c);
-                    break;
                 }
         }
         return conflicts;
