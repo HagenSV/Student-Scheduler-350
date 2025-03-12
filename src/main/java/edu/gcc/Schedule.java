@@ -1,6 +1,8 @@
 package edu.gcc;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 public class Schedule {
@@ -20,32 +22,33 @@ public class Schedule {
      */
     public Schedule(String[] searchQueries) {
         ArrayList<Course> generatedSchedule = new ArrayList<>();
-        ArrayList<ArrayList<Integer>> courseDomains = new ArrayList<>();
+        Map<String, ArrayList<Course>>  domains = new HashMap<>();
         ArrayList<Course> foundCourses = Main.courses;
 
         // Generate a 2d arraylist of all the searched courses start times
         for (String courseCode: searchQueries) {
+            String[] queries = courseCode.split(" ");
+            for (Course c: foundCourses) {
+                if (c.getDepartment().equals(queries[0]) &&
+                        c.getCourseCode().equals(queries[1]))
+                            if (domains.get(courseCode) == null) {
+                                ArrayList<Course> entry = new ArrayList<>();
+                                entry.add(c);
+                                domains.put(courseCode, entry);
+                            } else
+                                domains.get(courseCode).add(c);
+            }
             // TODO get courses by course code
             foundCourses.add(null);
             // TODO add ArrayList of course start times to get course
-            courseDomains.add(null);
         }
 
         // Call backtracking search, if domains not found, courses are null
-        courseDomains = backtrack(courseDomains, 0);
-        if (courseDomains == null) {
-            this.courses = null;
-            return;
-        }
-
-        // Domain found in backtracking search return schedule with the start times found
-        for (int i = 0; i < foundCourses.size(); i++) {
-            // Todo add courses by their code and start time to generatedSchedule
-        }
+        generatedSchedule = backtrack(domains, 0);
         this.courses = generatedSchedule;
     }
 
-    public ArrayList<ArrayList<Integer>> backtrack(ArrayList<ArrayList<Integer>> courseDomains, int nextVarToAssign) {
+    public ArrayList<Course> backtrack(Map<String, ArrayList<Course>> domains, int nextVarToAssign) {
         return null;
     }
 
