@@ -112,7 +112,7 @@ public class ConsoleDriver {
      * @param options
      */
     private static void listCourses(String[] options){
-        Course[] enrolled = currentUser.getSchedule().getCourses();
+        List<Course> enrolled = currentUser.getSchedule().getCourses();
         for (Course c : enrolled){
             //Needs to string defined
             System.out.println(c);
@@ -169,14 +169,14 @@ public class ConsoleDriver {
             if (add == null){ return; }
             boolean added = schedule.addCourse(add);
             if (!added && replace){
-                //List<Course> conflicts = schedule.getConflicts(add);
-                //for (Course c : conflicts){
-                //    schedule.removeCourse();
-                //}
-                //added = schedule.addCourse(add);
-                //if (!added){
-                //  System.out.println("An unknown error occurred");
-                //}
+                List<Course> conflicts = schedule.getConflicts(add);
+                for (Course c : conflicts){
+                    schedule.removeCourse(c);
+                }
+                added = schedule.addCourse(add);
+                if (!added){
+                  System.out.println("An unknown error occurred");
+                }
             } else if (!added) {
                 System.out.println("Failed to add course to schedule");
                 System.out.println("Time conflict(s) with: <classes>");
