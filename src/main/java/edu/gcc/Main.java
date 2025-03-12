@@ -7,7 +7,7 @@ public class Main {
 
     private static final ArrayList<User> users = new ArrayList<>();
     private static Search search;
-    private static final ArrayList<Course> courses = new ArrayList<>();
+    protected static final ArrayList<Course> courses = new ArrayList<>();
     public static void main(String[] args) {
         run();
     }
@@ -64,7 +64,7 @@ public class Main {
                     break;
                 case "list":
                     //Prints a list of the classes the user is in
-                    Course[] enrolled = currentUser.getSchedule().getCourses();
+                    ArrayList<Course> enrolled = currentUser.getSchedule().getCourses();
                     for (Course c : enrolled){
                         //Needs to string defined
                         System.out.println(c);
@@ -81,7 +81,7 @@ public class Main {
                             boolean timeFilled = false;
                             for (Course c : currentUser.getSchedule().getCourses()){
                                 int startTime = c.getStartTime()[j];
-                                if (startTime >= currentTime && startTime+c.getDuration()[j] <= currentTime){
+                                if (startTime >= currentTime && startTime+c.getDuration() <= currentTime){
                                     //TODO get and display course dept and code
                                     //System.out.print(c.getDept());
                                     //System.out.print(c.getCode());
