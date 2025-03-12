@@ -9,7 +9,7 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class GetCoursesTest {
+class CourseTest {
 
     private static final String TEST_JSON_FILE = "test_data.json";
 
