@@ -135,7 +135,6 @@ public class ConsoleDriver {
                 for (Course c : currentUser.getSchedule().getCourses()){
                     int startTime = c.getStartTime()[j];
                     if (startTime >= currentTime && startTime+c.getDuration() <= currentTime){
-                        //TODO get and display course dept and code
                         System.out.print(c.getDepartment());
                         System.out.print(c.getCourseCode());
                         System.out.print(c.getSection());
