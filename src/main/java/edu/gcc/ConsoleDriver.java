@@ -10,19 +10,16 @@ public class ConsoleDriver {
     private static User currentUser = null;
 
     //TODO: getUsers()
-    public static List<User> getUsers(){
+    private static List<User> getUsers(){
         return new ArrayList<>();
     }
 
-    public static void addUser(User u){
+    //TODO: add user to list
+    private static void addUser(User u){}
 
+    private static Course getCourse(int courseId){
+        return Main.courses.get(courseId);
     }
-
-    public static Course getCourse(int courseId){
-        return null;
-    }
-
-    //TODO: getCourse(id)
 
     public static void run() {
         String cmd = "";
@@ -64,7 +61,7 @@ public class ConsoleDriver {
                 case "help":
                     help(input);
                     break;
-                case "list":
+                case "courses":
                     listCourses(input);
                     break;
                 case "calendar":
@@ -114,6 +111,9 @@ public class ConsoleDriver {
      */
     private static void listCourses(String[] options){
         List<Course> enrolled = currentUser.getSchedule().getCourses();
+        if (enrolled.isEmpty()){
+            System.out.println("You are not enrolled in any courses");
+        }
         for (Course c : enrolled){
             //Needs to string defined
             System.out.println(c);
@@ -134,8 +134,10 @@ public class ConsoleDriver {
                 boolean timeFilled = false;
                 for (Course c : currentUser.getSchedule().getCourses()){
                     int startTime = c.getStartTime()[j];
-                    if (startTime >= currentTime && startTime+c.getDuration() <= currentTime){
+                    if (startTime == -1){ continue; }
+                    if (startTime <= currentTime && startTime+c.getDuration() >= currentTime){
                         System.out.print(c.getDepartment());
+                        System.out.print(" ");
                         System.out.print(c.getCourseCode());
                         System.out.print(c.getSection());
                         System.out.print("|");
