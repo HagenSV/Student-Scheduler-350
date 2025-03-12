@@ -5,7 +5,6 @@ import java.util.ArrayList;
 
 public class Course {
     private String name;
-
     private String description;
     private int[] startTime;
     private boolean MWForTR;
@@ -65,6 +64,7 @@ public class Course {
     public ArrayList<String> getProfessor() {
         return professors;
     }
+    public boolean getIsLab() { return isLab; }
     public boolean hasConflict(Course course){
         return false;
     }
