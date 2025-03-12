@@ -94,7 +94,8 @@ public class ConsoleDriver {
      * @param options
      */
     private static void help(String[] options){
-        System.out.println("  add <id> - adds class to schedule");
+        System.out.println("  add <id> - adds class to schedule if there are no schedule conflicts");
+        System.out.println("  add <id> replace - adds class to schedule removing any courses with schedule conflicts");
         System.out.println("  remove <id> - removes class from schedule");
         System.out.println("  courses - display list of users classes");
         System.out.println("  calendar - display schedule as calendar");
