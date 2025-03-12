@@ -18,11 +18,13 @@ public class Main {
     private static Search search;
     private static final ArrayList<Course> courses = new ArrayList<>();
     private User[] user;
-    private Search search;
-    private static ArrayList<Course> courses = new ArrayList<>();
+
 
     public static void main(String[] args) {
         getCourses();
+        for(Course c : courses){
+            System.out.println(c.toString());
+        }
         // run();
     }
 
@@ -96,7 +98,7 @@ public class Main {
                             boolean timeFilled = false;
                             for (Course c : currentUser.getSchedule().getCourses()){
                                 int startTime = c.getStartTime()[j];
-                                if (startTime >= currentTime && startTime+c.getDuration()[j] <= currentTime){
+                                if (startTime >= currentTime && startTime+c.getDuration() <= currentTime){
                                     //TODO get and display course dept and code
                                     //System.out.print(c.getDept());
                                     //System.out.print(c.getCode());
