@@ -56,7 +56,7 @@ public class Schedule {
      */
     public boolean addCourse(Course course) {
         courses.add(course);
-        if (!this.getConflicts().isEmpty()) {
+        if (!this.getConflicts(course).isEmpty()) {
             courses.remove(course);
             return false;
         }
@@ -84,13 +84,11 @@ public class Schedule {
      *
      * @return arraylist of courses that conflict
      */
-    public ArrayList<Course> getConflicts() {
+    public ArrayList<Course> getConflicts(Course course) {
         ArrayList<Course> conflicts = new ArrayList<>();
         for (Course c : courses) {
-            for (Course other: courses)
-                if (!c.getName().equals(other.getName()) && c.hasConflict(other)) {
+                if (c.hasConflict(course)) {
                     conflicts.add(c);
-                    break;
                 }
         }
         return conflicts;

@@ -6,7 +6,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-public class  User {
+public class User {
     private String username;
     private String password;
     private ArrayList<String> majors;
@@ -71,15 +71,11 @@ public class  User {
     }
 
     /**
-     * Updates the user schedule if the candidate schedule has no conflicts
+     * Updates the user schedule to the one provided
      * @param schedule the updated schedule
-     * @return whether it was updated successfully, false if there is a conflict with the new schedule
      */
-    public boolean updateSchedule(Schedule schedule) {
-        if (!schedule.getConflicts().isEmpty())
-            return false;
+    public void updateSchedule(Schedule schedule) {
         this.schedule = schedule;
-        return true;
     }
 
     public void changePassword(String newPassword) {
