@@ -15,9 +15,10 @@ public class Main {
     private static final ArrayList<User> users = new ArrayList<>();
     private static Search search;
     protected static final ArrayList<Course> courses = new ArrayList<>();
+
     public static void main(String[] args) {
         getCourses();
-        for(Course c : courses){
+        for (Course c : courses) {
             System.out.println(c.toString());
         }
         ConsoleDriver.run();
@@ -102,7 +103,7 @@ public class Main {
                 section = course.get("section").getAsString(); // Gets the section.
                 isLab = course.get("is_lab").getAsBoolean(); // Gets the lab status.
 
-                if(isOpen){ // Check if the course is open.
+                if (isOpen) { // Check if the course is open.
                     courses.add(new Course(name, startingTimes, duration, isOpen, professors, MWForTR, daysMeet, department, courseCode, credits, numSeats, section, isLab)); // Create and add the Course object to the list.
                 }
 
@@ -127,3 +128,5 @@ public class Main {
 
         return (hours - 8) * 60 + min; // Calculates and returns the total minutes from 8:00 AM.
     }
+
+}
