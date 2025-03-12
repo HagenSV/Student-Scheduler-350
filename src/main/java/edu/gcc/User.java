@@ -100,6 +100,10 @@ public class User {
         return schedule;
     }
 
+    public boolean passwordAttempt(String password) {
+        return this.password.equals(password);
+    }
+
     /**
      *  Saves the User's schedule to a text file that can be loaded later
      */
@@ -109,7 +113,7 @@ public class User {
             for (Course c: schedule.getCourses()) {
 
                 // Add Name
-                stringBuilder.append(c.getName()).append(" ");
+                stringBuilder.append(c.getName()).append("_");
 
                 // Add StartTime array, times separated by ,
                 int[] startTime = c.getStartTime();
@@ -119,11 +123,11 @@ public class User {
                         stringBuilder.append(",");
                     stringBuilder.append(startTime[i]);
                 }
-                stringBuilder.append(" ");
+                stringBuilder.append("_");
 
                 // Add MWForTR and duration
-                stringBuilder.append(c.getMWForTR()).append(" ");
-                stringBuilder.append(c.getDuration()).append(" ");
+                stringBuilder.append(c.getMWForTR()).append("_");
+                stringBuilder.append(c.getDuration()).append("_");
 
                 // Add professors, professors separated by ,
                 for (int i = 0; i < c.getProfessor().size(); i++) {
@@ -131,9 +135,10 @@ public class User {
                         stringBuilder.append(",");
                     stringBuilder.append(c.getProfessor().get(i));
                 }
+                stringBuilder.append("_");
 
                 // Add isOpen
-                stringBuilder.append(c.getIsOpen()).append(" ");
+                stringBuilder.append(c.getIsOpen()).append("_");
 
                 // Add daysMeet
                 boolean[] daysMeet = c.getDaysMeet();
@@ -143,15 +148,15 @@ public class User {
                     else
                         stringBuilder.append("F");
                 }
-                stringBuilder.append(" ");
+                stringBuilder.append("_");
 
                 // Add department, courseCode, credits, numSeats, section and isLab
-                stringBuilder.append(c.getDepartment()).append(" ");
-                stringBuilder.append(c.getCourseCode()).append(" ");
-                stringBuilder.append(c.getCredits()).append(" ");
-                stringBuilder.append(c.getNumSeats()).append(" ");
-                stringBuilder.append(c.getSection()).append(" ");
-                stringBuilder.append(c.getIsLab()).append(" ");
+                stringBuilder.append(c.getDepartment()).append("_");
+                stringBuilder.append(c.getCourseCode()).append("_");
+                stringBuilder.append(c.getCredits()).append("_");
+                stringBuilder.append(c.getNumSeats()).append("_");
+                stringBuilder.append(c.getSection()).append("_");
+                stringBuilder.append(c.getIsLab());
 
                 // Finally write course into line
                 writer.println(stringBuilder);
@@ -172,9 +177,10 @@ public class User {
                 Scanner byLine = new Scanner(file);
 
                 // Every line adds a new course to courses
-                while (byLine.hasNext()) {
-                    String line = byLine.next();
+                while (byLine.hasNextLine()) {
+                    String line = byLine.nextLine();
                     Scanner byEntry = new Scanner(line);
+                    byEntry.useDelimiter("_");
 
                     // Loads the name and description
                     String name = byEntry.next();
@@ -205,8 +211,8 @@ public class User {
 
                     // Loads daysMeet
                     String daysMeetString = byEntry.next();
-                    boolean[] daysMeet = new boolean[7];
-                    for (int i = 0; i < 7; i++) {
+                    boolean[] daysMeet = new boolean[5];
+                    for (int i = 0; i < 5; i++) {
                         if (daysMeetString.charAt(i) == 'T')
                             daysMeet[i] = true;
                         else

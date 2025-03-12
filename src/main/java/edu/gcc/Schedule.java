@@ -21,7 +21,7 @@ public class Schedule {
     public Schedule(String[] searchQueries) {
         ArrayList<Course> generatedSchedule = new ArrayList<>();
         ArrayList<ArrayList<Integer>> courseDomains = new ArrayList<>();
-        ArrayList<Course> foundCourses = new ArrayList<>();
+        ArrayList<Course> foundCourses = Main.courses;
 
         // Generate a 2d arraylist of all the searched courses start times
         for (String courseCode: searchQueries) {
