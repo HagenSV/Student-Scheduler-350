@@ -19,12 +19,12 @@ public class Main {
     private User[] user;
     protected static final ArrayList<Course> courses = new ArrayList<>();
 
-    protected static final ArrayList<Course> courses = new ArrayList<>();
     public static void main(String[] args) {
         getCourses();
         for(Course c : courses){
             System.out.println(c.toString());
         }
+
         // run();
     }
 

@@ -65,7 +65,6 @@ public class Course {
     public ArrayList<String> getProfessor() {
         return professors;
     }
-    public boolean getIsLab() { return isLab; }
     public boolean hasConflict(Course course){
         return false;
     }
