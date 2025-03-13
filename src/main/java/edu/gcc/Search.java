@@ -369,7 +369,7 @@ public class Search {
 
     public void searchByProfessor(String query) {
         for (String s : listProf)   {
-            if (query.contains(s.toLowerCase()))    {
+            if (query.contains(s.toLowerCase()) && !s.equals(""))    {
                 setDesiredProfesor(s);
                 break;
             }
