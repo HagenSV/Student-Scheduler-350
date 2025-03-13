@@ -118,7 +118,6 @@ public class User {
 
                 // Add StartTime array, times separated by ,
                 int[] startTime = c.getStartTime();
-                stringBuilder.append(startTime.length).append(",");
                 for (int i = 0; i < startTime.length; i++) {
                     if (i > 0)
                         stringBuilder.append(",");
@@ -190,9 +189,8 @@ public class User {
                     String timeString = byEntry.next();
                     Scanner parseTime = new Scanner(timeString);
                     parseTime.useDelimiter(",");
-                    int startTimeSize = Integer.parseInt(parseTime.next());
-                    int[] startTime = new int[startTimeSize];
-                    for (int i = 0; i < startTimeSize; i++)
+                    int[] startTime = new int[5];
+                    for (int i = 0; i < 5; i++)
                         startTime[i] = Integer.parseInt(parseTime.next());
 
                     // Loads MWForTR and duration
