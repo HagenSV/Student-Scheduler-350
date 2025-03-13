@@ -1,5 +1,6 @@
 package edu.gcc;
 
+import javax.sound.midi.Soundbank;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -8,6 +9,8 @@ public class ConsoleDriver {
 
     private static final Scanner s = new Scanner(System.in);
     private static User currentUser = null;
+    private static Search search = null;
+    private static final int RESULTS_PER_PAGE = 5;
 
     //TODO: getUsers()
     private static List<User> getUsers(){
@@ -70,6 +73,10 @@ public class ConsoleDriver {
                 case "search":
                     search(input);
                     break;
+                case "results":
+                case "page":
+                    results(input);
+                    break;
                 case "add":
                     addCourse(input);
                     break;
@@ -97,12 +104,54 @@ public class ConsoleDriver {
         System.out.println("  courses - display list of users classes");
         System.out.println("  calendar - display schedule as calendar");
         System.out.println("  search - search for classes");
+        System.out.println("  results - view page of search results");
         System.out.println("  exit - exits the program");
     }
 
     private static void search(String[] options){
-        //TODO: implement this when search is working
-        System.out.println("Not implemented");
+        StringBuilder query = new StringBuilder();
+        for (int i = 1; i < options.length; i++){
+            query.append(options[i]);
+            query.append(" ");
+        }
+
+        search = new Search(query.toString());
+        search.search();
+        results(new String[]{"results","1"});
+    }
+
+    public static void results(String[] options){
+        int page;
+        if (options.length < 2){
+            System.out.println("Proper Usage: results <page>");
+            return;
+        }
+        if (search == null){
+            System.out.println("Please search for courses first");
+            return;
+        }
+        try {
+            page = Integer.parseInt(options[1]);
+        } catch (NumberFormatException e){
+            System.out.printf("Error: %s is not a number\n",options[1]);
+            return;
+        }
+        if (page <= 0){
+            System.out.println("Page cannot be less than 0!");
+            return;
+        }
+        List<Course> results = search.getResult();
+        if ((page-1)*RESULTS_PER_PAGE >= results.size()){
+            System.out.println("Page does not exist");
+            return;
+        }
+        int startIdx = (page-1)*RESULTS_PER_PAGE;
+        int endIdx = Math.min(page*RESULTS_PER_PAGE,results.size());
+        for (int i = startIdx; i < endIdx; i++){
+            System.out.println(results.get(i));
+        }
+        System.out.printf("Page %d of %d (%d results)\n",page,(results.size()+RESULTS_PER_PAGE-1)/RESULTS_PER_PAGE,results.size());
+        System.out.println("Use command: 'results <page#>' to change page");
     }
 
     /**
