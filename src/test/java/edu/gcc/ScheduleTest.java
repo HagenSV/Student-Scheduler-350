@@ -18,40 +18,34 @@ class ScheduleTest {
 
     @BeforeEach
     void setUp() {
-        // Initialize a fresh Schedule object before each test
         schedule = new Schedule();
 
-        // Create sample courses for testing
         ArrayList<String> professors1 = new ArrayList<>();
         professors1.add("Dr. Hutchins");
-        boolean[] daysMeet1 = {true, false, true, false, true};
-        course1 = new Course("Intro to Programming", new int[]{0}, 50, true,
+        boolean[] daysMeet1 = {true, false, true, false, true}; // MWF
+        int[] startTimes1 = {0, -1, 0, -1, 0}; // 8:00 AM on MWF, -1 on TR
+        course1 = new Course("Intro to Programming", startTimes1, 50, true,
                 professors1, true, daysMeet1, "COMP", "141", 3, 30, "A", false);
 
         ArrayList<String> professors2 = new ArrayList<>();
         professors2.add("Dr. Johnson");
-        boolean[] daysMeet2 = {false, true, false, true, false};
-        course2 = new Course("Programming II", new int[]{60}, 50, true,
+        boolean[] daysMeet2 = {false, true, false, true, false}; // TR
+        int[] startTimes2 = {-1, 60, -1, 60, -1}; // 9:00 AM on TR, -1 on MWF
+        course2 = new Course("Programming II", startTimes2, 50, true,
                 professors2, false, daysMeet2, "COMP", "220", 3, 25, "B", false);
     }
 
     @Test
     void addCourse() {
-        // Test adding a course successfully
         boolean result = schedule.addCourse(course1);
         assertTrue(result, "Course should be added successfully");
         assertEquals(1, schedule.getCourses().size(), "Schedule should contain 1 course");
         assertTrue(schedule.getCourses().contains(course1), "Schedule should contain course1");
 
-        // Test adding a conflicting course (mock conflict)
-        Course conflictingCourse = new Course("Conflict Course", new int[]{0}, 50, true,
+        Course conflictingCourse = new Course("Conflict Course",
+                new int[]{0, -1, 0, -1, 0}, 50, true, // 8:00-8:50 AM on MWF
                 new ArrayList<>(), true, new boolean[]{true, false, true, false, true},
-                "CS", "102", 3, 20, "C", false) {
-            @Override
-            public boolean hasConflict(Course course) {
-                return true; // Force conflict
-            }
-        };
+                "CS", "102", 3, 20, "C", false);
         result = schedule.addCourse(conflictingCourse);
         assertFalse(result, "Conflicting course should not be added");
         assertEquals(1, schedule.getCourses().size(), "Schedule should still contain only 1 course");
@@ -60,15 +54,11 @@ class ScheduleTest {
 
     @Test
     void removeCourse() {
-        // Add a course first
         schedule.addCourse(course1);
-
-        // Test removing an existing course
         boolean result = schedule.removeCourse(course1);
         assertTrue(result, "Course should be removed successfully");
         assertTrue(schedule.getCourses().isEmpty(), "Schedule should be empty after removal");
 
-        // Test removing a non-existent course
         result = schedule.removeCourse(course2);
         assertFalse(result, "Removing non-existent course should return false");
         assertTrue(schedule.getCourses().isEmpty(), "Schedule should remain empty");
@@ -76,12 +66,10 @@ class ScheduleTest {
 
     @Test
     void getCourses() {
-        // Test empty schedule
         ArrayList<Course> courses = schedule.getCourses();
         assertNotNull(courses, "getCourses should never return null");
         assertTrue(courses.isEmpty(), "New schedule should have no courses");
 
-        // Add courses and test
         schedule.addCourse(course1);
         schedule.addCourse(course2);
         courses = schedule.getCourses();
@@ -92,23 +80,20 @@ class ScheduleTest {
 
     @Test
     void getConflicts() {
-        // Test with no conflicts (default hasConflict returns false)
-        schedule.addCourse(course1);
-        schedule.addCourse(course2);
+        schedule.addCourse(course1); // 8:00-8:50 AM, MWF
+        schedule.addCourse(course2); // 9:00-9:50 AM, TR
         ArrayList<Course> conflicts = schedule.getConflicts(course1);
-        assertTrue(conflicts.isEmpty(), "No conflicts should be found with default hasConflict");
+        assertTrue(conflicts.isEmpty(), "No conflicts between MWF 8:00-8:50 and TR 9:00-9:50");
 
-        // Test with a conflicting course
-        Course conflictingCourse = new Course("Conflict Course", new int[]{0}, 50, true,
+        Course conflictingCourse = new Course("Conflict Course",
+                new int[]{0, -1, 0, -1, 0}, 50, true, // 8:00-8:50 AM on MWF
                 new ArrayList<>(), true, new boolean[]{true, false, true, false, true},
-                "CS", "102", 3, 20, "C", false) {
-        };
-        schedule.addCourse(conflictingCourse);
+                "CS", "102", 3, 20, "C", false);
+        schedule.getCourses().add(conflictingCourse); // Force add
         conflicts = schedule.getConflicts(course1);
-        assertEquals(1, conflicts.size(), "Should find 1 conflicting course");
+        assertEquals(1, conflicts.size(), "Should find 1 conflict (8:00-8:50 AM MWF vs same)");
         assertTrue(conflicts.contains(conflictingCourse), "Conflicts should include conflictingCourse");
 
-        // Test with no courses
         Schedule emptySchedule = new Schedule();
         conflicts = emptySchedule.getConflicts(course1);
         assertTrue(conflicts.isEmpty(), "Empty schedule should have no conflicts");

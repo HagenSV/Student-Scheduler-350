@@ -65,8 +65,34 @@ public class Course {
     public ArrayList<String> getProfessor() {
         return professors;
     }
-    public boolean hasConflict(Course course){
-        return false;
+
+    /**
+     * Checks if courses conflict with each other
+     * Generated using Grok AI
+     * @param other Course to check if it conflicts
+     * @return boolean whether there is a conflict
+     */
+    public boolean hasConflict(Course other) {
+        // Check if they follow the same day pattern (MWF or TR)
+        if (this.MWForTR != other.MWForTR) {
+            return false;
+        }
+
+        // Check each day (0-4)
+        for (int i = 0; i < 5; i++) {
+            // Both must meet on this day and have valid start times
+            if (this.daysMeet[i] && other.daysMeet[i] &&
+                    this.startTime[i] != -1 && other.startTime[i] != -1) {
+                int thisStart = this.startTime[i];
+                int otherStart = other.startTime[i];
+                int thisEnd = thisStart + this.duration;
+                int otherEnd = otherStart + other.duration;
+                if (thisStart < otherEnd && otherStart < thisEnd) {
+                    return true; // Conflict found on this day
+                }
+            }
+        }
+        return false; // No conflicts found
     }
 
     @Override

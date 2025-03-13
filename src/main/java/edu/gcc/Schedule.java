@@ -1,9 +1,6 @@
 package edu.gcc;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 
 public class Schedule {
     private ArrayList<Course> courses;
@@ -21,34 +18,85 @@ public class Schedule {
      * @param searchQueries
      */
     public Schedule(String[] searchQueries) {
-        ArrayList<Course> generatedSchedule = new ArrayList<>();
-        Map<String, ArrayList<Course>>  domains = new HashMap<>();
+        ArrayList<ArrayList<Course>> domains = new ArrayList<>();
         ArrayList<Course> foundCourses = Main.courses;
 
-        // Generate a 2d arraylist of all the searched courses start times
-        for (String courseCode: searchQueries) {
-            String[] queries = courseCode.split(" ");
+        Map<String, ArrayList<Course>> courseMap = new HashMap<>();
+        for (String query: searchQueries) {
+            String[] queries = query.split(" ");
             for (Course c: foundCourses) {
-                if (c.getDepartment().equals(queries[0]) &&
-                        c.getCourseCode().equals(queries[1]))
-                            if (domains.get(courseCode) == null) {
-                                ArrayList<Course> entry = new ArrayList<>();
-                                entry.add(c);
-                                domains.put(courseCode, entry);
-                            } else
-                                domains.get(courseCode).add(c);
+                if (c.getDepartment().equals(queries[0])
+                    && c.getCourseCode().equals(queries[1])) {
+                    if (courseMap.containsKey(query))
+                        courseMap.get(query).add(c);
+                    else {
+                        ArrayList<Course> newEntry = new ArrayList<>();
+                        newEntry.add(c);
+                        courseMap.put(query, newEntry);
+                    }
+                }
             }
-            // TODO get courses by course code
-            foundCourses.add(null);
-            // TODO add ArrayList of course start times to get course
         }
+        for (String s: courseMap.keySet())
+            domains.add(courseMap.get(s));
 
         // Call backtracking search, if domains not found, courses are null
-        generatedSchedule = backtrack(domains, 0);
-        this.courses = generatedSchedule;
+        Schedule generatedSchedule;
+        generatedSchedule = backtrack(new Schedule(), domains, 0);
+        this.courses = generatedSchedule.getCourses();
     }
 
-    public ArrayList<Course> backtrack(Map<String, ArrayList<Course>> domains, int nextVarToAssign) {
+    /**
+     * Backtracking search with MRV heuristic and forward checking
+     * @param schedule schedule that is being generated
+     * @param domains domain of each Course variable
+     * @param nextVarToAssign the next variable to assign in the domain
+     * @return completed schedule
+     */
+    public Schedule backtrack(Schedule schedule, ArrayList<ArrayList<Course>> domains, int nextVarToAssign) {
+        // Base case, all variables assigned
+        if (domains.size() == nextVarToAssign)
+            return schedule;
+
+        // MRV Heuristic choose from ArrayList with the smallest size
+        domains.sort(Comparator.comparing(ArrayList::size));
+        ArrayList<Course> currentDomain = domains.get(nextVarToAssign);
+        for (Course c: currentDomain) {
+            if (c.getNumSeats() > 0 && schedule.addCourse(c)) {
+
+                // Create copy of domains
+                ArrayList<ArrayList<Course>> domainCopy = new ArrayList<>();
+                for (int i = nextVarToAssign + 1; i < domains.size(); i++) {
+                    domainCopy.add(new ArrayList<>(domains.get(i)));
+                }
+
+                // Forward Checking remove conflicts from domains
+                for (ArrayList<Course> variable: domainCopy) {
+                    for (Course course: variable) {
+                        if (course.hasConflict(c))
+                            variable.remove(c);
+                    }
+                }
+
+                // Check if any domains are empty
+                boolean valid = true;
+                for (ArrayList<Course> variable: domainCopy) {
+                    if (variable.isEmpty()) {
+                        valid = false;
+                        break;
+                    }
+                }
+
+                // Domain isn't valid remove from schedule and go to next value
+                if (!valid) {
+                    schedule.removeCourse(c);
+
+                // Domain is valid, call backtrack again with deepCopy of forward checked domains
+                } else {
+                    return backtrack(schedule, domainCopy, nextVarToAssign + 1);
+                }
+            }
+        }
         return null;
     }
 
@@ -76,6 +124,8 @@ public class Schedule {
     }
 
     public void generateSchedule(String[] searchQueries) {
+        Schedule generatedSchedule = new Schedule(searchQueries);
+        this.courses = generatedSchedule.getCourses();
     }
 
     public ArrayList<Course> getCourses() {
@@ -90,7 +140,7 @@ public class Schedule {
     public ArrayList<Course> getConflicts(Course course) {
         ArrayList<Course> conflicts = new ArrayList<>();
         for (Course c : courses) {
-                if (c.hasConflict(course)) {
+                if (c != course && c.hasConflict(course)) {
                     conflicts.add(c);
                 }
         }
