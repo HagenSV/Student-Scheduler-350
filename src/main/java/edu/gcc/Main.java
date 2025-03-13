@@ -17,14 +17,10 @@ public class Main {
 
     public static void main(String[] args) {
         getCourses();
-        //for (Course c : courses) {
-        //    System.out.println(c.toString());
-        //}
-
-        Search s = new Search("soci");
-        s.search();
-        System.out.println(s.getResult());
-        //ConsoleDriver.run();
+        for (Course c : courses) {
+            System.out.println(c.toString());
+        }
+        ConsoleDriver.run();
     }
 
     /**
