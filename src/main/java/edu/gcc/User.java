@@ -109,7 +109,7 @@ public class User {
      *  Saves the User's schedule to a text file that can be loaded later
      */
     public void saveSchedule() {
-        try (PrintWriter writer = new PrintWriter(new FileWriter("schedule.txt"))) {
+        try (PrintWriter writer = new PrintWriter(new FileWriter(username + ".txt"))) {
             StringBuilder stringBuilder = new StringBuilder();
             for (Course c: schedule.getCourses()) {
 
@@ -170,7 +170,7 @@ public class User {
      * Loads the schedule to the User saved in the schedule.txt file
      */
     public void loadSchedule() {
-        File file = new File("schedule.txt");
+        File file = new File(username + ".txt");
         if (file.exists()) {
             try {
                 ArrayList<Course> courses = new ArrayList<>();

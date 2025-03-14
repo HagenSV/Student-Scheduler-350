@@ -139,7 +139,7 @@ public class UserTest {
     @Test
     public void testSaveSchedule() throws IOException {
         user.updateSchedule(schedule);
-        File scheduleFile = new File("schedule.txt");
+        File scheduleFile = new File(user.getName() + ".txt");
 
         try (FileWriter writer = new FileWriter(scheduleFile)) {
             user.saveSchedule();
@@ -155,7 +155,7 @@ public class UserTest {
 
     @Test
     public void testLoadSchedule() throws IOException {
-        File scheduleFile = new File("schedule.txt");
+        File scheduleFile = new File(user.getName() + ".txt");
         try (FileWriter writer = new FileWriter(scheduleFile)) {
             writer.write("Intro to Programming_2,-1,2,-1,2_true_50_Dr. Hutchins_true_TFTFT_COMP_141_3_30_A_false");
         }
@@ -177,7 +177,7 @@ public class UserTest {
 
     @Test
     public void testLoadScheduleNoFile() {
-        File scheduleFile = new File("schedule.txt");
+        File scheduleFile = new File(user.getName() + ".txt");
         if (scheduleFile.exists()) scheduleFile.delete();
 
         user.loadSchedule();
