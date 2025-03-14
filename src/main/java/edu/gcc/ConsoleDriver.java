@@ -11,12 +11,15 @@ public class ConsoleDriver {
     private static Search search = null;
     private static final int RESULTS_PER_PAGE = 5;
 
+    // The following methods act as a private API for the ConsoleDriver class
+    // They will be updated in the future to interact with the database once complete
+
     //TODO: getUsers()
     private static List<User> getUsers(){
         return new ArrayList<>();
     }
 
-    //TODO: add user to list
+    //TODO: add user
     private static void addUser(User u){}
 
     private static Course getCourse(int courseId){
