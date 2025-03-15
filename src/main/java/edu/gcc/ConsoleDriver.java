@@ -34,24 +34,8 @@ public class ConsoleDriver {
             //Prompt user for name
             System.out.print("Enter your username: ");
             String username = s.nextLine();
-
-            //Search for existing user with name
-            for (User u : getUsers()) {
-                if (username.equals(u.getName())) {
-                    currentUser = u;
-                    break;
-                }
-            }
-
-            //If user was not found prompt user to create new account
-            if (currentUser == null) {
-                System.out.println("This account does not exist, would you like to create it?");
-                String res = s.nextLine();
-                if (res.equalsIgnoreCase("y") || res.equalsIgnoreCase("yes")){
-                    currentUser = new User(username,"",null,null,null);
-                    addUser(currentUser);
-                }
-            }
+            currentUser = new User(username,"",null,null,null);
+            currentUser.loadSchedule();
         }
 
         System.out.printf("Welcome to Student Scheduler %s!\n",currentUser.getName());
