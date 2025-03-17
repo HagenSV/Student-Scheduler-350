@@ -33,7 +33,7 @@ public class UserTest {
         professors.add("Dr. Hutchins");
         boolean[] daysMeet = {true, false, true, false, true}; // MWF
         int[] startTimes = {2, -1, 2, -1, 2}; // 8:02 AM on MWF, -1 on TR
-        sampleCourse = new Course("Intro to Programming", startTimes, 50, true,
+        sampleCourse = new Course(0, "Intro to Programming", startTimes, 50, true,
                 professors, true, daysMeet, "COMP", "141", 3, 30, "A", false);
 
         schedule = new Schedule();
@@ -157,7 +157,7 @@ public class UserTest {
     public void testLoadSchedule() throws IOException {
         File scheduleFile = new File(user.getName() + ".txt");
         try (FileWriter writer = new FileWriter(scheduleFile)) {
-            writer.write("Intro to Programming_2,-1,2,-1,2_true_50_Dr. Hutchins_true_TFTFT_COMP_141_3_30_A_false");
+            writer.write("0_Intro to Programming_2,-1,2,-1,2_true_50_Dr. Hutchins_true_TFTFT_COMP_141_3_30_A_false");
         }
 
         user.loadSchedule();
