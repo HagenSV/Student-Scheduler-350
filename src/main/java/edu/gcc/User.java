@@ -113,7 +113,8 @@ public class User {
             StringBuilder stringBuilder = new StringBuilder();
             for (Course c: schedule.getCourses()) {
 
-                // Add Name
+                // Add CID and Name
+                stringBuilder.append(c.getCID()).append("_");
                 stringBuilder.append(c.getName()).append("_");
 
                 // Add StartTime array, times separated by ,
@@ -182,7 +183,8 @@ public class User {
                     Scanner byEntry = new Scanner(line);
                     byEntry.useDelimiter("_");
 
-                    // Loads the name and description
+                    // Loads the CID and name
+                    int cid = Integer.parseInt(byEntry.next());
                     String name = byEntry.next();
 
                     // Loads the startTime array
@@ -226,7 +228,7 @@ public class User {
                     String section = byEntry.next();
                     boolean isLab = Boolean.parseBoolean(byEntry.next());
 
-                    courses.add(new Course(name, startTime, duration, isOpen, professors, MWForTR, daysMeet, department, courseCode, credits, numSeats, section, isLab));
+                    courses.add(new Course(cid, name, startTime, duration, isOpen, professors, MWForTR, daysMeet, department, courseCode, credits, numSeats, section, isLab));
                 }
                 schedule = new Schedule(courses);
             } catch (Exception e) {

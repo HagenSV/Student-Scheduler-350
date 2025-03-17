@@ -1,0 +1,132 @@
+{
+  "classes": [
+    {
+      "credits": 3,
+      "faculty": ["Smith, John"],
+      "is_lab": false,
+      "is_open": true,
+      "location": "Science Building 101",
+      "name": "Test MWF Course",
+      "number": 101,
+      "open_seats": 10,
+      "section": "A",
+      "semester": "2025_Spring",
+      "subject": "CSCI",
+      "times": [
+        {"day": "M", "start_time": "09:00:00", "end_time": "09:50:00"},
+        {"day": "W", "start_time": "09:00:00", "end_time": "09:50:00"},
+        {"day": "F", "start_time": "09:00:00", "end_time": "09:50:00"}
+      ],
+      "total_seats": 30
+    },
+    {
+      "credits": 1,
+      "faculty": ["Johnson, Emily"],
+      "is_lab": true,
+      "is_open": true,
+      "location": "Physics Lab 202",
+      "name": "Test Lab Course",
+      "number": 110,
+      "open_seats": 5,
+      "section": "B",
+      "semester": "2025_Spring",
+      "subject": "PHYS",
+      "times": [
+        {"day": "T", "start_time": "14:00:00", "end_time": "16:00:00"},
+        {"day": "R", "start_time": "14:00:00", "end_time": "16:00:00"}
+      ],
+      "total_seats": 20
+    },
+    {
+      "credits": 4,
+      "faculty": ["Lee, Robert"],
+      "is_lab": false,
+      "is_open": false,
+      "location": "Math Hall 301",
+      "name": "Test Closed Course",
+      "number": 201,
+      "open_seats": 0,
+      "section": "C",
+      "semester": "2025_Spring",
+      "subject": "MATH",
+      "times": [
+        {"day": "M", "start_time": "08:00:00", "end_time": "09:00:00"},
+        {"day": "W", "start_time": "08:00:00", "end_time": "09:00:00"},
+        {"day": "F", "start_time": "08:00:00", "end_time": "09:00:00"}
+      ],
+      "total_seats": 25
+    },
+    {
+      "credits": 3,
+      "faculty": ["Martinez, Anna"],
+      "is_lab": false,
+      "is_open": true,
+      "location": "Art Building 102",
+      "name": "Test TR Course",
+      "number": 200,
+      "open_seats": 12,
+      "section": "D",
+      "semester": "2025_Spring",
+      "subject": "ART",
+      "times": [
+        {"day": "T", "start_time": "11:00:00", "end_time": "12:15:00"},
+        {"day": "R", "start_time": "11:00:00", "end_time": "12:15:00"}
+      ],
+      "total_seats": 40
+    },
+    {
+      "credits": 3,
+      "faculty": ["Patel, Raj"],
+      "is_lab": false,
+      "is_open": true,
+      "location": "Chemistry Hall 205",
+      "name": "Test MWFR Course",
+      "number": 220,
+      "open_seats": 8,
+      "section": "E",
+      "semester": "2025_Spring",
+      "subject": "CHEM",
+      "times": [
+        {"day": "M", "start_time": "10:00:00", "end_time": "11:00:00"},
+        {"day": "W", "start_time": "10:00:00", "end_time": "11:00:00"},
+        {"day": "F", "start_time": "10:00:00", "end_time": "11:00:00"},
+        {"day": "R", "start_time": "14:00:00", "end_time": "15:00:00"}
+      ],
+      "total_seats": 28
+    },
+    {
+      "credits": 3,
+      "faculty": ["Adams, Sarah", "Whaley, Daniel"],
+      "is_lab": false,
+      "is_open": true,
+      "location": "Business Hall 303",
+      "name": "Test Tuesday Course",
+      "number": 301,
+      "open_seats": 5,
+      "section": "F",
+      "semester": "2025_Spring",
+      "subject": "BUS",
+      "times": [
+        {"day": "T", "start_time": "13:00:00", "end_time": "14:30:00"}
+      ],
+      "total_seats": 35
+    },
+    {
+      "credits": 2,
+      "faculty": ["Doe, Jane"],
+      "is_lab": false,
+      "is_open": true,
+      "location": "Library 101",
+      "name": "Test No Days Course",
+      "number": 400,
+      "open_seats": 15,
+      "section": "G",
+      "semester": "2025_Spring",
+      "subject": "LIB",
+      "times": [],
+      "total_seats": 20
+    }
+  ],
+  "date": "2024-04-10",
+  "time": "02:15:01"
+}
