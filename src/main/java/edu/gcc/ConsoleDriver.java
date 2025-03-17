@@ -14,17 +14,35 @@ public class ConsoleDriver {
     // The following methods act as a private API for the ConsoleDriver class
     // They will be updated in the future to interact with the database once complete
 
-    //TODO: getUsers()
-    private static List<User> getUsers(){
-        return new ArrayList<>();
+    /**
+     * Attempts to find a user in the database
+     * @param username the username of the user
+     * @param password the password of the user
+     * @return User object if username/password match found, null otherwise
+     */
+    private static User getUser(String username, String password){
+        return null;
     }
 
-    //TODO: add user
-    private static void addUser(User u){}
+    /**
+     * Creates a new user and adds them to the database
+     * @param username username of new user
+     * @param password password of new user
+     */
+    private static void addUser(String username, String password){
 
+    }
+
+    /**
+     * Gets a course from the database
+     * @param courseId the id of the course
+     * @return Course object if found, null otherwise
+     */
     private static Course getCourse(int courseId){
         return Main.courses.get(courseId);
     }
+
+    //End private api
 
     public static void run() {
         String cmd = "";
