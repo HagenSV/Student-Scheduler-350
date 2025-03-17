@@ -1,5 +1,8 @@
 package edu.gcc;
 
+import java.io.FileWriter;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 
 public class Schedule {
@@ -15,6 +18,7 @@ public class Schedule {
 
     /**
      * Constructs a schedule based on a series of searchQueries, all classes separated by whitespace
+     *
      * @param searchQueries
      */
     public Schedule(String[] searchQueries) {
@@ -22,11 +26,11 @@ public class Schedule {
         ArrayList<Course> foundCourses = Main.courses;
 
         Map<String, ArrayList<Course>> courseMap = new HashMap<>();
-        for (String query: searchQueries) {
+        for (String query : searchQueries) {
             String[] queries = query.split(" ");
-            for (Course c: foundCourses) {
+            for (Course c : foundCourses) {
                 if (c.getDepartment().equals(queries[0])
-                    && c.getCourseCode().equals(queries[1])) {
+                        && c.getCourseCode().equals(queries[1])) {
                     if (courseMap.containsKey(query))
                         courseMap.get(query).add(c);
                     else {
@@ -37,7 +41,7 @@ public class Schedule {
                 }
             }
         }
-        for (String s: courseMap.keySet())
+        for (String s : courseMap.keySet())
             domains.add(courseMap.get(s));
 
         // Call backtracking search, if domains not found, courses are null
@@ -48,8 +52,9 @@ public class Schedule {
 
     /**
      * Backtracking search with MRV heuristic and forward checking
-     * @param schedule schedule that is being generated
-     * @param domains domain of each Course variable
+     *
+     * @param schedule        schedule that is being generated
+     * @param domains         domain of each Course variable
      * @param nextVarToAssign the next variable to assign in the domain
      * @return completed schedule
      */
@@ -61,7 +66,7 @@ public class Schedule {
         // MRV Heuristic choose from ArrayList with the smallest size
         domains.sort(Comparator.comparing(ArrayList::size));
         ArrayList<Course> currentDomain = domains.get(nextVarToAssign);
-        for (Course c: currentDomain) {
+        for (Course c : currentDomain) {
             if (c.getNumSeats() > 0 && schedule.addCourse(c)) {
 
                 // Create copy of domains
@@ -71,8 +76,8 @@ public class Schedule {
                 }
 
                 // Forward Checking remove conflicts from domains
-                for (ArrayList<Course> variable: domainCopy) {
-                    for (Course course: variable) {
+                for (ArrayList<Course> variable : domainCopy) {
+                    for (Course course : variable) {
                         if (course.hasConflict(c))
                             variable.remove(c);
                     }
@@ -80,7 +85,7 @@ public class Schedule {
 
                 // Check if any domains are empty
                 boolean valid = true;
-                for (ArrayList<Course> variable: domainCopy) {
+                for (ArrayList<Course> variable : domainCopy) {
                     if (variable.isEmpty()) {
                         valid = false;
                         break;
@@ -91,7 +96,7 @@ public class Schedule {
                 if (!valid) {
                     schedule.removeCourse(c);
 
-                // Domain is valid, call backtrack again with deepCopy of forward checked domains
+                    // Domain is valid, call backtrack again with deepCopy of forward checked domains
                 } else {
                     return backtrack(schedule, domainCopy, nextVarToAssign + 1);
                 }
@@ -101,7 +106,8 @@ public class Schedule {
     }
 
     /**
-     * Adds a specified course to the schedule
+     * Adds a specified course to the schedule and calls the logger function
+     *
      * @param course the course to be added
      * @return whether the course was added successfully false if it conflicts with the other courses in the schedule
      */
@@ -111,16 +117,24 @@ public class Schedule {
             courses.remove(course);
             return false;
         }
+        // Log the addition of the course
+        logger(true, course);
         return true;
     }
 
     /**
-     * Removes the specified course from the schedule
+     * Removes the specified course from the schedule and adds it to the logger
+     *
      * @param course the course to be removed
      * @return whether the course was successfully removed, false if it did not exist in the schedule
      */
     public boolean removeCourse(Course course) {
-        return courses.remove(course);
+        if (courses.remove(course)) {
+            logger(false, course);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public void generateSchedule(String[] searchQueries) {
@@ -140,10 +154,40 @@ public class Schedule {
     public ArrayList<Course> getConflicts(Course course) {
         ArrayList<Course> conflicts = new ArrayList<>();
         for (Course c : courses) {
-                if (c != course && c.hasConflict(course)) {
-                    conflicts.add(c);
-                }
+            if (c != course && c.hasConflict(course)) {
+                conflicts.add(c);
+            }
         }
         return conflicts;
+    }
+
+    /**
+     * Removes the last course added to the schedule
+     *
+     * @return whether the undo was successful
+     */
+    public boolean undo() {
+        if (!courses.isEmpty()) {
+            courses.removeLast();
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Logs to a file the course that was added or removed
+     * to a saved textile named log.txt
+     */
+    public void logger(boolean type, Course course) {
+        String action = type ? "Added" : "Removed";
+        String log = action + " " + course.getDepartment() + " " + course.getCourseCode() + "\n";
+        try {
+            FileWriter writer = new FileWriter("log.txt", true);
+            writer.write(log);
+            writer.close();
+        } catch (Exception e) {
+            System.out.println("An error occurred while writing to the log file.");
+            e.printStackTrace();
+        }
     }
 }
