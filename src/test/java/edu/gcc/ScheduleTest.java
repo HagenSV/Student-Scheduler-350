@@ -27,14 +27,14 @@ class ScheduleTest {
         professors1.add("Dr. Hutchins");
         boolean[] daysMeet1 = {true, false, true, false, true}; // MWF
         int[] startTimes1 = {0, -1, 0, -1, 0}; // 8:00 AM on MWF, -1 on TR
-        course1 = new Course("Intro to Programming", startTimes1, 50, true,
+        course1 = new Course(0, "Intro to Programming", startTimes1, 50, true,
                 professors1, true, daysMeet1, "COMP", "141", 3, 30, "A", false);
 
         ArrayList<String> professors2 = new ArrayList<>();
         professors2.add("Dr. Johnson");
         boolean[] daysMeet2 = {false, true, false, true, false}; // TR
         int[] startTimes2 = {-1, 60, -1, 60, -1}; // 9:00 AM on TR, -1 on MWF
-        course2 = new Course("Programming II", startTimes2, 50, true,
+        course2 = new Course(1, "Programming II", startTimes2, 50, true,
                 professors2, false, daysMeet2, "COMP", "220", 3, 25, "B", false);
     }
 
@@ -45,7 +45,7 @@ class ScheduleTest {
         assertEquals(1, schedule.getCourses().size(), "Schedule should contain 1 course");
         assertTrue(schedule.getCourses().contains(course1), "Schedule should contain course1");
 
-        Course conflictingCourse = new Course("Conflict Course",
+        Course conflictingCourse = new Course(2, "Conflict Course",
                 new int[]{0, -1, 0, -1, 0}, 50, true, // 8:00-8:50 AM on MWF
                 new ArrayList<>(), true, new boolean[]{true, false, true, false, true},
                 "CS", "102", 3, 20, "C", false);
@@ -88,7 +88,7 @@ class ScheduleTest {
         ArrayList<Course> conflicts = schedule.getConflicts(course1);
         assertTrue(conflicts.isEmpty(), "No conflicts between MWF 8:00-8:50 and TR 9:00-9:50");
 
-        Course conflictingCourse = new Course("Conflict Course",
+        Course conflictingCourse = new Course(3, "Conflict Course",
                 new int[]{0, -1, 0, -1, 0}, 50, true, // 8:00-8:50 AM on MWF
                 new ArrayList<>(), true, new boolean[]{true, false, true, false, true},
                 "CS", "102", 3, 20, "C", false);
