@@ -168,7 +168,7 @@ public class Schedule {
      */
     public boolean undo() {
         if (!courses.isEmpty()) {
-            courses.removeLast();
+            courses.remove(courses.size() - 1);
             return true;
         }
         return false;
