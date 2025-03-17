@@ -1,6 +1,5 @@
 package edu.gcc;
 
-import javax.sound.midi.Soundbank;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -12,12 +11,15 @@ public class ConsoleDriver {
     private static Search search = null;
     private static final int RESULTS_PER_PAGE = 5;
 
+    // The following methods act as a private API for the ConsoleDriver class
+    // They will be updated in the future to interact with the database once complete
+
     //TODO: getUsers()
     private static List<User> getUsers(){
         return new ArrayList<>();
     }
 
-    //TODO: add user to list
+    //TODO: add user
     private static void addUser(User u){}
 
     private static Course getCourse(int courseId){
@@ -32,24 +34,8 @@ public class ConsoleDriver {
             //Prompt user for name
             System.out.print("Enter your username: ");
             String username = s.nextLine();
-
-            //Search for existing user with name
-            for (User u : getUsers()) {
-                if (username.equals(u.getName())) {
-                    currentUser = u;
-                    break;
-                }
-            }
-
-            //If user was not found prompt user to create new account
-            if (currentUser == null) {
-                System.out.println("This account does not exist, would you like to create it?");
-                String res = s.nextLine();
-                if (res.equalsIgnoreCase("y") || res.equalsIgnoreCase("yes")){
-                    currentUser = new User(username,"",null,null,null);
-                    addUser(currentUser);
-                }
-            }
+            currentUser = new User(username,"",null,null,null);
+            currentUser.loadSchedule();
         }
 
         System.out.printf("Welcome to Student Scheduler %s!\n",currentUser.getName());
