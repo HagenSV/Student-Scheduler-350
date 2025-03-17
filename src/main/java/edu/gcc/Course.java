@@ -19,8 +19,10 @@ public class Course {
     private int numSeats;
     private String section;
     private URL rateMyProfessorLink;
+    private int CID;
     private boolean isLab;
-    public Course(String name, int[] startTime, int duration, boolean isOpen, ArrayList<String> professors, boolean MWForTR, boolean[] daysMeet, String department, String courseCode, int credits, int numSeats, String section, boolean isLab) {
+    public Course(int CID, String name, int[] startTime, int duration, boolean isOpen, ArrayList<String> professors, boolean MWForTR, boolean[] daysMeet, String department, String courseCode, int credits, int numSeats, String section, boolean isLab) {
+        this.CID = CID;
         this.name = name;
         this.startTime = startTime;
         this.duration = duration;
@@ -39,7 +41,7 @@ public class Course {
     public String getSection(){return section;}
     public URL getRateMyProfessorLink(){return null;}
     public void setRateMyProfessorLink(){}
-
+    public int getCID(){return CID;}
     public int getCredits(){return credits;}
     public String getName() {
         return name;
