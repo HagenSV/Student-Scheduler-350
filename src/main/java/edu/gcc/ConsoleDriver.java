@@ -242,6 +242,9 @@ public class ConsoleDriver {
                 System.out.printf("Run 'add %s replace' to remove conflicts and add course\n",options[1]);
             }
             currentUser.saveSchedule();
+            if (added){
+                System.out.println("Successfully added course to schedule");
+            }
         } catch (NumberFormatException e){
             System.out.printf("Error: %s is not a number\n",options[1]);
         }
