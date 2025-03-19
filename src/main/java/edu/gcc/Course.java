@@ -98,6 +98,17 @@ public class Course {
     }
 
     @Override
+    public boolean equals(Object other){
+        if(other instanceof Course){
+          Course otherCourse = (Course) other;
+          if(otherCourse.getCID() == this.CID){
+              return true;
+          }
+        }
+        return false;
+    }
+
+    @Override
     public String toString(){
         StringBuilder output = new StringBuilder();
         output.append("CID("+ CID +") " + department + " " + courseCode + " " + section + " - " + name + "\n\tnumOpenSeats: " + numSeats + " isLab: " + isLab +" professor(s) ");
