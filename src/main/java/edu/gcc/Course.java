@@ -100,20 +100,51 @@ public class Course {
     @Override
     public String toString(){
         StringBuilder output = new StringBuilder();
-        output.append("CID: " + CID + " " + department + " " + courseCode + " " + section + ") " + name + "\n\tnumOpenSeats: " + numSeats + " isLab: " + isLab +" professor(s) ");
+        output.append("CID("+ CID +") " + department + " " + courseCode + " " + section + " - " + name + "\n\tnumOpenSeats: " + numSeats + " isLab: " + isLab +" professor(s) ");
+
         for(String p : professors){
             output.append(p + " ");
         }
-        output.append("\n\tCredits: "  + credits +  " numOpenSeats:  " + numSeats + " MWF: " + MWForTR + "\n\tDaysMeet: ");
-        for(Boolean d : daysMeet){
-            output.append(d + " ");
-        }
-        output.append("\n\tStartingTimes (minutes after 8:00): ");
-        for(int i : startTime){
-            output.append(i + " ");
+
+        output.append("\n\tCredits: "  + credits +  " numOpenSeats:  " + numSeats + " MWF: " + MWForTR + "\n\tDays: ");
+        for(int i = 0; i < daysMeet.length; i++){
+            if(daysMeet[i]){
+                output.append(getDay(i) + " " + convertTimeToString(startTime[i]) + " ");
+            }
         }
         output.append("\n\tDuration: " + duration + "\n");
 
         return output.toString();
+
+    }
+
+    public String getDay(int i){
+        if(i == 0){
+            return "M";
+        }else if(i == 1){
+            return "T";
+        }else if(i == 2){
+            return "W";
+        }else if(i == 3){
+            return "R";
+        }else if(i == 4){
+            return "F";
+        }
+        return "Invalid Day";
+    }
+
+    public String convertTimeToString(int minAfter8){
+        int hour = 8 + minAfter8 / 60;
+        int min = minAfter8 % 60;
+        String time = "";
+        if(hour < 10){
+            time += "0";
+        }
+        time += hour + ":";
+        if(min < 10){
+            time += "0";
+        }
+        time += min;
+        return time;
     }
 }
