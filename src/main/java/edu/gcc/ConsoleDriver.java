@@ -39,6 +39,10 @@ public class ConsoleDriver {
      * @return Course object if found, null otherwise
      */
     private static Course getCourse(int courseId){
+        if (courseId < -1 || courseId >= Main.courses.size()){
+            System.out.printf("Error: %d is not a valid course id\n",courseId);
+            return null;
+        }
         return Main.courses.get(courseId);
     }
 
@@ -263,7 +267,6 @@ public class ConsoleDriver {
             int cid = Integer.parseInt(options[1]);
             Course remove = getCourse(cid);
             if (remove == null) { return; }
-
             currentUser.getSchedule().removeCourse(remove);
             currentUser.saveSchedule();
         } catch (NumberFormatException e){
