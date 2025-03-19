@@ -234,8 +234,12 @@ public class ConsoleDriver {
                 }
             } else if (!added) {
                 System.out.println("Failed to add course to schedule");
-                System.out.println("Time conflict(s) with: <classes>");
-                System.out.printf("Run 'add %s replace' to remove conflicts and add course",options[1]);
+                System.out.println("Time conflict(s) with:");
+                List<Course> conflicts = schedule.getConflicts(add);
+                for (Course c : conflicts){
+                    System.out.printf("  %s %s%s\n",c.getDepartment(),c.getCourseCode(),c.getSection());
+                }
+                System.out.printf("Run 'add %s replace' to remove conflicts and add course\n",options[1]);
             }
             currentUser.saveSchedule();
         } catch (NumberFormatException e){
