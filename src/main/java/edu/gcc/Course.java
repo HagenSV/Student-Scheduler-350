@@ -100,7 +100,7 @@ public class Course {
     @Override
     public String toString(){
         StringBuilder output = new StringBuilder();
-        output.append("(" + department + " " + courseCode + " " + section + ") " + name + "\n\tnumOpenSeats: " + numSeats + " isLab: " + isLab +" professor(s) ");
+        output.append("CID: " + CID + " " + department + " " + courseCode + " " + section + ") " + name + "\n\tnumOpenSeats: " + numSeats + " isLab: " + isLab +" professor(s) ");
         for(String p : professors){
             output.append(p + " ");
         }
