@@ -17,9 +17,6 @@ public class Main {
 
     public static void main(String[] args) {
         courses = getCourses("data_wolfe.json");
-        for (Course c : courses) {
-            System.out.println(c.toString());
-        }
         ConsoleDriver.run();
     }
 
