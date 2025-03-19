@@ -112,6 +112,8 @@ public class Schedule {
      * @return whether the course was added successfully false if it conflicts with the other courses in the schedule
      */
     public boolean addCourse(Course course) {
+        if (course.getNumSeats() < 1)
+            return false;
         courses.add(course);
         if (!this.getConflicts(course).isEmpty()) {
             courses.remove(course);
@@ -189,5 +191,12 @@ public class Schedule {
             System.out.println("An error occurred while writing to the log file.");
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Creates a google calendar based on the classes in schedule
+     */
+    public void exportToCalendar() {
+
     }
 }
