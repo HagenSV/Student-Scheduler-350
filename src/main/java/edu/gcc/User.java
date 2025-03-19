@@ -109,9 +109,11 @@ public class User {
      *  Saves the User's schedule to a text file that can be loaded later
      */
     public void saveSchedule() {
-        try (PrintWriter writer = new PrintWriter(new FileWriter(username + ".txt"))) {
-            StringBuilder stringBuilder = new StringBuilder();
+        File file = new File(username + ".txt");
+        file.delete();
+        try (PrintWriter writer = new PrintWriter(username + ".txt")) {
             for (Course c: schedule.getCourses()) {
+                StringBuilder stringBuilder = new StringBuilder();
 
                 // Add CID and Name
                 stringBuilder.append(c.getCID()).append("_");
