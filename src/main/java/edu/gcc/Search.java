@@ -10,19 +10,27 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
+/**
+ * This class is responsible for the search functionality of the program.
+ * It takes a query string and searches through the courses and filters them based on user input.
+ */
 public class Search {
-    private String query;
-    private boolean daysMeeting; //true = MWF, false = TH
-    private int minTime;
-    private int maxTime;
-    private String desiredProfesor;
-    private String department;
-    private ArrayList<Course> initialResult;
-    private ArrayList<Course> filteredResult;
-    private ArrayList<String> listDep;
-    private ArrayList<String> listProf;
-    private Map<String, ArrayList<String>> departmentKeywords;
+    private String query; // the search query
+    private boolean daysMeeting; // days when the class is meeting - true = MWF, false = TH
+    private int minTime; // minimum start time for the class
+    private int maxTime; // maximum start time for the class
+    private String desiredProfesor; // the desired professor for the class
+    private String department; // the department of the class
+    private ArrayList<Course> initialResult; // the original list of courses
+    private ArrayList<Course> filteredResult; // the list of courses after filtering
+    private ArrayList<String> listDep; // list of all departments
+    private ArrayList<String> listProf; // list of all professors
+    private Map<String, ArrayList<String>> departmentKeywords; // keywords for each department
 
+    /**
+     * Constructor for the Search class
+     * @param query the search query
+     */
     public Search(String query){
         this.query = query.toLowerCase();
         this.initialResult = Main.courses;
@@ -35,39 +43,61 @@ public class Search {
         filteredResult = new ArrayList<>();
     }
 
-    // If any of these methods are called it will call their corresponding Filter
-    //true = MWF, false = TH
+    /**
+     * Sets the days when the class is meeting
+     * @param daysMeeting true if the class meets on MWF, false if it meets on TR
+     * @return the filtered list of courses
+     */
     public ArrayList<Course> setDaysMeeting(boolean daysMeeting){
         this.daysMeeting = daysMeeting;
         return filterByDaysMeeting();
     }
 
+    /**
+     * Sets the start time for the filter
+     * @param newMinTime the minimum start time for filter
+     * @param newMaxTime the maximum start time for filter
+     * @return the filtered list of courses
+     */
     public ArrayList<Course> setTime(int newMinTime, int newMaxTime){
         this.minTime = newMinTime;
         this.maxTime = newMaxTime;
         return filterByTime();
     }
 
+    /**
+     * Sets the desired professor for the filter
+     * @param desiredProfesor the desired professor for the filter
+     * @return the filtered list of courses
+     */
     public ArrayList<Course> setDesiredProfesor(String desiredProfesor){
         this.desiredProfesor = desiredProfesor;
         return filterByDesiredProfessor();
     }
 
+    /**
+     * Sets the department for the filter
+     * @param department the department for the filter
+     * @return the filtered list of courses
+     */
     public ArrayList<Course> setDepartment(String department){
         this.department = department;
         return filterByDepartment();
     }
 
-    //These will change result
+    /**
+     * Filters the list of courses based on the days when the class is meeting
+     * @return the filtered list of courses
+     */
     public ArrayList<Course> filterByDaysMeeting(){
         for (Course c : initialResult) {
             if (daysMeeting) {
-                if (!(c.getDaysMeet()[0] && c.getDaysMeet()[2] && c.getDaysMeet()[4])) {
+                if (!c.getMWForTR()) {
                     filteredResult.remove(c);
                 }
             }
             else {
-                if (!(c.getDaysMeet()[1] && c.getDaysMeet()[3])) {
+                if (c.getMWForTR()) {
                         filteredResult.remove(c);
                     }
             }
@@ -75,6 +105,13 @@ public class Search {
         return filteredResult;
     }
 
+    /**
+     * Filters the list of courses based on the minimum and maximum times
+     * If only the minimum time is set, it will filter for that time only
+     * If both are set it will filter for the range between the two times plus the duration of the course
+     * If neither are set it will return the original list
+     * @return the filtered list of courses
+     */
     public ArrayList<Course> filterByTime(){
         boolean notwithinTime = true;
         if (minTime != -1 && maxTime != -1) {
@@ -108,6 +145,10 @@ public class Search {
         return filteredResult;
     }
 
+    /**
+     * Filters the list of courses based on the desired professor
+     * @return the filtered list of courses
+     */
     public ArrayList<Course> filterByDesiredProfessor(){
         for (Course c : initialResult) {
             for (String p : c.getProfessor())   {
@@ -125,45 +166,60 @@ public class Search {
         return filteredResult;
     }
 
+    /**
+     * Filters the list of courses based on the department
+     * @return the filtered list of courses
+     */
     public ArrayList<Course> filterByDepartment(){
         for (Course c : initialResult) {
-            if (c.getDepartment().toLowerCase().equals(department))    {
+            if (c.getDepartment().toLowerCase().equals(department.toLowerCase()) && !filteredResult.contains(c))    {
                 filteredResult.add(c);
             }
         }
         return filteredResult;
     }
 
+    /**
+     * Returns the filtered list of courses
+     * @return the filtered list of courses
+     */
     public ArrayList<Course> getResult(){
         return filteredResult;
     }
 
+    /**
+     * Searches for courses based on the query
+     */
     public void search()    {
         searchByDepartment(query);
         if (filteredResult.size() == 0) {
-            filteredResult = new ArrayList<>(initialResult);
+            fillFilteredResult();
         }
         searchByProfessor(query);
         if (filteredResult.size() == 0) {
-            filteredResult = new ArrayList<>(initialResult);
+            fillFilteredResult();
         }
         searchByCourseCode(query);
         if (filteredResult.size() == 0) {
-            filteredResult = new ArrayList<>(initialResult);
+            fillFilteredResult();
         }
         searchByDaysMeeting(query);
         if (filteredResult.size() == 0) {
-            filteredResult = new ArrayList<>(initialResult);
+            fillFilteredResult();
         }
         searchByTime(query);
         if (filteredResult.size() == 0) {
-            filteredResult = new ArrayList<>(initialResult);
+            fillFilteredResult();
         }
         if (filteredResult.size() == initialResult.size())  {
             filteredResult = new ArrayList<>();
         }
     }
 
+    /**
+     * Searches for courses based on the days when the query
+     * @param query the search query
+     */
     public void searchByDaysMeeting(String query)   {
         boolean MWF = false;
         boolean TR = false;
@@ -186,6 +242,10 @@ public class Search {
         }
     }
 
+    /**
+     * Filters courses by time based on the query
+     * @param query the search query
+     */
     public void searchByTime(String query)   {
         String firstTime = "";
         String secondTime = "";
@@ -338,19 +398,27 @@ public class Search {
 
     }
 
+    /**
+     * Filters courses by course code based on the query
+     * @param query the search query
+     */
     public void searchByCourseCode(String query)   {
         ArrayList<Course> temp = new ArrayList<>();
         for (Course c : filteredResult) {
             String code = c.getDepartment() + " " + c.getCourseCode();
-            if (query.contains(code.toLowerCase()))    {
+            if (query.contains(code.toLowerCase()) || query.contains(c.getName().toLowerCase()) && !temp.contains(c)) {
                 temp.add(c);
             }
         }
-        if (temp.size() > 0)    {
+        if (temp.size() > 0) {
             filteredResult = temp;
         }
     }
 
+    /**
+     * Filters courses by department based on the query
+     * @param query the search query
+     */
     public void searchByDepartment(String query)    {
         for (String s : listDep)    {
             if (query.contains(s.toLowerCase()))    {
@@ -367,6 +435,10 @@ public class Search {
 
     }
 
+    /**
+     * Filters courses by professor based on the query
+     * @param query the search query
+     */
     public void searchByProfessor(String query) {
         for (String s : listProf)   {
             if (query.contains(s.toLowerCase()) && !s.equals(""))    {
@@ -376,6 +448,9 @@ public class Search {
         }
     }
 
+    /**
+     * Makes a list of the all the departments
+     */
     public void setDepartments()    {
         for (Course c : initialResult)  {
             String dep = c.getDepartment().toLowerCase();
@@ -385,6 +460,9 @@ public class Search {
         }
     }
 
+    /**
+     * Makes a list of all the professors
+     */
     public void setProfessors() {
         for (Course c : initialResult)  {
             for (String p : c.getProfessor())   {
@@ -400,6 +478,9 @@ public class Search {
         }
     }
 
+    /**
+     * Makes a map of keywords for each department
+     */
     public void addToDepartmentKeywords()   {
         departmentKeywords.put("ACCT", new ArrayList<>(Arrays.asList("accounting", "financial accounting", "managerial accounting", "bookkeeping")));
         departmentKeywords.put("ART", new ArrayList<>(Arrays.asList("art", "fine arts", "visual arts", "art history", "studio art", "painting", "sculpture")));
@@ -452,6 +533,13 @@ public class Search {
         departmentKeywords.put("ZLOAD", new ArrayList<>(Arrays.asList("special course load", "administrative course designation", "faculty load", "special topic course")));
         departmentKeywords.put("GEOL", new ArrayList<>(Arrays.asList("geology", "earth science", "geological mapping", "mineralogy", "geophysics", "environmental geology")));
         departmentKeywords.put("GOBL", new ArrayList<>(Arrays.asList("global studies", "global business", "international relations", "global economy", "global politics")));
+    }
+
+    /**
+     * Fills the filtered result with the initial result
+     */
+    public void fillFilteredResult() {
+        filteredResult = new ArrayList<>(initialResult);
     }
 
 }
