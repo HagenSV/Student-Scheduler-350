@@ -1,11 +1,8 @@
 package edu.gcc;
 
 import java.sql.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
+import java.time.Instant;
+import java.util.*;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -25,7 +22,6 @@ public class Search {
     private ArrayList<Course> filteredResult; // the list of courses after filtering
     private ArrayList<String> listDep; // list of all departments
     private ArrayList<String> listProf; // list of all professors
-    private Map<String, ArrayList<String>> departmentKeywords; // keywords for each department
 
     /**
      * Constructor for the Search class
@@ -36,8 +32,6 @@ public class Search {
         this.initialResult = Main.courses;
         listDep = new ArrayList<>();
         listProf = new ArrayList<>();
-        departmentKeywords = new HashMap<>();
-        addToDepartmentKeywords();
         setDepartments();
         setProfessors();
         filteredResult = new ArrayList<>();
@@ -195,11 +189,11 @@ public class Search {
         if (filteredResult.size() == 0) {
             fillFilteredResult();
         }
-        searchByProfessor(query);
+        searchByCourseCode(query);
         if (filteredResult.size() == 0) {
             fillFilteredResult();
         }
-        searchByCourseCode(query);
+        searchByProfessor(query);
         if (filteredResult.size() == 0) {
             fillFilteredResult();
         }
@@ -402,14 +396,52 @@ public class Search {
      * Filters courses by course code based on the query
      * @param query the search query
      */
-    public void searchByCourseCode(String query)   {
+    public void searchByCourseCode(String query) {
         ArrayList<Course> temp = new ArrayList<>();
-        for (Course c : filteredResult) {
+        String toUseQuery = query;
+        for (Course c : initialResult) {
             String code = c.getDepartment() + " " + c.getCourseCode();
             if (query.contains(code.toLowerCase()) || query.contains(c.getName().toLowerCase()) && !temp.contains(c)) {
                 temp.add(c);
+                if (toUseQuery.contains(code.toLowerCase())) {
+                    toUseQuery = toUseQuery.replace(code.toLowerCase(), "");
+                }
+                if (toUseQuery.contains(c.getName().toLowerCase())) {
+                    toUseQuery = toUseQuery.replace(c.getName().toLowerCase(), "");
+                }
             }
         }
+            Map<Integer, ArrayList<Course>> keywordMap = new TreeMap<>();
+            for (Course c : initialResult) {
+                for (int i = toUseQuery.length(); i > 0; i--) {
+                    for (int j = 0; j < i; j++) {
+                        String s = toUseQuery.substring(j, i);
+                        if (c.isKeyword(s) && s.length() > 3 && (j == 0 || toUseQuery.charAt(j - 1) == ' ')) {
+                            if (!keywordMap.containsKey(s.length())) {
+                                keywordMap.put(s.length(), new ArrayList<>());
+                            }
+                            keywordMap.get(s.length()).add(c);
+                        }
+                    }
+                }
+            }
+
+            int largestKey = 0;
+            for (int i : keywordMap.keySet()) {
+                largestKey = i;
+            }
+        if (largestKey > 5 || initialResult.size() == filteredResult.size()) {
+            for (int i = largestKey; i > 0; i--) {
+                if (keywordMap.containsKey(i)) {
+                    for (Course c : keywordMap.get(i)) {
+                        if (!temp.contains(c)) {
+                            temp.add(c);
+                        }
+                    }
+                }
+            }
+        }
+
         if (temp.size() > 0) {
             filteredResult = temp;
         }
@@ -420,19 +452,15 @@ public class Search {
      * @param query the search query
      */
     public void searchByDepartment(String query)    {
-        for (String s : listDep)    {
-            if (query.contains(s.toLowerCase()))    {
-                setDepartment(s);
-            }
-        }
-        for (String a : departmentKeywords.keySet())    {
-            for (String ss : departmentKeywords.get(a))  {
-                if (query.contains(ss)) {
-                    setDepartment(a);
-                }
-            }
-        }
 
+        for (String s : listDep)    {
+            for (String d : query.split(" ")) {
+                if (s.toLowerCase().equals(d.toLowerCase()))    {
+                    setDepartment(s);
+                }
+
+            }
+        }
     }
 
     /**
@@ -441,9 +469,10 @@ public class Search {
      */
     public void searchByProfessor(String query) {
         for (String s : listProf)   {
-            if (query.contains(s.toLowerCase()) && !s.equals(""))    {
-                setDesiredProfesor(s);
-                break;
+            for (String d : query.split(" ")) {
+                if (s.toLowerCase().equals(d.toLowerCase()) && !s.equals(""))    {
+                    setDesiredProfesor(s);
+                }
             }
         }
     }
@@ -476,63 +505,6 @@ public class Search {
                 }
             }
         }
-    }
-
-    /**
-     * Makes a map of keywords for each department
-     */
-    public void addToDepartmentKeywords()   {
-        departmentKeywords.put("ACCT", new ArrayList<>(Arrays.asList("accounting", "financial accounting", "managerial accounting", "bookkeeping")));
-        departmentKeywords.put("ART", new ArrayList<>(Arrays.asList("art", "fine arts", "visual arts", "art history", "studio art", "painting", "sculpture")));
-        departmentKeywords.put("ASTR", new ArrayList<>(Arrays.asList("astronomy", "space science", "astrophysics", "observational astronomy", "stellar physics")));
-        departmentKeywords.put("BIOL", new ArrayList<>(Arrays.asList("biology", "life sciences", "cellular biology", "genetics", "ecology", "anatomy", "zoology")));
-        departmentKeywords.put("CHEM", new ArrayList<>(Arrays.asList("chemistry", "organic chemistry", "inorganic chemistry", "biochemistry", "chemical reactions", "lab work")));
-        departmentKeywords.put("CMIN", new ArrayList<>(Arrays.asList("christian ministry", "ministry", "pastoral care", "theology", "religious studies", "evangelism")));
-        departmentKeywords.put("COMM", new ArrayList<>(Arrays.asList("communication", "mass communication", "public relations", "journalism", "media studies", "digital communication")));
-        departmentKeywords.put("COMP", new ArrayList<>(Arrays.asList("computer science", "programming", "software development", "algorithms", "computer programming", "data structures")));
-        departmentKeywords.put("DESI", new ArrayList<>(Arrays.asList("design", "graphic design", "visual design", "industrial design", "ux design", "fashion design")));
-        departmentKeywords.put("ECON", new ArrayList<>(Arrays.asList("economics", "microeconomics", "macroeconomics", "economic theory", "market analysis", "econometrics")));
-        departmentKeywords.put("EDUC", new ArrayList<>(Arrays.asList("education", "teaching", "pedagogy", "elementary education", "secondary education", "education psychology")));
-        departmentKeywords.put("ELEE", new ArrayList<>(Arrays.asList("electrical engineering", "circuit design", "electronics", "electrical systems", "signals and systems", "power engineering")));
-        departmentKeywords.put("ENGL", new ArrayList<>(Arrays.asList("english", "literature", "writing", "composition", "english language", "creative writing", "literary analysis")));
-        departmentKeywords.put("ENGR", new ArrayList<>(Arrays.asList("engineering", "mechanical engineering", "electrical engineering", "civil engineering", "engineering design", "engineering math")));
-        departmentKeywords.put("ENTR", new ArrayList<>(Arrays.asList("entrepreneurship", "startups", "business innovation", "small business", "venture capital", "business development")));
-        departmentKeywords.put("EXER", new ArrayList<>(Arrays.asList("exercise science", "kinesiology", "physical fitness", "athletic training", "sports science", "health and fitness")));
-        departmentKeywords.put("FNCE", new ArrayList<>(Arrays.asList("finance", "corporate finance", "investment", "financial planning", "banking", "accounting", "financial markets")));
-        departmentKeywords.put("FREN", new ArrayList<>(Arrays.asList("french", "french language", "french literature", "french culture", "francophone studies", "french translation")));
-        departmentKeywords.put("GREK", new ArrayList<>(Arrays.asList("greek", "ancient greek", "koine greek", "biblical greek", "classical greek", "greek language", "greek literature")));
-        departmentKeywords.put("HEBR", new ArrayList<>(Arrays.asList("hebrew", "biblical hebrew", "modern hebrew", "hebrew language", "jewish studies")));
-        departmentKeywords.put("HIST", new ArrayList<>(Arrays.asList("history", "world history", "american history", "european history", "history of civilizations", "historical research")));
-        departmentKeywords.put("HUMA", new ArrayList<>(Arrays.asList("humanities", "history", "philosophy", "literature", "arts", "social sciences", "cultural studies")));
-        departmentKeywords.put("INBS", new ArrayList<>(Arrays.asList("international business", "global business", "international trade", "business strategy", "international economics")));
-        departmentKeywords.put("MARK", new ArrayList<>(Arrays.asList("marketing", "marketing strategy", "digital marketing", "brand management", "consumer behavior", "market research")));
-        departmentKeywords.put("MATH", new ArrayList<>(Arrays.asList("mathematics", "algebra", "calculus", "statistics", "geometry", "linear algebra", "mathematical analysis")));
-        departmentKeywords.put("MECE", new ArrayList<>(Arrays.asList("mechanical engineering", "thermodynamics", "fluid mechanics", "mechanical systems", "heat transfer", "engineering design")));
-        departmentKeywords.put("MNGT", new ArrayList<>(Arrays.asList("management", "business management", "organizational behavior", "leadership", "project management", "strategic management")));
-        departmentKeywords.put("MUSE", new ArrayList<>(Arrays.asList("music education", "music theory", "music pedagogy", "instrumental music", "vocal music", "music teaching")));
-        departmentKeywords.put("MUSI", new ArrayList<>(Arrays.asList("music", "music theory", "music history", "performance", "classical music", "music composition", "music technology")));
-        departmentKeywords.put("NURS", new ArrayList<>(Arrays.asList("nursing", "registered nursing", "nursing care", "nursing practice", "healthcare", "clinical nursing", "patient care")));
-        departmentKeywords.put("PHIL", new ArrayList<>(Arrays.asList("philosophy", "ethics", "metaphysics", "logic", "epistemology", "philosophical theory", "critical thinking")));
-        departmentKeywords.put("PHYS", new ArrayList<>(Arrays.asList("physics", "mechanics", "thermodynamics", "electromagnetism", "quantum physics", "optics", "physics lab")));
-        departmentKeywords.put("POLS", new ArrayList<>(Arrays.asList("political science", "political theory", "american politics", "international relations", "government", "public policy")));
-        departmentKeywords.put("PSYC", new ArrayList<>(Arrays.asList("psychology", "clinical psychology", "cognitive psychology", "behavioral psychology", "social psychology", "psychological research")));
-        departmentKeywords.put("PUBH", new ArrayList<>(Arrays.asList("public health", "health policy", "epidemiology", "global health", "healthcare systems", "public health administration")));
-        departmentKeywords.put("RELI", new ArrayList<>(Arrays.asList("religion", "theology", "religious studies", "biblical studies", "comparative religion", "christian theology")));
-        departmentKeywords.put("ROBO", new ArrayList<>(Arrays.asList("robotics", "automation", "artificial intelligence", "robotics engineering", "mechatronics", "robotics design")));
-        departmentKeywords.put("SCIC", new ArrayList<>(Arrays.asList("science", "interdisciplinary science", "environmental science", "natural science", "science research")));
-        departmentKeywords.put("SEDU", new ArrayList<>(Arrays.asList("special education", "special needs", "learning disabilities", "educational support", "inclusive education")));
-        departmentKeywords.put("SOCI", new ArrayList<>(Arrays.asList("sociology", "social theory", "social problems", "sociology of families", "criminology", "social research")));
-        departmentKeywords.put("SOCW", new ArrayList<>(Arrays.asList("social work", "social services", "social welfare", "clinical social work", "community outreach", "social policy")));
-        departmentKeywords.put("SPAN", new ArrayList<>(Arrays.asList("spanish", "spanish language", "spanish literature", "spanish culture", "hispanic studies", "latin american studies")));
-        departmentKeywords.put("STAT", new ArrayList<>(Arrays.asList("statistics", "data analysis", "probability", "statistical methods", "quantitative research", "applied statistics")));
-        departmentKeywords.put("THEA", new ArrayList<>(Arrays.asList("theatre", "acting", "dramatic arts", "theatre production", "playwriting", "stagecraft", "theatre history")));
-        departmentKeywords.put("WRIT", new ArrayList<>(Arrays.asList("writing", "creative writing", "academic writing", "composition", "writing for publication", "writing skills")));
-        departmentKeywords.put("DSCI", new ArrayList<>(Arrays.asList("data science", "data analytics", "machine learning", "big data", "data visualization", "statistical analysis")));
-        departmentKeywords.put("PHYE", new ArrayList<>(Arrays.asList("physical education", "sports education", "fitness", "athletics", "physical activity", "pe teaching")));
-        departmentKeywords.put("SSFT", new ArrayList<>(Arrays.asList("social science foundations", "intro to social sciences", "sociology", "psychology", "anthropology")));
-        departmentKeywords.put("ZLOAD", new ArrayList<>(Arrays.asList("special course load", "administrative course designation", "faculty load", "special topic course")));
-        departmentKeywords.put("GEOL", new ArrayList<>(Arrays.asList("geology", "earth science", "geological mapping", "mineralogy", "geophysics", "environmental geology")));
-        departmentKeywords.put("GOBL", new ArrayList<>(Arrays.asList("global studies", "global business", "international relations", "global economy", "global politics")));
     }
 
     /**
