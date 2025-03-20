@@ -4,8 +4,8 @@ import java.net.URL;
 import java.util.ArrayList;
 
 public class Course {
-    private String name;
 
+    private String name;
     private String description;
     private int[] startTime;
     private boolean MWForTR;
@@ -21,6 +21,7 @@ public class Course {
     private URL rateMyProfessorLink;
     private int CID;
     private boolean isLab;
+
     public Course(int CID, String name, int[] startTime, int duration, boolean isOpen, ArrayList<String> professors, boolean MWForTR, boolean[] daysMeet, String department, String courseCode, int credits, int numSeats, String section, boolean isLab) {
         this.CID = CID;
         this.name = name;
