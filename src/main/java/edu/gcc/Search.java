@@ -430,7 +430,7 @@ public class Search {
             for (int i : keywordMap.keySet()) {
                 largestKey = i;
             }
-        if (largestKey > 5) {
+        if (largestKey > 5 || initialResult.size() == filteredResult.size()) {
             for (int i = largestKey; i > 0; i--) {
                 if (keywordMap.containsKey(i)) {
                     for (Course c : keywordMap.get(i)) {
