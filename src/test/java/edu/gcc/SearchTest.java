@@ -1,366 +1,318 @@
 package edu.gcc;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static edu.gcc.Main.courses;
-import static edu.gcc.Main.minFrom8;
 import static org.junit.jupiter.api.Assertions.*;
-
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class SearchTest {
+
+    private static Course testMWF; // Normal course that meets MWF
+    private static Course testLab; // Lab Course
+    private static Course testClosedCourse; // Closed Course
+    private static Course testTr; // Normal course that meets TR
+    private static Course testMWFR; // Course that meets MWFR and R is a different Time
+    private static Course testT; // Course that meets on Tuesday
+    private static Course testNoDays; // Course that doesn't have any daysMeet or startTime but is open
+    private static ArrayList<Course> answer;
+
     @BeforeEach
     void setUp() {
-        courses = Main.getCourses("data_wolfe.json");
+        testMWF = new Course(0, "Test MWF Course", new int[]{60, -1, 60, -1, 60}, 50, true, new ArrayList<>(Arrays.asList("Smith, John")), true, new boolean[]{true, false, true, false, true}, "CSCI", "101", 3, 10, "A", false);
+        testLab = new Course(1, "Test Lab Course", new int[]{-1, 360, -1, 360, -1}, 120, true, new ArrayList<>(Arrays.asList("Johnson, Emily")), false, new boolean[]{false, true, false, true, false}, "PHYS", "110", 1, 5, "B", true);
+        testClosedCourse = new Course(-1, "Test Closed Course", new int[]{0, 0, 0, -1, -1}, 60, false, new ArrayList<>(Arrays.asList("Lee, Robert")), true, new boolean[]{true, false, true, false, true}, "MATH", "201", 4, 0, "C", false);
+        testTr = new Course(2, "Test TR Course", new int[]{-1, 180, -1, 180, -1}, 75, true, new ArrayList<>(Arrays.asList("Martinez, Anna")), false, new boolean[]{false, true, false, true, false}, "ART", "200", 3, 12, "D", false);
+        testMWFR = new Course(3, "Test MWFR Course", new int[]{120, -1, 120, 360, 120}, 60, true, new ArrayList<>(Arrays.asList("Patel, Raj")), true, new boolean[]{true, false, true, true, true}, "CHEM", "220", 3, 8, "E", false);
+        testT = new Course(4, "Test Tuesday Course", new int[]{-1, 300, -1, -1, -1}, 90, true, new ArrayList<>(Arrays.asList("Adams, Sarah", "Whaley, Daniel")), false, new boolean[]{false, true, false, false, false}, "BUS", "301", 3, 5, "F", false);
+        testNoDays = new Course(5, "Test No Days Course", new int[]{-1, -1, -1, -1, -1}, 0, true, new ArrayList<>(Arrays.asList("Doe, Jane")), false, new boolean[]{false, false, false, false, false}, "LIB", "400", 2, 15, "G", false);
+        courses = new ArrayList<>(Arrays.asList(testMWF, testLab, testClosedCourse, testTr, testMWFR, testT, testNoDays));
     }
+
     @Test
-    void testSetDaysMeeting() {
+    void testSetAndFilterDaysMeeting() {
         Search search = new Search("query");
         search.fillFilteredResult();
+        answer = new ArrayList<>(Arrays.asList(testMWF, testClosedCourse, testMWFR));
+
         // Act
         ArrayList<Course> result = search.setDaysMeeting(true);
         assertNotNull(result);
-        for (Course c : result) {
-            if (c.getMWForTR() != true) {
-                fail("Course should not meet on TR");
-            }
-        }
+        assertEquals(answer, result);
 
         search = new Search("query");
         search.fillFilteredResult();
+        answer = new ArrayList<>(Arrays.asList(testLab, testTr, testT, testNoDays));
+
         // Act
         result = search.setDaysMeeting(false);
         assertNotNull(result);
-        for (Course c : result) {
-            if (c.getMWForTR() == true) {
-                fail("Course should not meet on MWF");
-            }
-        }
+        assertEquals(answer, result);
+
     }
 
     @Test
-    void testSetTime() {
+    void testSetAndFilterTime() {
         Search search = new Search("query");
         search.fillFilteredResult();
+        answer = new ArrayList<>(Arrays.asList(testMWF, testNoDays));
+
         // Act
-        ArrayList<Course> result = search.setTime(60, -1);
-        // Assert
+        ArrayList<Course> result = search.setTime(60, 240);
         assertNotNull(result);
-        boolean goodTime = false;
-        for (Course c : result) {
-            for (int i : c.getStartTime()) {
-                if (i == 60) {
-                    goodTime = true;
-                    break;
-                }
-            }
-            if (!goodTime) {
-                fail("Course does not start at 9:00");
-            }
-        }
+        assertEquals(answer, result);
 
         search = new Search("query");
         search.fillFilteredResult();
+        answer = new ArrayList<>(Arrays.asList(testMWF));
+
         // Act
-        result = search.setTime(60, 240);
-        // Assert
+        result = search.setTime(60, -1);
         assertNotNull(result);
-        goodTime = false;
-        for (Course c : result) {
-            for (int i : c.getStartTime()) {
-                if (i >= 60 && i <= 240) {
-                    goodTime = true;
-                    break;
-                }
-            }
-            if (!goodTime) {
-                fail("Course does not take place the min and max times");
-            }
-        }
+        assertEquals(answer, result);
+
+        search = new Search("query");
+        search.fillFilteredResult();
+        answer = new ArrayList<>(Arrays.asList(testMWF, testLab, testClosedCourse, testTr, testMWFR, testT, testNoDays));
+
+        // Act
+        result = search.setTime(-1, -1);
+        assertNotNull(result);
+        assertEquals(answer, result);
+
+        search = new Search("query");
+        search.fillFilteredResult();
+        answer = new ArrayList<>(Arrays.asList(testNoDays));
+
+        // Act
+        result = search.setTime(0, 0);
+        assertNotNull(result);
+        assertEquals(answer, result);
     }
 
     @Test
-    void testSetDesiredProfessor() {
+    void testSetAndFilterDesiredProfessor() {
         Search search = new Search("query");
         search.fillFilteredResult();
+        answer = new ArrayList<>(Arrays.asList(testMWF));
+
         // Act
-        ArrayList<Course> result = search.setDesiredProfesor("shultz");
-        // Assert
+        ArrayList<Course> result = search.setDesiredProfesor("smith");
         assertNotNull(result);
-        boolean goodProfessor = false;
-        for (Course c : result) {
-            for (String s : c.getProfessor()) {
-                if (s.equals("Shultz, Tricia Michele")) {
-                    goodProfessor = true;
-                    break;
-                }
-            }
-            if (!goodProfessor) {
-                fail("Course does not have professor shultz");
-            }
-        }
+        assertEquals(answer, result);
+
+        search = new Search("query");
+        search.fillFilteredResult();
+        answer = new ArrayList<>();
+
+        // Act
+        result = search.setDesiredProfesor("");
+        assertNotNull(result);
+        assertEquals(answer, result);
+
     }
 
     @Test
-    void testSetDepartment() {
-        // Arrange
+    void testSetAndFilterDepartment() {
         Search search = new Search("query");
+        //search.fillFilteredResult();
+        answer = new ArrayList<>(Arrays.asList(testMWF));
+
         // Act
-        ArrayList<Course> result = search.setDepartment("comp");
-        // Assert
+        ArrayList<Course> result = search.setDepartment("CSCI");
         assertNotNull(result);
-        for (Course c : result) {
-            if (!c.getDepartment().equals("COMP")) {
-                fail("Course is not in the comp department");
-            }
-        }
+        assertEquals(answer, result);
+
+        search = new Search("query");
+        answer = new ArrayList<>();
+
+        // Act
+        result = search.setDepartment("");
+        assertNotNull(result);
+        assertEquals(answer, result);
+
+        search = new Search("query");
+        answer = new ArrayList<>();
     }
 
     @Test
     void testSearch() {
-        Search search = new Search("shultz 12:00");
+        Search search = new Search("csci 101 smith 9:00 mwf");
+        search.fillFilteredResult();
+        answer = new ArrayList<>(Arrays.asList(testMWF));
+
         // Act
         search.search();
         ArrayList<Course> result = search.getResult();
-        // Assert
         assertNotNull(result);
-        boolean goodProfessor = false;
-        boolean goodTime = false;
-        for (Course c : result) {
-            for (String s : c.getProfessor()) {
-                if (s.equals("Shultz, Tricia Michele")) {
-                    goodProfessor = true;
-                    break;
-                }
-            }
-            for (int i : c.getStartTime()) {
-                if (i == 240) {
-                    goodTime = true;
-                    break;
-                }
-            }
-            if (!goodProfessor || !goodTime) {
-                fail("Course does not have professor shultz at 12:00");
-            }
-        }
+        assertEquals(answer, result);
 
-        search = new Search("hutchins comp");
-        // Act
-        search.search();
-        result = search.getResult();
-        // Assert
-        assertNotNull(result);
-        goodProfessor = false;
-        for (Course c : result) {
-            for (String s : c.getProfessor()) {
-                if (s.equals("Hutchins, Jonathan O.")) {
-                    goodProfessor = true;
-                    break;
-                }
-            }
-            if (!goodProfessor || !c.getDepartment().equals("COMP")) {
-                fail("Course does not have professor hutchins that is in the comp department");
-            }
-        }
+        search = new Search("query");
+        answer = new ArrayList<>();
 
-        search = new Search("comp 141 8:00 11:00");
         // Act
-        search.search();
-        result = search.getResult();
-        // Assert
+        result = search.setDepartment("");
         assertNotNull(result);
-        goodTime = false;
-        for (Course c : result) {
-            for (int i : c.getStartTime()) {
-                if (i >= 0 && i <= 360 - c.getDuration()) {
-                    goodTime = true;
-                    break;
-                }
-            }
-            if (!goodTime || !c.getName().equals("COMP PROGRAMMING I")) {
-                fail("Course does not have professor hutchins that is in the comp department");
-            }
-        }
+        assertEquals(answer, result);
+
+        search = new Search("query");
+        answer = new ArrayList<>();
     }
 
     @Test
     void testGetResult() {
-        // Arrange
         Search search = new Search("query");
         search.fillFilteredResult();
+        answer = new ArrayList<>(Arrays.asList(testMWF, testLab, testClosedCourse, testTr, testMWFR, testT, testNoDays));
+
         // Act
         ArrayList<Course> result = search.getResult();
-        // Assert
         assertNotNull(result);
-        if (!courses.equals(result)) {
-            fail("Did not get result correctly");
-        }
-        // Add more assertions based on expected behavior
+        assertEquals(answer, result);
     }
 
     @Test
     void testSearchByDaysMeeting() {
-        // Arrange
         Search search = new Search("query");
         search.fillFilteredResult();
+        answer = new ArrayList<>(Arrays.asList(testMWF, testClosedCourse, testMWFR));
+
         // Act
         search.searchByDaysMeeting("mwf");
         ArrayList<Course> result = search.getResult();
-        // Assert
         assertNotNull(result);
-        for (Course c : result) {
-            if (c.getMWForTR() != true) {
-                fail("Course should not meet on TR");
-            }
-        }
+        assertEquals(answer, result);
 
         search = new Search("query");
         search.fillFilteredResult();
+        answer = new ArrayList<>(Arrays.asList(testLab, testTr, testT, testNoDays));
+
         // Act
         search.searchByDaysMeeting("tr");
         result = search.getResult();
-        // Assert
         assertNotNull(result);
-        for (Course c : result) {
-            if (c.getMWForTR() == true) {
-                fail("Course should not meet on MWF");
-            }
-        }
+        assertEquals(answer, result);
+
+        search = new Search("");
+        search.fillFilteredResult();
+        answer = new ArrayList<>(Arrays.asList(testMWF, testLab, testClosedCourse, testTr, testMWFR, testT, testNoDays));
+
+        // Act
+        search.searchByDaysMeeting("");
+        result = search.getResult();
+        assertNotNull(result);
+        assertEquals(answer, result);
     }
 
     @Test
     void testSearchByDepartment() {
-        // Arrange
         Search search = new Search("query");
-        // Act
-        search.searchByDepartment("comp");
-        ArrayList<Course> result = search.getResult();
-        // Assert
-        assertNotNull(result);
-        for (Course c : result) {
-            if (!c.getDepartment().equals("COMP")) {
-                fail("Course is not in the comp department");
-            }
-        }
+        answer = new ArrayList<>(Arrays.asList(testMWF));
 
-        // Arrange
-        search = new Search("query");
         // Act
-        search.searchByDepartment("accounting");
-        result = search.getResult();
-        // Assert
+        search.searchByDepartment("csci");
+        ArrayList<Course> result = search.getResult();
         assertNotNull(result);
-        for (Course c : result) {
-            if (!c.getDepartment().equals("ACCT") && !c.getDepartment().equals("FNCE")) {
-                fail("Course is not in the acct department");
-            }
-        }
+        assertEquals(answer, result);
+
+        search = new Search("");
+        answer = new ArrayList<>();
+
+        // Act
+        search.searchByDepartment("");
+        result = search.getResult();
+        assertNotNull(result);
+        assertEquals(answer, result);
+
     }
 
     @Test
     void testSearchByProfessor() {
-        // Arrange
         Search search = new Search("query");
         search.fillFilteredResult();
+        answer = new ArrayList<>(Arrays.asList(testMWF));
+
         // Act
-        search.searchByProfessor("shultz");
+        search.searchByProfessor("smith");
         ArrayList<Course> result = search.getResult();
-        // Assert
         assertNotNull(result);
-        for (Course c : result) {
-            boolean goodProfessor = false;
-            for (String s : c.getProfessor()) {
-                if (s.equals("Shultz, Tricia Michele")) {
-                    goodProfessor = true;
-                    break;
-                }
-            }
-            if (!goodProfessor) {
-                fail("Course does not have professor shultz");
-            }
-        }
+        assertEquals(answer, result);
+
+        search = new Search("");
+        search.fillFilteredResult();
+        answer = new ArrayList<>(Arrays.asList(testMWF, testLab, testClosedCourse, testTr, testMWFR, testT, testNoDays));
+
+        // Act
+        search.searchByProfessor("");
+        result = search.getResult();
+        assertNotNull(result);
+        assertEquals(answer, result);
     }
 
     @Test
     void testSearchByCourseCode() {
-        // Arrange
         Search search = new Search("query");
-        search.fillFilteredResult();
-        // Act
-        search.searchByCourseCode("comp 141");
-        ArrayList<Course> result = search.getResult();
-        // Assert
-        assertNotNull(result);
-        for (Course c : result) {
-            if (!c.getName().equals("COMP PROGRAMMING I")) {
-                fail("Course is not COMP 141");
-            }
-        }
+        answer = new ArrayList<>(Arrays.asList(testMWF));
 
-        // Arrange
-        search = new Search("query");
-        search.fillFilteredResult();
         // Act
-        search.searchByCourseCode("comp programming i");
-        result = search.getResult();
-        // Assert
+        search.searchByCourseCode("csci 101");
+        ArrayList<Course> result = search.getResult();
         assertNotNull(result);
-        for (Course c : result) {
-            if (!c.getName().equals("COMP PROGRAMMING I")) {
-                fail("Course is not COMP 141");
-            }
-        }
+        assertEquals(answer, result);
+
+        search = new Search("query");
+        answer = new ArrayList<>(Arrays.asList(testClosedCourse));
+
+        // Act
+        search.searchByCourseCode("closed");
+        result = search.getResult();
+        assertNotNull(result);
+        assertEquals(answer, result);
+
+        search = new Search("");
+        answer = new ArrayList<>();
+
+        // Act
+        search.searchByCourseCode("");
+        result = search.getResult();
+        assertNotNull(result);
+        assertEquals(answer, result);
     }
 
     @Test
     void testSearchByTime() {
-        // Arrange
         Search search = new Search("query");
         search.fillFilteredResult();
+        answer = new ArrayList<>(Arrays.asList(testMWF));
+
         // Act
         search.searchByTime("9:00");
         ArrayList<Course> result = search.getResult();
-        // Assert
         assertNotNull(result);
-        boolean goodTime = false;
-        for (Course c : result) {
-            for (int i : c.getStartTime()) {
-                if (i == 60) {
-                    goodTime = true;
-                    break;
-                }
-            }
-            if (!goodTime) {
-                fail("Course does not start at 9:00");
-            }
-        }
+        assertEquals(answer, result);
 
         search = new Search("query");
         search.fillFilteredResult();
+        answer = new ArrayList<>(Arrays.asList(testMWF, testNoDays));
+
         // Act
         search.searchByTime("9:00 12:00");
         result = search.getResult();
-        // Assert
         assertNotNull(result);
-        goodTime = false;
-        for (Course c : result) {
-            for (int i : c.getStartTime()) {
-                if (i >= 60 && i <= 240 - c.getDuration()) {
-                    goodTime = true;
-                    break;
-                }
-            }
-            if (!goodTime) {
-                fail("Course does not take place between 9:00 and 12:00");
-            }
-        }
+        assertEquals(answer, result);
+
+        search = new Search("");
+        search.fillFilteredResult();
+        answer = new ArrayList<>(Arrays.asList(testMWF, testLab, testClosedCourse, testTr, testMWFR, testT, testNoDays));
+
+        // Act
+        search.searchByTime("");
+        result = search.getResult();
+        assertNotNull(result);
+        assertEquals(answer, result);
     }
 
 }
