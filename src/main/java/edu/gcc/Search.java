@@ -29,6 +29,7 @@ public class Search {
      */
     public Search(String query){
         this.query = query.toLowerCase();
+        this.query = query.replaceAll("[\\p{Punct}&&[^:]]", "");
         this.initialResult = Main.courses;
         listDep = new ArrayList<>();
         listProf = new ArrayList<>();
@@ -107,31 +108,31 @@ public class Search {
      * @return the filtered list of courses
      */
     public ArrayList<Course> filterByTime(){
-        boolean notwithinTime = true;
+        boolean withinTime;
         if (minTime != -1 && maxTime != -1) {
             for (Course c : initialResult) {
-                notwithinTime = true;
+                withinTime = true;
                 for (int t : c.getStartTime()) {
-                    if (t >= minTime && t  + c.getDuration() <= maxTime) {
-                        notwithinTime = false;
+                    if (!(t >= minTime && t  + c.getDuration() <= maxTime) && t != -1) {
+                        withinTime = false;
                         break;
                     }
                 }
-                if (notwithinTime) {
+                if (!withinTime) {
                     filteredResult.remove(c);
                 }
             }
         }
         else if (minTime != -1) {
             for (Course c : initialResult) {
-                notwithinTime = true;
+                withinTime = false;
                 for (int t : c.getStartTime()) {
                     if (t == minTime) {
-                        notwithinTime = false;
+                        withinTime = true;
                         break;
                     }
                 }
-                if (notwithinTime) {
+                if (!withinTime) {
                     filteredResult.remove(c);
                 }
             }
