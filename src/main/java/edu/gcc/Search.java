@@ -22,7 +22,6 @@ public class Search {
     private ArrayList<Course> filteredResult; // the list of courses after filtering
     private ArrayList<String> listDep; // list of all departments
     private ArrayList<String> listProf; // list of all professors
-    private Map<String, ArrayList<String>> departmentKeywords; // keywords for each department
 
     /**
      * Constructor for the Search class
@@ -33,7 +32,6 @@ public class Search {
         this.initialResult = Main.courses;
         listDep = new ArrayList<>();
         listProf = new ArrayList<>();
-        departmentKeywords = new HashMap<>();
         setDepartments();
         setProfessors();
         filteredResult = new ArrayList<>();
@@ -413,8 +411,6 @@ public class Search {
                 }
             }
         }
-
-        if (temp.size() == 0 && filteredResult.size() == initialResult.size()) {
             Map<Integer, ArrayList<Course>> keywordMap = new TreeMap<>();
             for (Course c : initialResult) {
                 for (int i = toUseQuery.length(); i > 0; i--) {
@@ -434,6 +430,7 @@ public class Search {
             for (int i : keywordMap.keySet()) {
                 largestKey = i;
             }
+        if (largestKey > 5) {
             for (int i = largestKey; i > 0; i--) {
                 if (keywordMap.containsKey(i)) {
                     for (Course c : keywordMap.get(i)) {
