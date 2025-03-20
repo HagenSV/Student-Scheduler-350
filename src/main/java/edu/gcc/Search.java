@@ -191,11 +191,11 @@ public class Search {
         if (filteredResult.size() == 0) {
             fillFilteredResult();
         }
-        searchByProfessor(query);
+        searchByCourseCode(query);
         if (filteredResult.size() == 0) {
             fillFilteredResult();
         }
-        searchByCourseCode(query);
+        searchByProfessor(query);
         if (filteredResult.size() == 0) {
             fillFilteredResult();
         }
@@ -414,7 +414,7 @@ public class Search {
             }
         }
 
-        if (temp.size() == 0) {
+        if (temp.size() == 0 && filteredResult.size() == initialResult.size()) {
             Map<Integer, ArrayList<Course>> keywordMap = new TreeMap<>();
             for (Course c : initialResult) {
                 for (int i = toUseQuery.length(); i > 0; i--) {
