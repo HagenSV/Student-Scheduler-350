@@ -108,9 +108,15 @@ public class Course {
         return false;
     }
 
-    public boolean isKeyword(String keyword){
-        if(name.toLowerCase().contains(keyword.toLowerCase())){
-            return true;
+    public boolean hasKeyword(String keywordPhrase){
+        String[] keywords = keywordPhrase.split(" ");
+        String[] wordsInName = name.split(" ");
+        for(String name : wordsInName){
+            for(String keyword : keywords){
+                if(name.toLowerCase().contains(keyword.toLowerCase())){
+                    return true;
+                }
+            }
         }
         return false;
     }
