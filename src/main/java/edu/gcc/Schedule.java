@@ -15,10 +15,7 @@ import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventDateTime;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.security.GeneralSecurityException;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
@@ -30,7 +27,7 @@ public class Schedule {
     private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
     private static final String TOKENS_DIRECTORY_PATH = "tokens";
     private static final List<String> SCOPES = Collections.singletonList("https://www.googleapis.com/auth/calendar.events");
-    private static final String CREDENTIALS_FILE_PATH = "credentials.json"; // Path to your credentials.json
+    private static final String CREDENTIALS_FILE_PATH = "credentials.json";
 
     private ArrayList<Course> courses;
 
@@ -262,13 +259,12 @@ public class Schedule {
      * @throws IOException If there is an error reading the credentials file or during authorization.
      */
     private static Credential getCredentials(final NetHttpTransport httpTransport) throws IOException {
-        // Load client secrets
-        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY,
-                new InputStreamReader(Schedule.class.getResourceAsStream(CREDENTIALS_FILE_PATH)));
-
-        if (clientSecrets == null) {
-            throw new IOException("Credentials file not found at: " + CREDENTIALS_FILE_PATH);
+        // Load client secrets from the project root using FileReader
+        File credentialsFile = new File(CREDENTIALS_FILE_PATH);
+        if (!credentialsFile.exists()) {
+            throw new IOException("Credentials file not found at: " + credentialsFile.getAbsolutePath() + ". Ensure it is in the project root.");
         }
+        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new FileReader(credentialsFile));
 
         // Build flow and trigger user authorization request
         GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
