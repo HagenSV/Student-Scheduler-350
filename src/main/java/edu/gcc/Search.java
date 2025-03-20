@@ -457,8 +457,11 @@ public class Search {
     public void searchByDepartment(String query)    {
 
         for (String s : listDep)    {
-            if (query.contains(s.toLowerCase()))    {
-                setDepartment(s);
+            for (String d : query.split(" ")) {
+                if (s.toLowerCase().equals(d.toLowerCase()))    {
+                    setDepartment(s);
+                }
+
             }
         }
     }
@@ -469,9 +472,10 @@ public class Search {
      */
     public void searchByProfessor(String query) {
         for (String s : listProf)   {
-            if (query.contains(s.toLowerCase()) && !s.equals(""))    {
-                setDesiredProfesor(s);
-                break;
+            for (String d : query.split(" ")) {
+                if (s.toLowerCase().equals(d.toLowerCase()) && !s.equals(""))    {
+                    setDesiredProfesor(s);
+                }
             }
         }
     }
