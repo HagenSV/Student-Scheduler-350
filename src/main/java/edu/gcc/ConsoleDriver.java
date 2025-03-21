@@ -14,17 +14,39 @@ public class ConsoleDriver {
     // The following methods act as a private API for the ConsoleDriver class
     // They will be updated in the future to interact with the database once complete
 
-    //TODO: getUsers()
-    private static List<User> getUsers(){
-        return new ArrayList<>();
+    /**
+     * Attempts to find a user in the database
+     * @param username the username of the user
+     * @param password the password of the user
+     * @return User object if username/password match found, null otherwise
+     */
+    private static User getUser(String username, String password){
+        return null;
     }
 
-    //TODO: add user
-    private static void addUser(User u){}
+    /**
+     * Creates a new user and adds them to the database
+     * @param username username of new user
+     * @param password password of new user
+     */
+    private static void addUser(String username, String password){
 
+    }
+
+    /**
+     * Gets a course from the database
+     * @param courseId the id of the course
+     * @return Course object if found, null otherwise
+     */
     private static Course getCourse(int courseId){
+        if (courseId < -1 || courseId >= Main.courses.size()){
+            System.out.printf("Error: %d is not a valid course id\n",courseId);
+            return null;
+        }
         return Main.courses.get(courseId);
     }
+
+    //End private api
 
     public static void run() {
         String cmd = "";
@@ -90,7 +112,7 @@ public class ConsoleDriver {
         System.out.println("  courses - display list of users classes");
         System.out.println("  calendar - display schedule as calendar");
         System.out.println("  search - search for classes");
-        System.out.println("  results - view page of search results");
+        System.out.println("  results <page> - view page of search results");
         System.out.println("  exit - exits the program");
     }
 
@@ -216,10 +238,18 @@ public class ConsoleDriver {
                 }
             } else if (!added) {
                 System.out.println("Failed to add course to schedule");
-                System.out.println("Time conflict(s) with: <classes>");
-                System.out.printf("Run 'add %s replace' to remove conflicts and add course",options[1]);
+                System.out.println("Time conflict(s) with:");
+                List<Course> conflicts = schedule.getConflicts(add);
+                for (Course c : conflicts){
+                    System.out.printf("  %s %s%s\n",c.getDepartment(),c.getCourseCode(),c.getSection());
+                }
+                System.out.printf("Run 'add %s replace' to remove conflicts and add course\n",options[1]);
             }
             currentUser.saveSchedule();
+            if (added){
+                System.out.printf("Successfully added %s %s%s to schedule\n",
+                        add.getDepartment(),add.getCourseCode(),add.getSection());
+            }
         } catch (NumberFormatException e){
             System.out.printf("Error: %s is not a number\n",options[1]);
         }
@@ -238,9 +268,12 @@ public class ConsoleDriver {
             int cid = Integer.parseInt(options[1]);
             Course remove = getCourse(cid);
             if (remove == null) { return; }
-
-            currentUser.getSchedule().removeCourse(remove);
+            boolean removed = currentUser.getSchedule().removeCourse(remove);
             currentUser.saveSchedule();
+            if (removed){
+                System.out.printf("Successfully removed %s %s%s to schedule\n",
+                        remove.getDepartment(),remove.getCourseCode(),remove.getSection());
+            }
         } catch (NumberFormatException e){
             System.out.printf("Error: %s is not a number\n",options[1]);
         }
