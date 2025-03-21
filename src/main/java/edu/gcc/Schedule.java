@@ -23,12 +23,7 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 
 public class Schedule {
-    private static final String APPLICATION_NAME = "Student Scheduler";
-    private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
-    private static final String TOKENS_DIRECTORY_PATH = "tokens";
-    private static final List<String> SCOPES = Collections.singletonList("https://www.googleapis.com/auth/calendar.events");
-    private static final String CREDENTIALS_FILE_PATH = "credentials.json";
-
+    private final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
     private ArrayList<Course> courses;
 
     public Schedule() {
@@ -246,6 +241,7 @@ public class Schedule {
         try {
             // Build the HTTP transport and Calendar service
             NetHttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
+            String APPLICATION_NAME = "Student Scheduler";
             Calendar service = new Calendar.Builder(httpTransport, JSON_FACTORY, getCredentials(httpTransport))
                     .setApplicationName(APPLICATION_NAME)
                     .build();
@@ -280,8 +276,9 @@ public class Schedule {
      * @return The user's credentials.
      * @throws IOException If there is an error reading the credentials file or during authorization.
      */
-    private static Credential getCredentials(final NetHttpTransport httpTransport) throws IOException {
+    private Credential getCredentials(final NetHttpTransport httpTransport) throws IOException {
         // Load client secrets from the project root using FileReader
+        String CREDENTIALS_FILE_PATH = "credentials.json";
         File credentialsFile = new File(CREDENTIALS_FILE_PATH);
         if (!credentialsFile.exists()) {
             throw new IOException("Credentials file not found at: " + credentialsFile.getAbsolutePath() + ". Ensure it is in the project root.");
@@ -289,6 +286,8 @@ public class Schedule {
         GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new FileReader(credentialsFile));
 
         // Build flow and trigger user authorization request
+        String TOKENS_DIRECTORY_PATH = "tokens";
+        List<String> SCOPES = Collections.singletonList("https://www.googleapis.com/auth/calendar.events");
         GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
                 httpTransport, JSON_FACTORY, clientSecrets, SCOPES)
                 .setDataStoreFactory(new FileDataStoreFactory(new File(TOKENS_DIRECTORY_PATH)))
