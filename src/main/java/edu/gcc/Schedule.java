@@ -151,17 +151,10 @@ public class Schedule {
     public boolean addCourse(Course course) {
         if (course.getNumSeats() < 1)
             return false;
-        ArrayList<Integer> ids = new ArrayList<>();
-        for (Course c: courses) {
-            ids.add(c.getCID());
-        }
-        if (ids.contains(course.getCID()))
-            return false;
-        courses.add(course);
         if (!this.getConflicts(course).isEmpty()) {
-            courses.remove(course);
             return false;
         }
+        this.courses.add(course);
         // Log the addition of the course
         logger(true, course);
         return true;
@@ -202,7 +195,7 @@ public class Schedule {
     public ArrayList<Course> getConflicts(Course course) {
         ArrayList<Course> conflicts = new ArrayList<>();
         for (Course c : courses) {
-            if (c != course && c.hasConflict(course)) {
+            if (c.hasConflict(course)) {
                 conflicts.add(c);
             }
         }
