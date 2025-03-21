@@ -56,4 +56,14 @@ class CourseTest {
         assert !courses.contains(testClosedCourse);
     }
 
+    @Test
+    public void testHasKeyword(){
+        Course dataComm = new Course(-1, "Data Communications and Networks", new int[]{60, -1, 60, -1, 60}, 50, true, new ArrayList<>(Arrays.asList("Smith, John")), true, new boolean[]{true, false, true, false, true}, "COMP", "342", 3, 10, "A", false);
+        assert testMWF.hasKeyword("Test");
+        assert testMWF.hasKeyword("Test Course");
+        assert dataComm.hasKeyword("Data Comm");
+        assert !dataComm.hasKeyword("Structures");
+    }
+
+
 }

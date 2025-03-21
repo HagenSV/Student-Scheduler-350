@@ -4,8 +4,8 @@ import java.net.URL;
 import java.util.ArrayList;
 
 public class Course {
-    private String name;
 
+    private String name;
     private String description;
     private int[] startTime;
     private boolean MWForTR;
@@ -21,6 +21,7 @@ public class Course {
     private URL rateMyProfessorLink;
     private int CID;
     private boolean isLab;
+
     public Course(int CID, String name, int[] startTime, int duration, boolean isOpen, ArrayList<String> professors, boolean MWForTR, boolean[] daysMeet, String department, String courseCode, int credits, int numSeats, String section, boolean isLab) {
         this.CID = CID;
         this.name = name;
@@ -108,12 +109,26 @@ public class Course {
         return false;
     }
 
+    public boolean hasKeyword(String keywordPhrase){
+        String[] keywords = keywordPhrase.split(" ");
+        String[] wordsInName = name.split(" ");
+        for(String name : wordsInName){
+            for(String keyword : keywords){
+                if(name.toLowerCase().contains(keyword.toLowerCase())){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     public boolean isKeyword(String keyword){
         if(name.toLowerCase().contains(keyword.toLowerCase())){
             return true;
         }
         return false;
     }
+
     @Override
     public String toString(){
         StringBuilder output = new StringBuilder();
