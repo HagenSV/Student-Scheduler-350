@@ -121,6 +121,14 @@ public class Course {
         }
         return false;
     }
+
+    public boolean isKeyword(String keyword){
+        if(name.toLowerCase().contains(keyword.toLowerCase())){
+            return true;
+        }
+        return false;
+    }
+
     @Override
     public String toString(){
         StringBuilder output = new StringBuilder();
