@@ -112,7 +112,7 @@ public class ConsoleDriver {
         System.out.println("  courses - display list of users classes");
         System.out.println("  calendar - display schedule as calendar");
         System.out.println("  search - search for classes");
-        System.out.println("  results - view page of search results");
+        System.out.println("  results <page> - view page of search results");
         System.out.println("  exit - exits the program");
     }
 
@@ -247,7 +247,8 @@ public class ConsoleDriver {
             }
             currentUser.saveSchedule();
             if (added){
-                System.out.println("Successfully added course to schedule");
+                System.out.printf("Successfully added %s %s%s to schedule\n",
+                        add.getDepartment(),add.getCourseCode(),add.getSection());
             }
         } catch (NumberFormatException e){
             System.out.printf("Error: %s is not a number\n",options[1]);
@@ -267,8 +268,12 @@ public class ConsoleDriver {
             int cid = Integer.parseInt(options[1]);
             Course remove = getCourse(cid);
             if (remove == null) { return; }
-            currentUser.getSchedule().removeCourse(remove);
+            boolean removed = currentUser.getSchedule().removeCourse(remove);
             currentUser.saveSchedule();
+            if (removed){
+                System.out.printf("Successfully removed %s %s%s to schedule\n",
+                        remove.getDepartment(),remove.getCourseCode(),remove.getSection());
+            }
         } catch (NumberFormatException e){
             System.out.printf("Error: %s is not a number\n",options[1]);
         }
