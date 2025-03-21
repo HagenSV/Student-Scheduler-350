@@ -218,7 +218,7 @@ public class Search {
     public void searchByDaysMeeting(String query)   {
         boolean MWF = false;
         boolean TR = false;
-        String[] words = query.split(" ");
+        String[] words = query.toLowerCase().split(" ");
         for (String s : words)  {
             if (s.equals("mon") || s.equals("wed") || s.equals("fri") || s.equals("monday") || s.equals("wednesday") || s.equals("friday") || s.equals("mwf"))  {
                 MWF = true;
