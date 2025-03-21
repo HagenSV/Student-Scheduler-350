@@ -101,7 +101,7 @@ public class Schedule {
 
         // MRV Heuristic choose from ArrayList with the smallest size
         domains.sort(Comparator.comparing(ArrayList::size));
-        ArrayList<Course> currentDomain = domains.getFirst();
+        ArrayList<Course> currentDomain = domains.get(0);
         for (Course c : currentDomain) {
             if (schedule.addCourse(c)) {
 
@@ -150,6 +150,12 @@ public class Schedule {
      */
     public boolean addCourse(Course course) {
         if (course.getNumSeats() < 1)
+            return false;
+        ArrayList<Integer> ids = new ArrayList<>();
+        for (Course c: courses) {
+            ids.add(c.getCID());
+        }
+        if (ids.contains(course.getCID()))
             return false;
         courses.add(course);
         if (!this.getConflicts(course).isEmpty()) {
