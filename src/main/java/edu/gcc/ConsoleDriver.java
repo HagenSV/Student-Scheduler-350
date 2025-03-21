@@ -194,6 +194,9 @@ public class ConsoleDriver {
                     if (startTime == -1){ continue; }
                     if (startTime <= currentTime && startTime+c.getDuration() >= currentTime){
                         System.out.print(c.getDepartment());
+                        if (c.getDepartment().length() < 4){
+                            System.out.print(" ");
+                        }
                         System.out.print(" ");
                         System.out.print(c.getCourseCode());
                         System.out.print(c.getSection());
