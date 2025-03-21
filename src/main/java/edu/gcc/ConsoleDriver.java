@@ -234,6 +234,8 @@ public class ConsoleDriver {
                 List<Course> conflicts = schedule.getConflicts(add);
                 for (Course c : conflicts){
                     schedule.removeCourse(c);
+                    System.out.printf("Successfully removed %s %s%s from schedule\n",
+                            c.getDepartment(),c.getCourseCode(),c.getSection());
                 }
                 added = schedule.addCourse(add);
                 if (!added){
@@ -274,7 +276,7 @@ public class ConsoleDriver {
             boolean removed = currentUser.getSchedule().removeCourse(remove);
             currentUser.saveSchedule();
             if (removed){
-                System.out.printf("Successfully removed %s %s%s to schedule\n",
+                System.out.printf("Successfully removed %s %s%s from schedule\n",
                         remove.getDepartment(),remove.getCourseCode(),remove.getSection());
             }
         } catch (NumberFormatException e){
