@@ -417,7 +417,7 @@ public class Search {
                 for (int i = toUseQuery.length(); i > 0; i--) {
                     for (int j = 0; j < i; j++) {
                         String s = toUseQuery.substring(j, i);
-                        if (c.hasKeyword(s) && s.length() > 3 && (j == 0 || toUseQuery.charAt(j - 1) == ' ')) {
+                        if (c.isKeyword(s) && s.length() > 3 && (j == 0 || toUseQuery.charAt(j - 1) == ' ')) {
                             if (!keywordMap.containsKey(s.length())) {
                                 keywordMap.put(s.length(), new ArrayList<>());
                             }
