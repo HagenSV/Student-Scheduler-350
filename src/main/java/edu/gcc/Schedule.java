@@ -42,11 +42,12 @@ public class Schedule {
     /**
      * Constructs a schedule based on a series of searchQueries, all classes separated by whitespace
      *
-     * @param searchQueries
+     * @param searchQueries the search queries to be used to generate the schedule ex. COMP 141, COMP 220
      */
-    public Schedule(String[] searchQueries) {
+    public Schedule(String[] searchQueries, ArrayList<Course> foundCourses) {
         ArrayList<ArrayList<Course>> domains = new ArrayList<>();
-        ArrayList<Course> foundCourses = Main.courses;
+        if (foundCourses == null)
+            return;
 
         Map<String, ArrayList<Course>> courseMap = new HashMap<>();
         for (String query : searchQueries) {
@@ -64,37 +65,54 @@ public class Schedule {
                 }
             }
         }
+
+        // Print out courses that don't exist in the query
+        for (String s: searchQueries) {
+            boolean exists = false;
+            for (String str : courseMap.keySet()) {
+                if (s.equals(str)) {
+                    exists = true;
+                    break;
+                }
+            }
+            if (!exists)
+                System.err.println("Could not find course: " + s);
+        }
+
         for (String s : courseMap.keySet())
             domains.add(courseMap.get(s));
 
         // Call backtracking search, if domains not found, courses are null
-        Schedule generatedSchedule;
-        generatedSchedule = backtrack(new Schedule(), domains, 0);
-        this.courses = generatedSchedule.getCourses();
+        ArrayList<Course> generatedSchedule;
+        generatedSchedule = backtrack(new Schedule(), domains);
+        if (generatedSchedule == null) {
+            this.courses = new ArrayList<>();
+        } else
+            this.courses = generatedSchedule;
     }
 
     /**
      * Backtracking search with MRV heuristic and forward checking
      *
-     * @param schedule        schedule that is being generated
-     * @param domains         domain of each Course variable
-     * @param nextVarToAssign the next variable to assign in the domain
+     * @param schedule schedule that is being generated
+     * @param domains domain of each Course variable
      * @return completed schedule
      */
-    public Schedule backtrack(Schedule schedule, ArrayList<ArrayList<Course>> domains, int nextVarToAssign) {
+    public ArrayList<Course> backtrack(Schedule schedule, ArrayList<ArrayList<Course>> domains) {
         // Base case, all variables assigned
-        if (domains.size() == nextVarToAssign)
-            return schedule;
+        if (domains.isEmpty()) {
+            return schedule.getCourses();
+        }
 
         // MRV Heuristic choose from ArrayList with the smallest size
         domains.sort(Comparator.comparing(ArrayList::size));
-        ArrayList<Course> currentDomain = domains.get(nextVarToAssign);
+        ArrayList<Course> currentDomain = domains.getFirst();
         for (Course c : currentDomain) {
-            if (c.getNumSeats() > 0 && schedule.addCourse(c)) {
+            if (schedule.addCourse(c)) {
 
                 // Create copy of domains
                 ArrayList<ArrayList<Course>> domainCopy = new ArrayList<>();
-                for (int i = nextVarToAssign + 1; i < domains.size(); i++) {
+                for (int i = 1; i < domains.size(); i++) {
                     domainCopy.add(new ArrayList<>(domains.get(i)));
                 }
 
@@ -118,10 +136,11 @@ public class Schedule {
                 // Domain isn't valid remove from schedule and go to next value
                 if (!valid) {
                     schedule.removeCourse(c);
+                    return null;
 
                     // Domain is valid, call backtrack again with deepCopy of forward checked domains
                 } else {
-                    return backtrack(schedule, domainCopy, nextVarToAssign + 1);
+                    return backtrack(schedule, domainCopy);
                 }
             }
         }
@@ -162,9 +181,12 @@ public class Schedule {
         }
     }
 
-    public void generateSchedule(String[] searchQueries) {
-        Schedule generatedSchedule = new Schedule(searchQueries);
+    public boolean generateSchedule(String[] searchQueries, ArrayList<Course> courses) {
+        Schedule generatedSchedule = new Schedule(searchQueries, courses);
+        if (generatedSchedule.getCourses().isEmpty())
+            return false;
         this.courses = generatedSchedule.getCourses();
+        return true;
     }
 
     public ArrayList<Course> getCourses() {
@@ -205,7 +227,7 @@ public class Schedule {
      */
     public void logger(boolean type, Course course) {
         String action = type ? "Added" : "Removed";
-        String log = action + " " + course.getDepartment() + " " + course.getCourseCode() + "\n";
+        String log = action + " " + course.getDepartment() + " " + course.getCourseCode() + " " + course.getSection() + "\n";
         try {
             FileWriter writer = new FileWriter("log.txt", true);
             writer.write(log);

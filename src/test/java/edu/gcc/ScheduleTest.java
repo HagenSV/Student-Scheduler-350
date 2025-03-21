@@ -145,4 +145,31 @@ class ScheduleTest {
         result = schedule.undo();
         assertFalse(result, "Undo on empty schedule should return false");
     }
+
+    @Test
+    void generateSchedule() {
+        schedule.generateSchedule(new String[]{"COMP 141", "COMP 220", "HUMA 200", "MATH 214"}, Main.getCourses("data_wolfe.json"));
+        assertEquals(4, schedule.getCourses().size(), "Schedule should contain 3 courses");
+        ArrayList<Course> generatedSchedule = schedule.getCourses();
+        ArrayList<String> courseNames = new ArrayList<>();
+        for (Course course : generatedSchedule) {
+            courseNames.add(course.getDepartment() + " " + course.getCourseCode());
+        }
+        assertTrue(courseNames.contains("COMP 141"), "Schedule should contain COMP 141");
+        assertTrue(courseNames.contains("COMP 220"), "Schedule should contain COMP 220");
+        assertTrue(courseNames.contains("HUMA 200"), "Schedule should contain HUMA 200");
+        assertTrue(courseNames.contains("MATH 214"), "Schedule should contain MATH 214");
+        assertFalse(courseNames.contains("COMP 101"), "Schedule should not contain COMP 101");
+    }
+
+    @Test
+    void generateImpossibleSchedule() {
+        schedule.addCourse(course1);
+        schedule.addCourse(course2);
+        assertFalse(schedule.generateSchedule(new String[]{"WRIT 481", "THEA 384"}, Main.getCourses("data_wolfe.json")));
+        assertFalse(schedule.getCourses().isEmpty(), "Schedule should not be empty after failed generation");
+        assertEquals(2, schedule.getCourses().size(), "Schedule should still contain 2 courses after failed generation");
+        assertTrue(schedule.getCourses().contains(course1), "Schedule should still contain course1");
+        assertTrue(schedule.getCourses().contains(course2), "Schedule should still contain course2");
+    }
 }
