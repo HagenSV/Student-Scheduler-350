@@ -4,6 +4,16 @@
     color: var(--secondary-color);
     height: fit-content;
 
+    a {
+        text-decoration: none;
+        color: var(--secondary-color);
+        padding: 10px;
+    }
+
+    img {
+        padding: 5px
+    }
+
     h1, h2, h3 {
         color: var(--secondary-color);
     }
