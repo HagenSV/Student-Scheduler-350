@@ -1,3 +1,9 @@
+# Developing with react
+
+1. Open terminal and run `cd frontend`
+2. Run `npm install` to install all dependencies
+3. Run `npm start` to start the development server and view your changes live
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
