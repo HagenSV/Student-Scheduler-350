@@ -1,0 +1,10 @@
+.header-nav {
+    padding: 1px;
+    background-color: var(--primary-color);
+    color: var(--secondary-color);
+    height: fit-content;
+
+    h1, h2, h3 {
+        color: var(--secondary-color);
+    }
+}
