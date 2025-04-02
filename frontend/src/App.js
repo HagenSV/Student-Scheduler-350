@@ -1,24 +1,18 @@
-import logo from './logo.svg';
-import './App.css';
+import HeaderNav from './components/HeaderNav.tsx';
+import Schedule from './pages/Schedule.tsx';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <Router>
+        <HeaderNav />
+        <Routes>
+            <Route path="/" element={<Schedule />} />
+            <Route path="/search" element={<Schedule />} />
+        </Routes>
+      </Router>
+    </>
   );
 }
 
