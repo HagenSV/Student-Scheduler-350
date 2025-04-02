@@ -1,20 +1,21 @@
-Course Scheduler
+# Course Scheduler
 
-Scrum Backlog Notes:
+**Scrum Backlog Notes:**
+
 Only have MVP in production, the Automated Scheduler is in the Schedule class, but has not been integrated with search or the console driver yet, however there are tests to prove that it works. As for the rest of the sprint backlog, we have only included the MVP, the database has not yet been created as we didn't expect it to take as much time as it did. And the HTML Server and Frontend work that was completed has not been merged yet as there was not time to test integration and thus has been left for Sprint 2. 
 
-How to work the code:
+## How to work the code:
 
-Step 1:
+### Step 1:
 Run Program
 
-Step 2:
+### Step 2:
 Enter a username.
 If there is a schedule for that user, the program will load that users schedule.
 If there is not a schedule for that user, a blank one will be created
 
-Step 3:
-enter help to see commands
+### Step 3:
+enter `help` to see commands
 *   add <id> - adds class to schedule if there are no schedule conflicts
 *   add <id> replace - adds class to schedule removing any courses with schedule conflicts
 *   remove <id> - removes class from schedule
@@ -23,6 +24,8 @@ enter help to see commands
 *   search - search for classes
 *   results <page> - view page of search results
 *   exit - exits the program
+
+## Commands:
 
 search: 
 -> search shows the results in pages, look at the results tab for more information
