@@ -1,4 +1,4 @@
-import HeaderNav from './components/HeaderNav.tsx';
+import HeaderNav from './components/header_nav/HeaderNav.tsx';
 import Schedule from './pages/Schedule.tsx';
 import Search from './pages/Search.tsx';
 import Profile from './pages/Profile.tsx';
