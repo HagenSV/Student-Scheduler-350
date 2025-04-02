@@ -28,11 +28,12 @@ public class UserTest {
         minors.add("Mathematics");
         ArrayList<Course> completedCourses = new ArrayList<>();
 
-        // Create a sample course for the schedule
+        // Create a sample course for the schedule (MWF at 8:02 AM)
         ArrayList<String> professors = new ArrayList<>();
         professors.add("Dr. Hutchins");
-        boolean[] daysMeet = {true, false, true, false, true};
-        sampleCourse = new Course("Intro to Programming", new int[]{2}, 50, true,
+        boolean[] daysMeet = {true, false, true, false, true}; // MWF
+        int[] startTimes = {2, -1, 2, -1, 2}; // 8:02 AM on MWF, -1 on TR
+        sampleCourse = new Course(0, "Intro to Programming", startTimes, 50, true,
                 professors, true, daysMeet, "COMP", "141", 3, 30, "A", false);
 
         schedule = new Schedule();
@@ -46,7 +47,8 @@ public class UserTest {
         assertEquals("testUser", user.getName());
         assertEquals("Computer Science", user.getMajors().get(0));
         assertEquals("Mathematics", user.getMinors().get(0));
-        assertTrue(user.getSchedule() == null); // Initially null
+        assertNotNull(user.getSchedule()); // Schedule is initialized
+        assertTrue(user.getSchedule().getCourses().isEmpty()); // But should be empty
     }
 
     @Test
@@ -109,9 +111,17 @@ public class UserTest {
 
     @Test
     public void testUpdateSchedule() {
+        System.out.println("Initial schedule size: " + schedule.getCourses().size());
+        assertEquals(1, schedule.getCourses().size(), "Schedule should start with 1 course");
+
+        System.out.println("User's initial schedule size: " + user.getSchedule().getCourses().size());
+
         user.updateSchedule(schedule);
-        assertEquals(schedule, user.getSchedule());
-        assertEquals(1, user.getSchedule().getCourses().size());
+
+        System.out.println("User's schedule size after update: " + user.getSchedule().getCourses().size());
+
+        assertEquals(schedule, user.getSchedule(), "Schedule objects should be the same");
+        assertEquals(1, user.getSchedule().getCourses().size(), "Schedule should have 1 course after update");
     }
 
     @Test
@@ -129,32 +139,29 @@ public class UserTest {
     @Test
     public void testSaveSchedule() throws IOException {
         user.updateSchedule(schedule);
-        File scheduleFile = new File("schedule.txt");
+        File scheduleFile = new File(user.getName() + ".txt");
 
-        // Redirect file output to temp directory by mocking the file path
         try (FileWriter writer = new FileWriter(scheduleFile)) {
-            user.saveSchedule(); // This writes to "schedule.txt" in current dir, but we'll test content
+            user.saveSchedule();
         }
 
-        // Read the file and verify content
         String content = Files.readString(scheduleFile.toPath());
         assertTrue(content.contains("Intro to Programming"));
         assertTrue(content.contains("Dr. Hutchins"));
         assertTrue(content.contains("COMP_141"));
+        assertTrue(content.contains("2,-1,2,-1,2")); // Check all 5 start times
+        assertTrue(content.contains("TFTFT")); // Check daysMeet
     }
 
     @Test
     public void testLoadSchedule() throws IOException {
-        // Prepare a sample schedule.txt file in temp directory
-        File scheduleFile = new File("schedule.txt");
+        File scheduleFile = new File(user.getName() + ".txt");
         try (FileWriter writer = new FileWriter(scheduleFile)) {
-            writer.write("Intro to Programming_1,2_true_50_Dr. Hutchins_true_TFTFT_COMP_141_3_30_A_false");
+            writer.write("0_Intro to Programming_2,-1,2,-1,2_true_50_Dr. Hutchins_true_TFTFT_COMP_141_3_30_A_false");
         }
 
-        // Load the schedule
         user.loadSchedule();
 
-        // Verify the loaded schedule
         Schedule loadedSchedule = user.getSchedule();
         assertNotNull(loadedSchedule);
         assertEquals(1, loadedSchedule.getCourses().size());
@@ -164,15 +171,17 @@ public class UserTest {
         assertEquals("Dr. Hutchins", loadedCourse.getProfessor().get(0));
         assertEquals("COMP", loadedCourse.getDepartment());
         assertEquals("141", loadedCourse.getCourseCode());
+        assertArrayEquals(new int[]{2, -1, 2, -1, 2}, loadedCourse.getStartTime(), "Start times should match");
+        assertArrayEquals(new boolean[]{true, false, true, false, true}, loadedCourse.getDaysMeet(), "Days should match");
     }
 
     @Test
     public void testLoadScheduleNoFile() {
-        // Ensure no file exists
-        File scheduleFile = new File("schedule.txt");
+        File scheduleFile = new File(user.getName() + ".txt");
         if (scheduleFile.exists()) scheduleFile.delete();
 
         user.loadSchedule();
-        assertNull(user.getSchedule()); // Should remain null if no file exists
+        assertNotNull(user.getSchedule()); // Schedule still exists
+        assertTrue(user.getSchedule().getCourses().isEmpty()); // But should be empty
     }
 }

@@ -109,16 +109,18 @@ public class User {
      *  Saves the User's schedule to a text file that can be loaded later
      */
     public void saveSchedule() {
-        try (PrintWriter writer = new PrintWriter(new FileWriter("schedule.txt"))) {
-            StringBuilder stringBuilder = new StringBuilder();
+        File file = new File(username + ".txt");
+        file.delete();
+        try (PrintWriter writer = new PrintWriter(username + ".txt")) {
             for (Course c: schedule.getCourses()) {
+                StringBuilder stringBuilder = new StringBuilder();
 
-                // Add Name
+                // Add CID and Name
+                stringBuilder.append(c.getCID()).append("_");
                 stringBuilder.append(c.getName()).append("_");
 
                 // Add StartTime array, times separated by ,
                 int[] startTime = c.getStartTime();
-                stringBuilder.append(startTime.length).append(",");
                 for (int i = 0; i < startTime.length; i++) {
                     if (i > 0)
                         stringBuilder.append(",");
@@ -171,7 +173,7 @@ public class User {
      * Loads the schedule to the User saved in the schedule.txt file
      */
     public void loadSchedule() {
-        File file = new File("schedule.txt");
+        File file = new File(username + ".txt");
         if (file.exists()) {
             try {
                 ArrayList<Course> courses = new ArrayList<>();
@@ -183,16 +185,16 @@ public class User {
                     Scanner byEntry = new Scanner(line);
                     byEntry.useDelimiter("_");
 
-                    // Loads the name and description
+                    // Loads the CID and name
+                    int cid = Integer.parseInt(byEntry.next());
                     String name = byEntry.next();
 
                     // Loads the startTime array
                     String timeString = byEntry.next();
                     Scanner parseTime = new Scanner(timeString);
                     parseTime.useDelimiter(",");
-                    int startTimeSize = Integer.parseInt(parseTime.next());
-                    int[] startTime = new int[startTimeSize];
-                    for (int i = 0; i < startTimeSize; i++)
+                    int[] startTime = new int[5];
+                    for (int i = 0; i < 5; i++)
                         startTime[i] = Integer.parseInt(parseTime.next());
 
                     // Loads MWForTR and duration
@@ -228,7 +230,7 @@ public class User {
                     String section = byEntry.next();
                     boolean isLab = Boolean.parseBoolean(byEntry.next());
 
-                    courses.add(new Course(name, startTime, duration, isOpen, professors, MWForTR, daysMeet, department, courseCode, credits, numSeats, section, isLab));
+                    courses.add(new Course(cid, name, startTime, duration, isOpen, professors, MWForTR, daysMeet, department, courseCode, credits, numSeats, section, isLab));
                 }
                 schedule = new Schedule(courses);
             } catch (Exception e) {

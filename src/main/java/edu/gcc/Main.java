@@ -13,13 +13,10 @@ public class Main {
     private static final ArrayList<User> users = new ArrayList<>();
     private static Search search;
     private User[] user;
-    protected static final ArrayList<Course> courses = new ArrayList<>();
+    protected static  ArrayList<Course> courses;
 
     public static void main(String[] args) {
-        getCourses();
-        for (Course c : courses) {
-            System.out.println(c.toString());
-        }
+        courses = getCourses("data_wolfe.json");
         ConsoleDriver.run();
     }
 
@@ -28,13 +25,14 @@ public class Main {
      * It reads the JSON file, extracts course information, and creates Course objects.
      * Only open courses are added to the 'courses' list.
      */
-    public static void getCourses() {
+    public static ArrayList<Course> getCourses(String filename) {
         try {
-            FileReader json = new FileReader("data_wolfe.json"); // Opens the JSON file for reading.
+            ArrayList<Course> returnArray = new ArrayList<>(); // List to store the Course objects.
+            FileReader json = new FileReader(filename); // Opens the JSON file for reading.
             JsonObject jsonObject = JsonParser.parseReader(json).getAsJsonObject(); // Parses the JSON file into a JsonObject.
 
             JsonArray coursesArray = jsonObject.getAsJsonArray("classes"); // Extracts the "classes" array from the JSON.
-
+            int CID = 0; // Variable to store the course ID.
             for (JsonElement courseElement : coursesArray) { // Iterates through each course element in the array.
                 String name; // Variable to store the course name.
                 int[] startingTimes = {-1, -1, -1, -1, -1}; // Array to store starting times for each day of the week (M-F).
@@ -103,14 +101,16 @@ public class Main {
                 isLab = course.get("is_lab").getAsBoolean(); // Gets the lab status.
 
                 if(isOpen){ // Check if the course is open.
-                    courses.add(new Course(name, startingTimes, duration, isOpen, professors, MWForTR, daysMeet, department, courseCode, credits, numSeats, section, isLab)); // Create and add the Course object to the list.
+                    returnArray.add(new Course(CID, name, startingTimes, duration, isOpen, professors, MWForTR, daysMeet, department, courseCode, credits, numSeats, section, isLab)); // Create and add the Course object to the list.
+                    CID++;
                 }
 
             }
 
-
+            return returnArray; // Return the list of Course objects.
         } catch (FileNotFoundException e) {
             System.out.println(e.getMessage()); // Print the exception message if the file is not found.
+            return null;
         }
     }
 
