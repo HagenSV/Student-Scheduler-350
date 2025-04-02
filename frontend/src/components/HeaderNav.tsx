@@ -6,9 +6,11 @@ const HeaderNav = () => {
   return (
     <div class="header-nav">
     <img src={logo} alt="logo" />
-    <a href="/">My Schedule</a>
-    <a href="/search">Course Search</a>
-    <a href="/#export">Export</a>
+    <ul>
+        <li><a href="/">My Schedule</a></li>
+        <li><a href="/search">Course Search</a></li>
+        <li><a href="/#export">Export</a></li>
+    </ul>
     </div>
   );
 }
