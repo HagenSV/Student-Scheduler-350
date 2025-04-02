@@ -1,10 +1,11 @@
 import React from 'react';
 import './HeaderNav.css';
+import logo from './gcc-logo-primary.png';
 
 const HeaderNav = () => {
   return (
     <div class="header-nav">
-    <img src="%PUBLIC_URL%/gcc-logo-primary.png" alt="logo" />
+    <img src={logo} alt="logo" />
     <a href="/">My Schedule</a>
     <a href="/search">Course Search</a>
     <a href="/#export">Export</a>
