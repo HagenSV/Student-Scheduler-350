@@ -10,15 +10,20 @@ interface Course {
     professor: string;
 }
 
-const CoursePreview = (course) => {
+const CoursePreview = ({ course }) => {
     return (
-        <main>
+        <>
         <h1>Info</h1>
-        <h2>{course.title}</h2>
-        <h3>{course.department} {course.number}{course.section}, {course.credits} credits</h3>
+        {course && (<><h2>{course.title}</h2>
+        <h3>{course.department} {course.code}{course.section}, {course.credits} credits</h3>
         <h3>{course.professor}</h3>
         <h3>Summary</h3>
         <p>{course.description}</p>
-        </main>
+        </>
+        )}
+        {!course && <p>Select a course for more info</p>}
+        </>
     );
 }
+
+export default CoursePreview;
