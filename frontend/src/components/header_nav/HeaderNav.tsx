@@ -1,10 +1,10 @@
 import React from 'react';
 import './HeaderNav.css';
-import logo from './gcc-logo-primary.png';
+const logo = require('./gcc-logo-primary.png');
 
-const HeaderNav = () => {
+const HeaderNav: React.FC = () => {
   return (
-    <div class="header-nav">
+    <div className="header-nav">
     <a href="/"><img src={logo} alt="logo" /></a>
     <ul>
         <li><a href="/">My Schedule</a></li>
