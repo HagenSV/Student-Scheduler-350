@@ -1,16 +1,11 @@
 import React from 'react';
+import { Course } from '../../interface/course';
 
-interface Course {
-    title: string;
-    department: string;
-    code: number;
-    section: string;
-    credits: number;
-    description: string;
-    professor: string;
+interface CoursePreviewParams {
+    course: Course | null
 }
 
-const CoursePreview = ({ course }) => {
+const CoursePreview: React.FC<CoursePreviewParams> = ({ course }) => {
     return (
         <>
         <h1>Info</h1>
