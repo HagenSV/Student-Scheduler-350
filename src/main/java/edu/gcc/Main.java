@@ -3,11 +3,14 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.ArrayList;
 
+@SpringBootApplication
 public class Main {
 
     private static final ArrayList<User> users = new ArrayList<>();
@@ -17,7 +20,8 @@ public class Main {
 
     public static void main(String[] args) {
         courses = getCourses("data_wolfe.json");
-        ConsoleDriver.run();
+        //ConsoleDriver.run();
+        SpringApplication.run(Main.class,args);
     }
 
     /**
