@@ -11,9 +11,7 @@ const search = async (query: string) => {
     });
 
     if (response.ok){
-        console.log("Ok")
         const json = await response.json()
-        console.log(json);
         return json;
     }
 
