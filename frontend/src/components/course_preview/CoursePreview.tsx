@@ -9,8 +9,8 @@ const CoursePreview: React.FC<CoursePreviewParams> = ({ course }) => {
     return (
         <>
         <h1>Info</h1>
-        {course && (<><h2>{course.title}</h2>
-        <h3>{course.department} {course.code}{course.section}, {course.credits} credits</h3>
+        {course && (<><h2>{course.name}</h2>
+        <h3>{course.department} {course.courseCode}{course.section}, {course.credits} credits</h3>
         <h3>{course.professor}</h3>
         <h3>Summary</h3>
         <p>{course.description}</p>
