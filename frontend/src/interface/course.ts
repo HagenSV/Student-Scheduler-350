@@ -1,11 +1,12 @@
 interface Course {
-    title: string;
+    name: string;
     department: string;
-    code: number;
+    courseCode: number;
     section: string;
     credits: number;
     description: string;
     professor: string;
+    MWForTR
 }
 
 export type { Course }
