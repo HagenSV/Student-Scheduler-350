@@ -6,7 +6,10 @@ interface Course {
     credits: number;
     description: string;
     professor: string;
-    MWForTR
+    MWForTR: boolean;
+    daysMeet: boolean[];
+    startTime: number[];
+    duration: number;
 }
 
 export type { Course }
