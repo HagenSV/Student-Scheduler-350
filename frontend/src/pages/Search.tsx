@@ -1,29 +1,39 @@
-import React from 'react';
+import React, { KeyboardEventHandler, MouseEventHandler, useState } from 'react';
 
-import CoursePreview from '../components/course_preview/CoursePreview.tsx';
+import CourseListing from '../components/course_listing/CourseListing';
+import CoursePreview from '../components/course_preview/CoursePreview';
 import { Container, Row, Col } from 'react-bootstrap';
-
-const example = {
-    title: "Introduction to Computer Science",
-    department: "COMP",
-    code: 155,
-    section: "B",
-    credits: 3,
-    description: "This course is an introduction to computer science.",
-    professor: "Dr. Dickinson"
-}
+import { Course } from '../interface/course';
+import search from '../api/search';
 
 const Search = () => {
+    const [results, setResults] = useState<Course[]>([]);
+    const [selectedCourse, setCourse] = useState<Course|null>(null);
+
+    const keyPress: KeyboardEventHandler<HTMLInputElement> = async (event: React.KeyboardEvent<HTMLInputElement>) => {
+        const target = event.target as HTMLInputElement
+        const res = await search(target.value)
+        setResults(res)
+    }
+
+    const selectCourse = (course: Course) => {
+        const click: MouseEventHandler = () => {
+            setCourse(course)
+        }
+        return click;
+    }
+
     return (
         <main>
         <Container>
             <Row>
                 <Col md={6}>
                     <h1>Course Search</h1>
-                    <h2>Search Bar</h2>
+                    <input type="text" placeholder="Search for a course" onKeyUp={keyPress}/>
+                    {results.map((course) => (<CourseListing course={course} clickEvent={selectCourse(course)}/>))}
                 </Col>
-                <Col md={6} style={{ "border-left": "1px solid black" }}>
-                    <CoursePreview course={null} />
+                <Col md={6} style={{ borderLeft: "1px solid black" }}>
+                    <CoursePreview course={ selectedCourse } />
                 </Col>
             </Row>
         </Container>
