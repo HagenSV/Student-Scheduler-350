@@ -160,6 +160,8 @@ public class User {
                 stringBuilder.append(c.getNumSeats()).append("_");
                 stringBuilder.append(c.getSection()).append("_");
                 stringBuilder.append(c.getIsLab());
+                stringBuilder.append(c.getSemester());
+                stringBuilder.append(c.getLocation());
 
                 // Finally write course into line
                 writer.println(stringBuilder);
@@ -229,8 +231,10 @@ public class User {
                     int numSeats = Integer.parseInt(byEntry.next());
                     String section = byEntry.next();
                     boolean isLab = Boolean.parseBoolean(byEntry.next());
+                    String semester = byEntry.next();
+                    String location = byEntry.next();
 
-                    courses.add(new Course(cid, name, startTime, duration, isOpen, professors, MWForTR, daysMeet, department, courseCode, credits, numSeats, section, isLab));
+                    courses.add(new Course(cid, name, startTime, duration, isOpen, professors, MWForTR, daysMeet, department, courseCode, credits, numSeats, section, isLab, semester, location));
                 }
                 schedule = new Schedule(courses);
             } catch (Exception e) {
