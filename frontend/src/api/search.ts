@@ -11,7 +11,7 @@ const search = async (query: string) => {
     });
 
     if (response.ok){
-        const json = await response.json()
+        const json = await response.json() as Course[];
         return json;
     }
 
