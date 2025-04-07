@@ -44,7 +44,7 @@ const formatTimeTR = (course: Course) => {
     for (let i = 1; i < 5; i += 2){
         if (course.startTime[i] != -1){
             time[0] += days[i];
-            time[1] = `${toTimeString(course.startTime[i])} - ${toTimeString(course.startTime[i])}`
+            time[1] = `${toTimeString(course.startTime[i])} - ${toTimeString(course.startTime[i]+course.duration)}`
         }
     }
     return time.join(" ")
