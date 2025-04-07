@@ -47,6 +47,8 @@ public class Main {
                 int numSeats = 0; // Variable to store the number of open seats.
                 String section; // Variable to store the course section.
                 boolean isLab; // Variable to store whether the course is a lab.
+                String semester; // Variable to store the semester.
+                String location; // Variable to store the course location.
 
                 JsonObject course = courseElement.getAsJsonObject(); // Converts the current course element to a JsonObject.
 
@@ -100,8 +102,12 @@ public class Main {
                 section = course.get("section").getAsString(); // Gets the section.
                 isLab = course.get("is_lab").getAsBoolean(); // Gets the lab status.
 
+                location = course.get("location").getAsString(); // Gets the location.
+                semester = getSemester(course); // Gets the semester.
+
+
                 if(isOpen){ // Check if the course is open.
-                    returnArray.add(new Course(CID, name, startingTimes, duration, isOpen, professors, MWForTR, daysMeet, department, courseCode, credits, numSeats, section, isLab)); // Create and add the Course object to the list.
+                    returnArray.add(new Course(CID, name, startingTimes, duration, isOpen, professors, MWForTR, daysMeet, department, courseCode, credits, numSeats, section, isLab, semester, location)); // Create and add the Course object to the list.
                     CID++;
                 }
 
@@ -114,6 +120,19 @@ public class Main {
         }
     }
 
+    public static String getSemester(JsonObject course){
+        String jsonResponse = course.get("semester").getAsString(); // Gets the semester from the course object.
+        String[] jsonParts = jsonResponse.split("_"); // Splits the semester string into parts.
+        String returnString = "";
+        for (int i = 1; i < jsonParts.length; i++) {
+            if(i + 1 == jsonParts.length){
+                returnString = returnString + jsonParts[i];
+            } else {
+                returnString = returnString + jsonParts[i] + "_";
+            }
+        }
+        return  returnString;
+    }
     /**
      * Converts a time string (HH:MM) to minutes from 8:00 AM.
      *
