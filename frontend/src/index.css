@@ -1,0 +1,88 @@
+:root {
+    --primary-color: #D4001C;
+    --secondary-color: #FFFFFF;
+}
+
+body {
+    margin: 0;
+    font-family: 'Roboto', sans-serif;
+}
+
+main {
+    margin: 20px 5%;
+}
+
+h1, h2, h3 {
+    color: var(--primary-color)
+}
+
+form {
+    display: block;
+    position: relative;
+    top: 20vh;
+    width: 80%;
+    text-align: center;
+    padding: 20px;
+    margin: auto;
+    border-radius: 30px;
+    background: var(--secondary-color);
+    box-shadow: 0 5px 10px -1px gray;
+}
+
+form > * {
+    display: block;
+    box-sizing: border-box;
+    margin: 2px auto;
+}
+
+form > input {
+    width: 300px;
+    padding: 10px;
+    border-radius: 20px;
+}
+
+form > .btn {
+    width: 300px;
+}
+
+.btn {
+    display: block;
+    text-align: center;
+    font-weight: bold;
+    text-decoration: none;
+    border: none;
+    padding: 10px;
+    border-radius: 20px;
+    border: 1px solid var(--primary-color);
+}
+
+.btn.primary {
+    color: var(--background-color);
+    background-color: var(--primary-color);
+}
+
+.btn.secondary {
+    color: var(--primary-color);
+    background-color: var(--secondary-color);
+}
+
+@media screen and (min-width: 768px){
+    form {
+        width: 50%;
+    }
+    main {
+        margin: 20px 10%;
+    }
+}
+
+@media screen and (min-width: 992px){
+    main {
+        margin: 20px 10%;
+    }
+}
+
+@media screen and (min-width: 1200px){
+    form {
+        width: 30%
+    }
+}

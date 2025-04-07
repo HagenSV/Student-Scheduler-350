@@ -1,0 +1,36 @@
+.header-nav {
+    padding: 1px;
+    background-color: var(--primary-color);
+    color: var(--secondary-color);
+    height: fit-content;
+    overflow: hidden;
+
+    ul {
+      list-style-type: none;
+      margin: 16px 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: var(--primary-color);
+    }
+
+    li {
+      float: left;
+      a {
+        display: block;
+        color: var(--secondary-color);
+        text-align: center;
+        padding: 14px 16px;
+        text-decoration: none;
+      }
+    }
+
+    img {
+        display: block;
+        float: left;
+        padding: 10px
+    }
+
+    h1, h2, h3 {
+        color: var(--secondary-color);
+    }
+}
