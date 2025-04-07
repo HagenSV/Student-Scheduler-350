@@ -13,19 +13,13 @@ import java.util.List;
 @RestController
 public class SearchAPI {
 
-    @GetMapping("/api/v1/search")
-    public String search(){
-        return "Search API is working!";
-    }
-
     //Search returning a list of courses
     @PostMapping("/api/v1/search")
     public List<Course> search(@RequestBody SearchQuery query) {
         // Assuming 'search' is an object that contains the search criteria
         // You can process the search criteria and return the results
         // For now, we will just return a success message
-        System.out.println("Searching for: " + query.getQuery());
-
+        //System.out.println("Searching for: " + query.getQuery());
         Search search = new Search(query.getQuery());
         search.search();
         return search.getResult();
