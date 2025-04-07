@@ -218,7 +218,7 @@ public class Search {
     public void searchByDaysMeeting(String query)   {
         boolean MWF = false;
         boolean TR = false;
-        String[] words = query.split(" ");
+        String[] words = query.toLowerCase().split(" ");
         for (String s : words)  {
             if (s.equals("mon") || s.equals("wed") || s.equals("fri") || s.equals("monday") || s.equals("wednesday") || s.equals("friday") || s.equals("mwf"))  {
                 MWF = true;
@@ -402,7 +402,7 @@ public class Search {
         String toUseQuery = query;
         for (Course c : initialResult) {
             String code = c.getDepartment() + " " + c.getCourseCode();
-            if (query.contains(code.toLowerCase()) || query.contains(c.getName().toLowerCase()) && !temp.contains(c)) {
+            if (query.toLowerCase().contains(code.toLowerCase()) || query.toLowerCase().contains(c.getName().toLowerCase()) && !temp.contains(c)) {
                 temp.add(c);
                 if (toUseQuery.contains(code.toLowerCase())) {
                     toUseQuery = toUseQuery.replace(code.toLowerCase(), "");
@@ -426,7 +426,6 @@ public class Search {
                     }
                 }
             }
-
             int largestKey = 0;
             for (int i : keywordMap.keySet()) {
                 largestKey = i;
@@ -453,7 +452,6 @@ public class Search {
      * @param query the search query
      */
     public void searchByDepartment(String query)    {
-
         for (String s : listDep)    {
             for (String d : query.split(" ")) {
                 if (s.toLowerCase().equals(d.toLowerCase()))    {
