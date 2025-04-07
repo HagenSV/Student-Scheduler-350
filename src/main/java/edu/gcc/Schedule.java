@@ -15,7 +15,13 @@ import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventDateTime;
 
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
+
 import java.io.*;
+import java.awt.Desktop;
 import java.security.GeneralSecurityException;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
@@ -25,6 +31,7 @@ import java.util.*;
 public class Schedule {
     private final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
     private ArrayList<Course> courses;
+    private String semester;
 
     public Schedule() {
         courses = new ArrayList<>();
@@ -52,7 +59,6 @@ public class Schedule {
         ArrayList<Course> currentDomain = domains.get(0);
         for (Course c : currentDomain) {
             if (schedule.addCourse(c)) {
-
                 // Create copy of domains
                 ArrayList<ArrayList<Course>> domainCopy = new ArrayList<>();
                 for (int i = 1; i < domains.size(); i++) {
@@ -82,8 +88,9 @@ public class Schedule {
 
                     // Domain is valid, call backtrack again with deepCopy of forward checked domains
                 } else {
-                    backtrack(generatedSchedules, schedule, domainCopy);
+                    backtrack(generatedSchedules, new Schedule(new ArrayList<>(schedule.getCourses())), domainCopy);
                 }
+                schedule.removeCourse(c);
             }
         }
     }
@@ -121,11 +128,13 @@ public class Schedule {
         }
     }
 
-    public ArrayList<Schedule> generateSchedule(String[] searchQueries, ArrayList<Course> foundCourses) {
-        ArrayList<Schedule> generatedSchedules = new ArrayList<>();
-        ArrayList<ArrayList<Course>> domains = new ArrayList<>();
+    public ArrayList<Schedule> generateSchedule(String[] searchQueries, ArrayList<Course> foundCourses, String semester) {
         if (foundCourses == null)
             return null;
+
+        foundCourses.removeIf(c -> !c.getSemester().equals(semester));
+        ArrayList<Schedule> generatedSchedules = new ArrayList<>();
+        ArrayList<ArrayList<Course>> domains = new ArrayList<>();
 
         Map<String, ArrayList<Course>> courseMap = new HashMap<>();
         for (String query : searchQueries) {
@@ -301,6 +310,7 @@ public class Schedule {
                 // Create the event
                 Event event = new Event()
                         .setSummary(course.getDepartment() + " " + course.getCourseCode() + " - " + course.getName())
+                        .setLocation(getCleanLocation(course, i))
                         .setDescription("Professor: " + String.join(", ", course.getProfessor()));
 
                 // Calculate start and end times
@@ -329,5 +339,232 @@ public class Schedule {
                 service.events().insert("primary", event).execute();
             }
         }
+    }
+
+    /**
+     * Exports the schedule to a PDF file in a Google Calendar-like time slot format.
+     * Displays time slots from 8:00 AM to 8:00 PM with courses as blocks.
+     * Automatically opens the PDF file after creation.
+     */
+    public void exportToPDF() {
+        String fileName = "ScheduleSpring2025.pdf";
+        try (PDDocument document = new PDDocument()) {
+            PDPage page = new PDPage();
+            document.addPage(page);
+
+            try (PDPageContentStream contentStream = new PDPageContentStream(document, page)) {
+                // Set font for the title
+                contentStream.setFont(PDType1Font.HELVETICA_BOLD, 14);
+
+                // Center the title
+                String title = "Course Schedule - Spring 2025";
+                float titleWidth = PDType1Font.HELVETICA_BOLD.getStringWidth(title) / 1000 * 14;
+                float pageWidth = page.getMediaBox().getWidth();
+                float titleX = (pageWidth - titleWidth) / 2;
+
+                contentStream.beginText();
+                contentStream.newLineAtOffset(titleX, 750);
+                contentStream.showText(title);
+                contentStream.endText();
+
+                // Grid dimensions
+                float xStart = 10; // Starting x position
+                float yStart = 700; // Starting y position
+                float timeColumnWidth = 35; // Width for the time column
+                float dayColumnWidth = 110; // Width for each day
+                float rowHeight = 52; // How tall each row is
+                int numHours = 13; // 13 hours from 8 AM to 9 PM
+
+                // Set larger font for time and day labels
+                contentStream.setFont(PDType1Font.HELVETICA_BOLD, 10);
+
+                // Draw time labels (8:00 AM to 8:00 PM) closer to the grid
+                for (int i = 0; i <= numHours; i++) {
+                    float yPosition = yStart - (i * rowHeight);
+                    contentStream.beginText();
+                    contentStream.newLineAtOffset(xStart, yPosition - 5);
+                    String timeLabel = (i + 8) % 12 == 0 ? "12" : String.valueOf((i + 8) % 12);
+                    timeLabel += (i + 8) < 12 || (i + 8) == 24 ? " AM" : " PM";
+                    contentStream.showText(timeLabel);
+                    contentStream.endText();
+                }
+
+                // Draw day headers (Mon to Fri) closer to the grid
+                String[] days = {"Mon", "Tue", "Wed", "Thu", "Fri"};
+                for (int i = 0; i < days.length; i++) {
+                    float xPosition = xStart + timeColumnWidth + (i * dayColumnWidth);
+                    float textWidth = PDType1Font.HELVETICA_BOLD.getStringWidth(days[i]) / 1000 * 10;
+                    float centeredX = xPosition + (dayColumnWidth - textWidth) / 2;
+                    contentStream.beginText();
+                    contentStream.newLineAtOffset(centeredX, yStart + 5);
+                    contentStream.showText(days[i]);
+                    contentStream.endText();
+                }
+
+                // Draw the grid
+                // Vertical lines (for days)
+                contentStream.setLineWidth(1f);
+                contentStream.setStrokingColor(0, 0, 0); // Black for vertical lines
+                for (int i = 0; i <= 5; i++) {
+                    float x = xStart + timeColumnWidth + (i * dayColumnWidth);
+                    contentStream.moveTo(x, yStart);
+                    contentStream.lineTo(x, yStart - (numHours * rowHeight));
+                    contentStream.stroke();
+                }
+
+                // Horizontal lines (for hours) with faded style
+                contentStream.setLineWidth(0.5f);
+                contentStream.setStrokingColor(0.7f, 0.7f, 0.7f); // Light gray for faded effect
+                for (int i = 0; i <= numHours; i++) {
+                    float y = yStart - (i * rowHeight);
+                    contentStream.moveTo(xStart + timeColumnWidth, y);
+                    contentStream.lineTo(xStart + timeColumnWidth + (5 * dayColumnWidth), y); // Extended to match wider table
+                    contentStream.stroke();
+                }
+
+                // Reset color for course blocks
+                contentStream.setStrokingColor(0, 0, 0);
+
+                // Set font for course blocks
+                contentStream.setFont(PDType1Font.HELVETICA, 8);
+
+                // Draw course blocks
+                for (Course course : courses) {
+                    boolean[] daysMeet = course.getDaysMeet();
+                    int[] startTimes = course.getStartTime();
+                    int duration = course.getDuration();
+
+                    for (int day = 0; day < daysMeet.length; day++) {
+                        if (daysMeet[day] && startTimes[day] != -1) {
+                            // Calculate the position and size of the course block
+                            float x = xStart + timeColumnWidth + (day * dayColumnWidth);
+                            float startHour = startTimes[day] / 60.0f; // Convert minutes to hours
+                            float durationHours = duration / 60.0f; // Duration in hours
+                            float y = yStart - (startHour * rowHeight);
+                            float blockHeight = durationHours * rowHeight;
+
+                            // Draw the course block (rectangle)
+                            contentStream.setNonStrokingColor(0.9f, 0.9f, 0.9f);
+                            contentStream.addRect(x + 2, y - blockHeight, dayColumnWidth - 4, blockHeight);
+                            contentStream.fill();
+                            contentStream.setNonStrokingColor(0, 0, 0); // Reset to black for text
+
+                            // Add course details inside the block
+                            contentStream.beginText();
+                            contentStream.newLineAtOffset(x + 5, y - 10); // Starting position for the first line
+                            String courseLabel = course.getDepartment() + " " + course.getCourseCode() + course.getSection();
+                            contentStream.showText(truncateString(courseLabel, 20)); // Course code (e.g., "COMP 141B")
+                            contentStream.newLineAtOffset(0, -10); // Move down for the second line
+                            contentStream.showText(truncateString(course.getName(), 20)); // Course name (e.g., "COMP PROGRAM...")
+                            contentStream.newLineAtOffset(0, -10); // Move down for the third line
+                            contentStream.showText(truncateString(getCleanLocation(course, day), 25)); // Course location (e.g., "Room 101")
+                            contentStream.endText();
+                        }
+                    }
+                }
+            }
+
+            // Save the document
+            document.save(fileName);
+            System.out.println("Schedule exported to " + fileName);
+
+            // Automatically open the PDF file
+            File pdfFile = new File(fileName);
+            if (pdfFile.exists()) {
+                if (Desktop.isDesktopSupported()) {
+                    Desktop desktop = Desktop.getDesktop();
+                    desktop.open(pdfFile);
+                    System.out.println("Opening " + fileName + " with default PDF viewer...");
+                } else {
+                    System.err.println("Desktop API is not supported on this platform. Please open " + fileName + " manually.");
+                }
+            } else {
+                System.err.println("PDF file was not found: " + fileName);
+            }
+
+        } catch (IOException e) {
+            System.err.println("Error exporting schedule to PDF: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Helper method to truncate a string if it exceeds a specified length and remove newlines.
+     */
+    private String truncateString(String text, int maxLength) {
+        // Handle null or empty strings
+        if (text == null) {
+            return "";
+        }
+        // Remove newline characters and other control characters
+        text = text.replaceAll("[\\n\\r\\t]", " ");
+        // Truncate the string if it exceeds the max length
+        if (text.length() > maxLength) {
+            return text.substring(0, maxLength - 3) + "...";
+        }
+        return text;
+    }
+
+    /**
+     * Gets the clean location for a course on a specific day, removing any " w/multimedia" suffix.
+     * @param course The course to get the location for.
+     * @param day The day index (0 = Monday, 1 = Tuesday, ..., 4 = Friday).
+     * @return The cleaned location for the specified day, or the single location if the course meets in the same room every day.
+     */
+    private String getCleanLocation(Course course, int day) {
+        String location = course.getLocation();
+        if (location == null) {
+            return "Unknown";
+        }
+
+        // If the location contains a newline, it has multiple locations with times
+        if (location.contains("\n")) {
+            // Split the location string into parts
+            String[] parts = location.split("\n");
+            if (parts.length < 2) {
+                // Fallback to the first part if parsing fails, and clean it
+                return cleanLocationString(parts[0].trim());
+            }
+
+            // The first part is the default location (e.g., "SHAL 301")
+            String defaultLocation = cleanLocationString(parts[0].trim());
+            // The second part contains the exception (e.g., "T 9:30 AM-10:20 AM; SHAL 301")
+            String exception = parts[1].trim();
+
+            // Parse the exception (e.g., "T 9:30 AM-10:20 AM; SHAL 301 w/multimedia")
+            String[] exceptionParts = exception.split(";");
+            if (exceptionParts.length < 2) {
+                return defaultLocation; // Fallback to default if parsing fails
+            }
+
+            // Get the day and time part (e.g., "T 9:30 AM-10:20 AM")
+            String dayTime = exceptionParts[0].trim();
+            // Get the exception location (e.g., "SHAL 301 w/multimedia")
+            String exceptionLocation = cleanLocationString(exceptionParts[1].trim());
+
+            // Map the day index to the day letter (0 = M, 1 = T, ..., 4 = F)
+            String[] dayLetters = {"M", "T", "W", "R", "F"};
+            String currentDayLetter = dayLetters[day];
+
+            // Check if the exception applies to the current day
+            if (dayTime.startsWith(currentDayLetter)) {
+                return exceptionLocation; // Use the exception location for this day
+            } else {
+                return defaultLocation; // Use the default location for other days
+            }
+        }
+
+        // If there's no newline, the location is the same every day
+        return cleanLocationString(location.trim());
+    }
+
+    /**
+     * Helper method to clean a location string by removing " w/multimedia" or similar suffixes.
+     * @param location The location string to clean.
+     * @return The cleaned location string.
+     */
+    private String cleanLocationString(String location) {
+        // Remove " w/multimedia" or similar suffixes (case-insensitive)
+        return location.replaceAll("\\s+w/\\s*multimedia\\b", "").trim();
     }
 }
