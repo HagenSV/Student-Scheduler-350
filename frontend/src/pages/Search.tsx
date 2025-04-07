@@ -5,6 +5,7 @@ import CoursePreview from '../components/course_preview/CoursePreview';
 import { Container, Row, Col } from 'react-bootstrap';
 import { Course } from '../interface/course';
 import search from '../api/search';
+import scheduleAPI from '../api/schedule';
 
 const Search = () => {
     const [results, setResults] = useState<Course[]>([]);
@@ -19,6 +20,7 @@ const Search = () => {
     const selectCourse = (course: Course) => {
         const click: MouseEventHandler = () => {
             setCourse(course)
+            scheduleAPI.addCourse(course)
         }
         return click;
     }
@@ -30,7 +32,7 @@ const Search = () => {
                 <Col md={6}>
                     <h1>Course Search</h1>
                     <input type="text" placeholder="Search for a course" onKeyUp={keyPress}/>
-                    {results.map((course) => (<CourseListing course={course} clickEvent={selectCourse(course)}/>))}
+                    {results.map((course, index) => (<CourseListing key={index} course={course} clickEvent={selectCourse(course)}/>))}
                 </Col>
                 <Col md={6} style={{ borderLeft: "1px solid black" }}>
                     <CoursePreview course={ selectedCourse } />

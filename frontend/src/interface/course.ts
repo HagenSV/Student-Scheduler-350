@@ -28,7 +28,7 @@ const toTimeString = (time: number) => {
     const hour = 8+Math.floor(time/60)
     const minute = time%60
 
-    return `${(hour-1)%12+1}:${minute < 10 ? "0" : ""}${minute}${hour <= 12 ? "AM" : "PM"}`
+    return `${(hour-1)%12+1}:${minute < 10 ? "0" : ""}${minute} ${hour <= 12 ? "AM" : "PM"}`
 }
 
 const formatTimeMWF = (course: Course) => {
@@ -55,5 +55,5 @@ const formatTimeTR = (course: Course) => {
     return time.join(" ")
 }
 
-export { formatTime }
+export { formatTime, toTimeString }
 export type { Course }
