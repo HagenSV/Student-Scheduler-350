@@ -1,5 +1,14 @@
 # Course Scheduler
 
+## Developing with react.
+1. Open two terminals
+2. In the first terminal run `cd frontend && npm start` to start the react server
+3. In the second terminal, run `./gradlew bootRun` to start the spring boot server 
+Any changes made to the React front end (in the frontend directory) will be reflected in the browser.
+Any changes made to the back end must be recompiled and the server restarted.
+To restart the server, to go the terminal running the backend server and press `ctrl + c` to stop the server. 
+When prompted to terminate batch job enter `Y`, then run `./gradlew bootRun` to restart the server.
+
 **Scrum Backlog Notes:**
 
 Only have MVP in production, the Automated Scheduler is in the Schedule class, but has not been integrated with search or the console driver yet, however there are tests to prove that it works. As for the rest of the sprint backlog, we have only included the MVP, the database has not yet been created as we didn't expect it to take as much time as it did. And the HTML Server and Frontend work that was completed has not been merged yet as there was not time to test integration and thus has been left for Sprint 2. 
