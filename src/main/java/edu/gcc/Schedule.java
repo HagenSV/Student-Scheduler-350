@@ -35,68 +35,16 @@ public class Schedule {
     }
 
     /**
-     * Constructs a schedule based on a series of searchQueries, all classes separated by whitespace
-     *
-     * @param searchQueries the search queries to be used to generate the schedule ex. COMP 141, COMP 220
-     */
-    public Schedule(String[] searchQueries, ArrayList<Course> foundCourses) {
-        ArrayList<ArrayList<Course>> domains = new ArrayList<>();
-        if (foundCourses == null)
-            return;
-
-        Map<String, ArrayList<Course>> courseMap = new HashMap<>();
-        for (String query : searchQueries) {
-            String[] queries = query.split(" ");
-            for (Course c : foundCourses) {
-                if (c.getDepartment().equals(queries[0])
-                        && c.getCourseCode().equals(queries[1])) {
-                    if (courseMap.containsKey(query))
-                        courseMap.get(query).add(c);
-                    else {
-                        ArrayList<Course> newEntry = new ArrayList<>();
-                        newEntry.add(c);
-                        courseMap.put(query, newEntry);
-                    }
-                }
-            }
-        }
-
-        // Print out courses that don't exist in the query
-        for (String s: searchQueries) {
-            boolean exists = false;
-            for (String str : courseMap.keySet()) {
-                if (s.equals(str)) {
-                    exists = true;
-                    break;
-                }
-            }
-            if (!exists)
-                System.err.println("Could not find course: " + s);
-        }
-
-        for (String s : courseMap.keySet())
-            domains.add(courseMap.get(s));
-
-        // Call backtracking search, if domains not found, courses are null
-        ArrayList<Course> generatedSchedule;
-        generatedSchedule = backtrack(new Schedule(), domains);
-        if (generatedSchedule == null) {
-            this.courses = new ArrayList<>();
-        } else
-            this.courses = generatedSchedule;
-    }
-
-    /**
      * Backtracking search with MRV heuristic and forward checking
      *
      * @param schedule schedule that is being generated
      * @param domains domain of each Course variable
-     * @return completed schedule
-     */
-    public ArrayList<Course> backtrack(Schedule schedule, ArrayList<ArrayList<Course>> domains) {
+     * */
+    public void backtrack(ArrayList<Schedule> generatedSchedules, Schedule schedule, ArrayList<ArrayList<Course>> domains) {
         // Base case, all variables assigned
         if (domains.isEmpty()) {
-            return schedule.getCourses();
+            generatedSchedules.add(schedule);
+            return;
         }
 
         // MRV Heuristic choose from ArrayList with the smallest size
@@ -131,15 +79,13 @@ public class Schedule {
                 // Domain isn't valid remove from schedule and go to next value
                 if (!valid) {
                     schedule.removeCourse(c);
-                    return null;
 
                     // Domain is valid, call backtrack again with deepCopy of forward checked domains
                 } else {
-                    return backtrack(schedule, domainCopy);
+                    backtrack(generatedSchedules, schedule, domainCopy);
                 }
             }
         }
-        return null;
     }
 
     /**
@@ -175,12 +121,48 @@ public class Schedule {
         }
     }
 
-    public boolean generateSchedule(String[] searchQueries, ArrayList<Course> courses) {
-        Schedule generatedSchedule = new Schedule(searchQueries, courses);
-        if (generatedSchedule.getCourses().isEmpty())
-            return false;
-        this.courses = generatedSchedule.getCourses();
-        return true;
+    public ArrayList<Schedule> generateSchedule(String[] searchQueries, ArrayList<Course> foundCourses) {
+        ArrayList<Schedule> generatedSchedules = new ArrayList<>();
+        ArrayList<ArrayList<Course>> domains = new ArrayList<>();
+        if (foundCourses == null)
+            return null;
+
+        Map<String, ArrayList<Course>> courseMap = new HashMap<>();
+        for (String query : searchQueries) {
+            String[] queries = query.split(" ");
+            for (Course c : foundCourses) {
+                if (c.getDepartment().equals(queries[0])
+                        && c.getCourseCode().equals(queries[1])) {
+                    if (courseMap.containsKey(query))
+                        courseMap.get(query).add(c);
+                    else {
+                        ArrayList<Course> newEntry = new ArrayList<>();
+                        newEntry.add(c);
+                        courseMap.put(query, newEntry);
+                    }
+                }
+            }
+        }
+
+        // Print out courses that don't exist in the query
+        for (String s: searchQueries) {
+            boolean exists = false;
+            for (String str : courseMap.keySet()) {
+                if (s.equals(str)) {
+                    exists = true;
+                    break;
+                }
+            }
+            if (!exists)
+                System.err.println("Could not find course: " + s);
+        }
+
+        for (String s : courseMap.keySet())
+            domains.add(courseMap.get(s));
+
+        // Call backtracking search, if domains not found, courses are null
+        backtrack(generatedSchedules, new Schedule(), domains);
+        return generatedSchedules;
     }
 
     public ArrayList<Course> getCourses() {

@@ -24,7 +24,7 @@ class ScheduleCalendarTest {
     void testAddCoursesAndExportToGoogleCalendar() {
         // Add a few courses to the schedule
         Course course1 = Main.courses.get(82);
-        Course course2 = Main.courses.get(85);
+        Course course2 = Main.courses.get(84);
 
         if (course1 == null || course2 == null) {
             fail("Required test courses (e.g., MATH 101 or PHYS 201) not found in data_wolfe.json. Adjust course codes to match your data.");
