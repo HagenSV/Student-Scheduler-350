@@ -16,7 +16,7 @@ public class Main {
     private static final ArrayList<User> users = new ArrayList<>();
     private static Search search;
     private User[] user;
-    protected static  ArrayList<Course> courses;
+    public static ArrayList<Course> courses;
 
     public static void main(String[] args) {
         courses = getCourses("data_wolfe.json");
