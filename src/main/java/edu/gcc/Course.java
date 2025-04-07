@@ -20,13 +20,16 @@ public class Course {
     private String section;               // Section identifier (e.g., "A", "B")
     private URL rateMyProfessorLink;      // URL for professor ratings (not implemented)
     private int CID;                      // Unique course identification number
-    private boolean isLab;                // Indicates if course is a lab
+    private boolean isLab;
+    private String semester;
+    private String location;               // Location of the course (e.g., "Room 101");
+    // Indicates if course is a lab
 
     // Constructor to initialize a Course object with all necessary parameters
     public Course(int CID, String name, int[] startTime, int duration, boolean isOpen,
                   ArrayList<String> professors, boolean MWForTR, boolean[] daysMeet,
                   String department, String courseCode, int credits, int numSeats,
-                  String section, boolean isLab) {
+                  String section, boolean isLab, String semester, String location) {
         this.CID = CID;
         this.name = name;
         this.startTime = startTime;
@@ -41,6 +44,8 @@ public class Course {
         this.numSeats = numSeats;
         this.section = section;
         this.isLab = isLab;
+        this.semester = semester;
+        this.location = location;
     }
 
     // Getter methods for accessing course properties
@@ -61,7 +66,8 @@ public class Course {
     public boolean getMWForTR(){return MWForTR;}
     public int getDuration() {return duration;}
     public ArrayList<String> getProfessor() {return professors;}
-
+    public String getSemester(){return semester;}
+    public String getLocation(){return location;}
     /**
      * Checks if this course conflicts with another course in terms of scheduling
      * Generated using Grok AI
@@ -133,7 +139,8 @@ public class Course {
         // Basic course info
         output.append("CID("+ CID +") " + department + " " + courseCode + " " +
                 section + " - " + name + "\n\tnumOpenSeats: " + numSeats +
-                " isLab: " + isLab +" professor(s) ");
+                " isLab: " + isLab +" professor(s) \n\t"
+        );
 
         // Append all professors
         for(String p : professors){
@@ -150,7 +157,9 @@ public class Course {
                 output.append(getDay(i) + " " + convertTimeToString(startTime[i]) + " ");
             }
         }
-        output.append("\n\tDuration: " + duration + "\n");
+        output.append("\n\tDuration: " + duration +
+                "\n\tLocation: " + location + "\n\tSemester: " + semester + "\n");
+
 
         return output.toString();
     }
