@@ -34,7 +34,7 @@ public class UserTest {
         boolean[] daysMeet = {true, false, true, false, true}; // MWF
         int[] startTimes = {2, -1, 2, -1, 2}; // 8:02 AM on MWF, -1 on TR
         sampleCourse = new Course(0, "Intro to Programming", startTimes, 50, true,
-                professors, true, daysMeet, "COMP", "141", 3, 30, "A", false);
+                professors, true, daysMeet, "COMP", "141", 3, 30, "A", false, "Spring", "Room 101");
 
         schedule = new Schedule();
         schedule.addCourse(sampleCourse);
