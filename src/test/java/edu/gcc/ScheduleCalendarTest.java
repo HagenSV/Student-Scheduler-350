@@ -2,6 +2,9 @@ package edu.gcc;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class ScheduleCalendarTest {
@@ -22,17 +25,9 @@ class ScheduleCalendarTest {
 
     @Test
     void testAddCoursesAndExportToGoogleCalendar() {
-        // Add a few courses to the schedule
-        Course course1 = Main.courses.get(82);
-        Course course2 = Main.courses.get(85);
-
-        if (course1 == null || course2 == null) {
-            fail("Required test courses (e.g., MATH 101 or PHYS 201) not found in data_wolfe.json. Adjust course codes to match your data.");
-        }
-
-        // Add courses and ensure they are added successfully
-        assertTrue(schedule.addCourse(course1), "Failed to add first course to schedule");
-        assertTrue(schedule.addCourse(course2), "Failed to add second course to schedule");
+        ArrayList<Schedule> generatedSchedules = schedule.generateSchedule(new String[]{"COMP 340", "COMP 314", "COMP 445", "COMP 350", "COMP 435"}, Main.getCourses("data_wolfe.json"), "Spring");
+        assertFalse(generatedSchedules.isEmpty(), "There should be at least one valid schedule");
+        schedule = generatedSchedules.get(0);
 
         // Export to Google Calendar - success if no exceptions are thrown
         schedule.exportToCalendar();
