@@ -26,7 +26,7 @@ public class ScheduleAPI {
     @PostMapping("/api/v1/schedule/add")
     public List<Course> addCourse(@RequestBody ScheduleQuery query) {
         // This method will handle adding a course to the schedule
-        Course course = getCourse(query.getId());
+        Course course = getCourse(query.id());
         //Course course = query.getCourse();
         if (course == null) return new ArrayList<>();
         List<Course> conflicts = schedule.getConflicts(course);
@@ -37,7 +37,7 @@ public class ScheduleAPI {
     @PostMapping("/api/v1/schedule/remove")
     public void removeCourse(@RequestBody ScheduleQuery query){
         // This method will handle removing a course from the schedule
-        Course course = getCourse(query.getId());
+        Course course = getCourse(query.id());
         //Course course = query.getCourse();
         if (course == null) return;
         schedule.removeCourse(course);
@@ -52,16 +52,5 @@ public class ScheduleAPI {
         }
     }
 
-    public static class ScheduleQuery {
-        private int id;
-
-        // Getter and Setter
-        public int getId() {
-            return id;
-        }
-
-        public void setCourse(int id) {
-            this.id = id;
-        }
-    }
+    public record ScheduleQuery(int id){}
 }

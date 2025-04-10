@@ -20,21 +20,10 @@ public class SearchAPI {
         // You can process the search criteria and return the results
         // For now, we will just return a success message
         //System.out.println("Searching for: " + query.getQuery());
-        Search search = new Search(query.getQuery());
+        Search search = new Search(query.query());
         search.search();
         return search.getResult();
     }
 
-    public static class SearchQuery {
-        private String query;
-
-        // Getter and Setter
-        public String getQuery() {
-            return query;
-        }
-
-        public void setQuery(String query) {
-            this.query = query;
-        }
-    }
+    public record SearchQuery(String query){}
 }
