@@ -29,7 +29,7 @@ const Schedule = () => {
     const getCourseByTime = (currentTime: number, day: number) => {
         for (const course of courses){
             const startTime = course.startTime[day];
-            if (startTime == -1){ continue; }
+            if (startTime === -1){ continue; }
             if (startTime <= currentTime && startTime+course.duration >= currentTime){
                 //return course
                 return `${course.department} ${course.courseCode}${course.section}`
