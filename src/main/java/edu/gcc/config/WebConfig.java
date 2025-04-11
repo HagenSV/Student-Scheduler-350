@@ -1,4 +1,4 @@
-package edu.gcc.api;
+package edu.gcc.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
