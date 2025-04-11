@@ -59,8 +59,6 @@ public class ConsoleDriver {
                 System.out.println("What is your password?");
                 String password = s.next();
 
-                S
-
             }
             //Prompt user for name
             System.out.print("Enter your username: ");
