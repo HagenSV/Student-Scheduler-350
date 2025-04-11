@@ -1,4 +1,4 @@
-package edu.gcc.api;
+package edu.gcc.controller;
 
 import edu.gcc.Course;
 import edu.gcc.Main;

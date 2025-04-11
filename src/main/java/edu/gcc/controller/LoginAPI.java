@@ -1,8 +1,4 @@
-package edu.gcc.api;
-
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+package edu.gcc.controller;
 
 public class LoginAPI {
 //    private final AuthenticationManager authenticationManager;
