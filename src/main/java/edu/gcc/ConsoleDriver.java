@@ -29,7 +29,7 @@ public class ConsoleDriver {
      * @param password password of new user
      */
     private static void addUser(String username, String password){
-
+        new dbUser(username,password,null,null,null,1);
     }
 
     /**
@@ -52,10 +52,23 @@ public class ConsoleDriver {
 
         //Loop until account is found
         while (currentUser == null) {
+            System.out.println("Would you like to Login, or Create Account? (type: login/create)");
+            if(s.next().equals("login")){
+                System.out.println("What is your username?");
+                String username = s.next();
+                System.out.println("What is your password?");
+                String password = s.next();
+
+                S
+
+            }
             //Prompt user for name
             System.out.print("Enter your username: ");
             String username = s.nextLine();
-            currentUser = new User(username,"",null,null,null);
+            System.out.println("Enter your password: ");
+            String password = s.nextLine();
+            currentUser = new User(username,password,null,null,null);
+            addUser(username, password);
             currentUser.loadSchedule();
         }
 
