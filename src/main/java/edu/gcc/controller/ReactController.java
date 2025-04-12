@@ -6,8 +6,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class ReactController {
 
-    @GetMapping({"/", "/search","/{path:^(?!api|static)}"})
+    @GetMapping({"/","/error","/login","/register","/search"})
     public String serveReactApp() {
+        //System.out.println("Serving React app");
         return "forward:/index.html";
     }
 }

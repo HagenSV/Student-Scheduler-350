@@ -20,7 +20,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "copy-build": "cp -r build/* ../src/main/resources/static/static/"
+    "copy-build": "copyfiles -u 1 build/**/* ../src/main/resources/static/",
+    "export": "npm run build && copy-build"
   },
   "eslintConfig": {
     "extends": [
@@ -40,5 +41,8 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "http://localhost:8080"
+  "proxy": "http://localhost:8080",
+  "devDependencies": {
+    "copyfiles": "^2.4.1"
+  }
 }
