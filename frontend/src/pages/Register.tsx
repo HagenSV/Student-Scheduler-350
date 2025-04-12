@@ -2,7 +2,7 @@ import React from 'react';
 
 const Register = () => {
     return (
-        <form>
+        <form method='POST'>
             <h2>Student Scheduler</h2>
             <input name="email" type="text" placeholder="email" /><br />
             <input name="confirm" type="text" placeholder="email" /><br />

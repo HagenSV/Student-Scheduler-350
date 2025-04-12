@@ -3,7 +3,7 @@ import React from "react";
 const Login = () => {
 
     return (
-        <form>
+        <form method='POST'>
             <h2>Student Scheduler</h2>
             <input name="user" type="text" placeholder="username" /><br />
             <input name="pass" type="password" placeholder="password" /><br />
