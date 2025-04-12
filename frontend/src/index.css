@@ -57,7 +57,7 @@ form > .btn {
 }
 
 .btn.primary {
-    color: var(--background-color);
+    color: var(--secondary-color);
     background-color: var(--primary-color);
 }
 
