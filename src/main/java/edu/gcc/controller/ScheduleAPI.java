@@ -3,6 +3,7 @@ package edu.gcc.controller;
 import edu.gcc.Course;
 import edu.gcc.Main;
 import edu.gcc.Schedule;
+import edu.gcc.service.UserService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,6 +16,11 @@ import java.util.List;
 public class ScheduleAPI {
 
     private final Schedule schedule = new Schedule();
+    private final UserService userService;
+
+    public ScheduleAPI(UserService userService) {
+        this.userService = userService;
+    }
 
     @GetMapping("/api/v1/schedule")
     public List<Course> getSchedule() {
