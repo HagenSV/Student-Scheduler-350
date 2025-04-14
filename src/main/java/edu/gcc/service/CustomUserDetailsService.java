@@ -18,6 +18,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        //Find user in database
         DBUser dbUser = userRepository.findByEmail(email);
         if (dbUser == null){
             throw new UsernameNotFoundException("User not found");
@@ -27,6 +28,5 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .password(dbUser.getPassword())
                 .roles("USER")
                 .build();
-        throw new UsernameNotFoundException("Not Implemented");
     }
 }
