@@ -1,7 +1,7 @@
 package edu.gcc.service;
 
-import edu.gcc.DBUser;
 import edu.gcc.UserRepository;
+import edu.gcc.dbUser;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -17,14 +17,14 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         //Find user in database
-        DBUser dbUser = userRepository.findByEmail(email);
+        dbUser dbUser = userRepository.findByUsername(username);
         if (dbUser == null){
             throw new UsernameNotFoundException("User not found");
         }
         return User.builder()
-                .username(dbUser.getEmail())
+                .username(dbUser.getUsername())
                 .password(dbUser.getPassword())
                 .roles("USER")
                 .build();

@@ -3,9 +3,7 @@ package edu.gcc.controller;
 import edu.gcc.service.UserService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
 
 @Controller
 public class AuthenticationController {
@@ -22,15 +20,20 @@ public class AuthenticationController {
 //    }
 
     @PostMapping("/register")
-    public String register(@RequestParam("email") String email,
-                           @RequestParam("confirm") String confirm,
-                           @RequestParam("password") String password) {
+    public String register(@RequestParam("username") String username,
+                           @RequestParam("password") String password,
+                           @RequestParam("confirmPassword") String confirmPassword) {
         System.out.println("Processing request");
-        if (!email.equals(confirm)) {
+        if (username.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
             return "redirect:/register?error";
         }
-        //TODO: fix database connection
-        //userService.registerUser(email, password);
+        if (userService.getUserByUsername(username) != null){
+            return "redirect:/register?error";
+        }
+        if (!password.equals(confirmPassword)) {
+            return "redirect:/register?error";
+        }
+        userService.registerUser(username, password);
         return "redirect:/login";
     }
 

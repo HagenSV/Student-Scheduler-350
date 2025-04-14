@@ -1,8 +1,8 @@
 package edu.gcc.service;
 
 
-import edu.gcc.DBUser;
 import edu.gcc.UserRepository;
+import edu.gcc.dbUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -18,17 +18,15 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public void registerUser(String email, String password) {
-        if (userRepository.existsByEmail(email)) {
-            throw new IllegalArgumentException("Email already exists");
+    public void registerUser(String username, String password) {
+        if (userRepository.existsByUsername(username)) {
+            throw new IllegalArgumentException("Username taken");
         }
-        DBUser user = new DBUser();
-        user.setEmail(email);
-        user.setPassword(passwordEncoder.encode(password));
+        dbUser user = new dbUser(username, passwordEncoder.encode(password));
         userRepository.save(user);
     }
 
-    public DBUser getUserByEmail(String email) {
-        return userRepository.findByEmail(email);
+    public dbUser getUserByUsername(String username) {
+        return userRepository.findByUsername(username);
     }
 }
