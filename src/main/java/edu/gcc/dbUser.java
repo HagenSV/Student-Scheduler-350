@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -21,15 +22,15 @@ public class dbUser {
     @ElementCollection
     @CollectionTable(name = "user_major", joinColumns = @JoinColumn(name = "username"))
     @Column(name = "majorname")
-    private ArrayList<String> majors;
+    private List<String> majors;
 
     @ElementCollection
     @CollectionTable(name = "user_minor", joinColumns = @JoinColumn(name = "username"))
     @Column(name = "minor_name")
-    private ArrayList<String> minors;
+    private List<String> minors;
 
-    private int yearJoinedMajor;
-    private int yearJoinedMinor;
+    //private int yearJoinedMajor;
+    //private int yearJoinedMinor;
 
     @Transient
     private Schedule schedule;
@@ -37,7 +38,12 @@ public class dbUser {
 //    @ElementCollection
 //    @CollectionTable(name = "completed_courses", joinColumns = @JoinColumn(name = "username"))
 //    @Column(name = "course")
-    private ArrayList<Course> completedCourses;
+    @Transient
+    private List<Course> completedCourses;
+
+    public dbUser(){
+        this("","");
+    }
 
     public dbUser(String name, String password){
         this.username = name;
@@ -56,7 +62,7 @@ public class dbUser {
      * @param minors
      * @param completedCourses
      */
-    public dbUser(String name, String password, ArrayList<String> majors, ArrayList<String> minors, ArrayList<Course> completedCourses) {
+    public dbUser(String name, String password, List<String> majors, List<String> minors, List<Course> completedCourses) {
         this.username = name;
         this.password = password;
         this.majors = majors;
@@ -65,8 +71,7 @@ public class dbUser {
         this.schedule = new Schedule();
     }
 
-
-    public dbUser(String name, String password, ArrayList<String> majors, ArrayList<String> minors, ArrayList<Course> completedCourses, int addToDatabase) {
+    public dbUser(String name, String password, List<String> majors, List<String> minors, List<Course> completedCourses, int addToDatabase) {
         this.username = name;
         this.password = password;
         this.majors = majors;
@@ -88,7 +93,7 @@ public class dbUser {
         if (majors.contains(major))
             return false;
         majors.add(major);
-        yearJoinedMajor = joiningYear;
+        //yearJoinedMajor = joiningYear;
         return true;
     }
 
@@ -101,6 +106,10 @@ public class dbUser {
         return majors.remove(major);
     }
 
+    public void setMajors(List<String> majors){
+        this.majors = majors;
+    }
+
     /**
      * Adds a minor to the list of User minors
      * @param minor name of the minor
@@ -111,7 +120,7 @@ public class dbUser {
         if (minors.contains(minor))
             return false;
         minors.add(minor);
-        yearJoinedMinor = joiningYear;
+        //yearJoinedMinor = joiningYear;
         return true;
     }
 
@@ -122,6 +131,10 @@ public class dbUser {
      */
     public boolean removeMinor(String minor){
         return minors.remove(minor);
+    }
+
+    public void setMinors(List<String> minors){
+        this.minors = minors;
     }
 
     /**
@@ -142,11 +155,11 @@ public class dbUser {
         return username;
     }
 
-    public ArrayList<String> getMajors() {
+    public List<String> getMajors() {
         return majors;
     }
 
-    public ArrayList<String> getMinors() {
+    public List<String> getMinors() {
         return minors;
     }
 
