@@ -1,5 +1,6 @@
 package edu.gcc.controller;
 
+import edu.gcc.AuthenticatedUserUtil;
 import edu.gcc.Course;
 import edu.gcc.Main;
 import edu.gcc.Schedule;
@@ -15,15 +16,21 @@ import java.util.List;
 @RestController
 public class ScheduleAPI {
 
-    private final Schedule schedule = new Schedule();
     private final UserService userService;
 
     public ScheduleAPI(UserService userService) {
         this.userService = userService;
     }
 
+    public Schedule getScheduleFromUser(){
+        String user = AuthenticatedUserUtil.getAuthenticatedUser();
+        //TODO get schedule from db call
+        return userService.getUserByUsername(user).getSchedule();
+    }
+
     @GetMapping("/api/v1/schedule")
     public List<Course> getSchedule() {
+        Schedule schedule = getScheduleFromUser();
         // This method will handle GET requests to the /api/v1/schedule endpoint
         // You can implement the logic to retrieve and return the schedule here
         return schedule.getCourses();
@@ -33,6 +40,7 @@ public class ScheduleAPI {
     public List<Course> addCourse(@RequestBody ScheduleQuery query) {
         // This method will handle adding a course to the schedule
         Course course = getCourse(query.id());
+        Schedule schedule = getScheduleFromUser();
         //Course course = query.getCourse();
         if (course == null) return new ArrayList<>();
         List<Course> conflicts = schedule.getConflicts(course);
@@ -44,6 +52,7 @@ public class ScheduleAPI {
     public void removeCourse(@RequestBody ScheduleQuery query){
         // This method will handle removing a course from the schedule
         Course course = getCourse(query.id());
+        Schedule schedule = getScheduleFromUser();
         //Course course = query.getCourse();
         if (course == null) return;
         schedule.removeCourse(course);
