@@ -6,6 +6,23 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import com.google.api.services.gmail.Gmail;
+import com.google.api.services.gmail.model.Message;
+import jakarta.mail.MessagingException;
+import jakarta.mail.Multipart;
+import jakarta.mail.Session;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.internet.MimeBodyPart;
+import jakarta.mail.internet.MimeMultipart;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.util.Properties;
+
+import org.apache.commons.codec.binary.Base64;
+
 public class User {
     private String username;
     private String password;
@@ -15,6 +32,7 @@ public class User {
     private int yearJoinedMinor;
     private Schedule schedule;
     private ArrayList<Course> completedCourses;
+    private String email;
 
     public User(String name, String password, ArrayList<String> majors, ArrayList<String> minors, ArrayList<Course> completedCourses) {
         this.username = name;
@@ -27,7 +45,8 @@ public class User {
 
     /**
      * Adds a major to the list of User majors
-     * @param major name of the major
+     *
+     * @param major       name of the major
      * @param joiningYear the year that the major was added to the User
      * @return whether adding the major was successful, false if already added
      */
@@ -41,6 +60,7 @@ public class User {
 
     /**
      * Removes the specified major from the User
+     *
      * @param major the major to remove
      * @return whether removing the major was successful, false it does not exist
      */
@@ -50,7 +70,8 @@ public class User {
 
     /**
      * Adds a minor to the list of User minors
-     * @param minor name of the minor
+     *
+     * @param minor       name of the minor
      * @param joiningYear the year that the major was added to the User
      * @return whether adding the minor was successful, false if already added
      */
@@ -64,15 +85,17 @@ public class User {
 
     /**
      * Removes the specified minor from the User
+     *
      * @param minor the minor to remove
      * @return whether removal was successful, false if does not exist
      */
-    public boolean removeMinor(String minor){
+    public boolean removeMinor(String minor) {
         return minors.remove(minor);
     }
 
     /**
      * Updates the user schedule to the one provided
+     *
      * @param schedule the updated schedule
      */
     public void updateSchedule(Schedule schedule) {
@@ -82,9 +105,11 @@ public class User {
     public void changePassword(String newPassword) {
         this.password = newPassword;
     }
+
     public void changeUserName(String newUsername) {
         this.username = newUsername;
     }
+
     public String getName() {
         return username;
     }
@@ -97,8 +122,12 @@ public class User {
         return minors;
     }
 
-    public Schedule getSchedule(){
+    public Schedule getSchedule() {
         return schedule;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public boolean passwordAttempt(String password) {
@@ -106,13 +135,13 @@ public class User {
     }
 
     /**
-     *  Saves the User's schedule to a text file that can be loaded later
+     * Saves the User's schedule to a text file that can be loaded later
      */
     public void saveSchedule() {
         File file = new File(username + ".txt");
         file.delete();
         try (PrintWriter writer = new PrintWriter(username + ".txt")) {
-            for (Course c: schedule.getCourses()) {
+            for (Course c : schedule.getCourses()) {
                 StringBuilder stringBuilder = new StringBuilder();
 
                 // Add CID and Name
@@ -241,5 +270,77 @@ public class User {
                 System.err.println(e.getMessage());
             }
         }
+    }
+
+    /**
+     * Sends an email with the user's schedule to their email address from studentschedulerunemployedcs@gmail.com.
+     *
+     * @throws IOException              If there is an error communicating with the Gmail API.
+     * @throws GeneralSecurityException If there is a security error during authentication.
+     * @throws MessagingException       If there is an error constructing the email message.
+     */
+    public void sendEmail() throws IOException, GeneralSecurityException, MessagingException {
+        if (email == null || !email.matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")) {
+            throw new IllegalArgumentException("Invalid or missing user email: " + email);
+        }
+
+        // Set up mail session properties
+        Properties props = new Properties();
+        Session session = Session.getDefaultInstance(props, null);
+
+        // Create MimeMessage
+        MimeMessage mimeMessage = new MimeMessage(session);
+        mimeMessage.setFrom(new InternetAddress("studentschedulerunemployedcs@gmail.com"));
+        mimeMessage.addRecipient(jakarta.mail.Message.RecipientType.TO, new InternetAddress(email));
+        mimeMessage.setSubject("Your Course Schedule");
+
+        // Build the email body with the schedule
+        StringBuilder emailBody = new StringBuilder();
+        emailBody.append("Hello ").append(username).append(",\n\n");
+        emailBody.append("Here are you current courses:\n\n");
+
+        if (schedule.getCourses().isEmpty()) {
+            emailBody.append("No courses scheduled.\n");
+        } else {
+            for (Course course : schedule.getCourses()) {
+                emailBody.append(course.getDepartment()).append(" ").append(course.getCourseCode());
+                emailBody.append(": ").append(course.getName()).append("\n");
+            }
+        }
+        emailBody.append("\nBest regards,\nStudent Scheduler Team");
+
+        // Create multipart message
+        Multipart multipart = new MimeMultipart();
+
+        // Text part
+        MimeBodyPart textPart = new MimeBodyPart();
+        textPart.setText(emailBody.toString());
+        multipart.addBodyPart(textPart);
+
+        // PDF attachment part
+        String pdfFileName = "EmailPDF.pdf";
+        File pdfFile = new File(pdfFileName);
+        schedule.exportToPDF(pdfFileName, false);
+
+        MimeBodyPart attachmentPart = new MimeBodyPart();
+        attachmentPart.attachFile(pdfFile);
+        attachmentPart.setFileName("CourseSchedule.pdf");
+        multipart.addBodyPart(attachmentPart);
+
+        // Set multipart content
+        mimeMessage.setContent(multipart);
+
+        // Convert MimeMessage to Gmail API Message
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        mimeMessage.writeTo(buffer);
+        byte[] rawMessageBytes = buffer.toByteArray();
+        String encodedEmail = Base64.encodeBase64URLSafeString(rawMessageBytes);
+        Message message = new Message();
+        message.setRaw(encodedEmail);
+
+        // Send the email
+        Gmail service = GmailService.getGmailService();
+        service.users().messages().send("me", message).execute();
+        System.out.println("Email sent to " + email);
     }
 }

@@ -346,8 +346,7 @@ public class Schedule {
      * Displays time slots from 8:00 AM to 8:00 PM with courses as blocks.
      * Automatically opens the PDF file after creation.
      */
-    public void exportToPDF() {
-        String fileName = "ScheduleSpring2025.pdf";
+    public void exportToPDF(String fileName, boolean open) {
         try (PDDocument document = new PDDocument()) {
             PDPage page = new PDPage();
             document.addPage(page);
@@ -469,17 +468,19 @@ public class Schedule {
             System.out.println("Schedule exported to " + fileName);
 
             // Automatically open the PDF file
-            File pdfFile = new File(fileName);
-            if (pdfFile.exists()) {
-                if (Desktop.isDesktopSupported()) {
-                    Desktop desktop = Desktop.getDesktop();
-                    desktop.open(pdfFile);
-                    System.out.println("Opening " + fileName + " with default PDF viewer...");
+            if (open) {
+                File pdfFile = new File(fileName);
+                if (pdfFile.exists()) {
+                    if (Desktop.isDesktopSupported()) {
+                        Desktop desktop = Desktop.getDesktop();
+                        desktop.open(pdfFile);
+                        System.out.println("Opening " + fileName + " with default PDF viewer...");
+                    } else {
+                        System.err.println("Desktop API is not supported on this platform. Please open " + fileName + " manually.");
+                    }
                 } else {
-                    System.err.println("Desktop API is not supported on this platform. Please open " + fileName + " manually.");
+                    System.err.println("PDF file was not found: " + fileName);
                 }
-            } else {
-                System.err.println("PDF file was not found: " + fileName);
             }
 
         } catch (IOException e) {

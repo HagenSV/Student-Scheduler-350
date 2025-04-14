@@ -35,9 +35,9 @@ class SchedulePDFTest {
         assertTrue(schedule.addCourse(course2), "Failed to add second course to schedule");
         assertTrue(schedule.addCourse(course3), "Failed to add second course to schedule");
 
-        schedule.exportToPDF();
+        schedule.exportToPDF("ScheduleTest.pdf", true);
         // Check if the PDF file is created
-        File pdfFile = new File("ScheduleSpring2025.pdf");
+        File pdfFile = new File("ScheduleTest.pdf");
         assertTrue(pdfFile.exists(), "PDF file should be created");
     }
 
@@ -52,9 +52,9 @@ class SchedulePDFTest {
         }
 
         // Export the generated schedule to PDF
-        schedule.exportToPDF();
+        schedule.exportToPDF("ScheduleTest.pdf", true);
         // Check if the PDF file is created
-        File pdfFile = new File("ScheduleSpring2025.pdf");
+        File pdfFile = new File("ScheduleTest.pdf");
         assertTrue(pdfFile.exists(), "PDF file should be created");
     }
 }
