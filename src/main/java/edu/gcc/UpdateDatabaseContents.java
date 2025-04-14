@@ -17,6 +17,9 @@ import java.util.Map;
 public class UpdateDatabaseContents {
     private static String url = "jdbc:postgresql://aws-0-us-east-1.pooler.supabase.com:5432/postgres?user=postgres.chhgjsqthhxqsvutshqi&password=Comp350dics";
 
+    public UpdateDatabaseContents(){
+        // Constructor
+    }
     private static boolean readJsonIntoDatabase = true;
     public static void main(String[] args) {
         try (Connection connection = DriverManager.getConnection(url)) {
@@ -31,6 +34,37 @@ public class UpdateDatabaseContents {
         } catch (SQLException e) {
             System.err.println("Connection failed: " + e.getMessage());
         }
+    }
+
+    public static boolean addUser(dbUser user){
+        String sql = "INSERT INTO users (username, password) VALUES (?, ?)";
+        try (Connection connection = DriverManager.getConnection(url);
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setString(1, user.getUsername());
+            preparedStatement.setString(2, user.getPasswordUpload());
+            if(user.getMajors() != null) {
+                addMajor(connection, user);
+            }
+            if(user.getMinors() != null){
+                addMinor(connection, user);
+            }
+            // Execute the insert statement
+            int rowsInserted = preparedStatement.executeUpdate();
+            if (rowsInserted > 0) {
+                System.out.println(user.getUsername() + " was inserted successfully!");
+                return true;
+            }
+        } catch (SQLException e) {
+            System.err.println("Error inserting " + user.getUsername() + ": " + e.getMessage());
+        }
+        return false;
+    }
+
+    public static void addMinor(Connection connection, dbUser user){
+        // TODO create a connection and then add the major to the database if needed, if not just create the user_major table
+    }
+    public static void addMajor(Connection connection, dbUser user){
+        // TODO create a connection and then add the minor to the database if needed if not add to user_minor table
     }
 
     public static void JsonIntoDatabase(Connection connection){
