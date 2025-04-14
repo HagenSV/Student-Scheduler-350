@@ -144,9 +144,8 @@ public class dbUser {
     // Creates hashed_password
     public String getPasswordUpload(){return BCrypt.hashpw(password, BCrypt.gensalt());}
 
-    public String getPasswordFromDatabase(){
-        //TODO Get the user's hashed password from the database
-        return null;
+    public String getPassword(){
+        return password;
     }
     public boolean passwordAttempt(String password) {
         return this.password.equals(password);
