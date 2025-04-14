@@ -1,7 +1,7 @@
 package edu.gcc.service;
 
 
-import edu.gcc.UserRepository;
+import edu.gcc.repository.UserRepository;
 import edu.gcc.dbUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;

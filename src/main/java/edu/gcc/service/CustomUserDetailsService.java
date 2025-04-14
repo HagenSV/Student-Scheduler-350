@@ -1,6 +1,6 @@
 package edu.gcc.service;
 
-import edu.gcc.UserRepository;
+import edu.gcc.repository.UserRepository;
 import edu.gcc.dbUser;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
