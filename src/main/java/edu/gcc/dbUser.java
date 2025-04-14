@@ -1,33 +1,52 @@
 package edu.gcc;
 
+import jakarta.persistence.*;
 import org.mindrot.jbcrypt.BCrypt;
 
-import java.io.File;
-import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Scanner;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
+@Entity
+@Table(name = "users")
 public class dbUser {
     // Database URL
     private static String url = "jdbc:postgresql://aws-0-us-east-1.pooler.supabase.com:5432/postgres?user=postgres.chhgjsqthhxqsvutshqi&password=Comp350dics";
 
+    @Id
+    @Column(nullable = false, unique = true)
     private String username;
+
+    @Column(nullable = false)
     private String password;
+
+    @ElementCollection
+    @CollectionTable(name = "user_major", joinColumns = @JoinColumn(name = "username"))
+    @Column(name = "majorname")
     private ArrayList<String> majors;
+
+    @ElementCollection
+    @CollectionTable(name = "user_minor", joinColumns = @JoinColumn(name = "username"))
+    @Column(name = "minor_name")
     private ArrayList<String> minors;
+
     private int yearJoinedMajor;
     private int yearJoinedMinor;
+
+    @Transient
     private Schedule schedule;
+
+//    @ElementCollection
+//    @CollectionTable(name = "completed_courses", joinColumns = @JoinColumn(name = "username"))
+//    @Column(name = "course")
     private ArrayList<Course> completedCourses;
+
+    public dbUser(String name, String password){
+        this.username = name;
+        this.password = password;
+        this.majors = new ArrayList<>();
+        this.minors = new ArrayList<>();
+        this.completedCourses = new ArrayList<>();
+        this.schedule = new Schedule();
+    }
 
     /**
      * Creates the user but doesn't add it to the database
@@ -55,13 +74,9 @@ public class dbUser {
         this.completedCourses = completedCourses;
         this.schedule = new Schedule();
         if (addToDatabase == 1) {
-            UpdateDatabaseContents updateDatabase = new UpdateDatabaseContents();
-            updateDatabase.addUser(this);
-
+            UpdateDatabaseContents.addUser(this);
         }
     }
-
-
 
     /**
      * Adds a major to the list of User majors
