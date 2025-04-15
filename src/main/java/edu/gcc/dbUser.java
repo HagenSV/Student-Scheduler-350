@@ -35,7 +35,7 @@ public class dbUser {
     @Transient
     private Schedule schedule;
 
-//    @ElementCollection
+    //    @ElementCollection
 //    @CollectionTable(name = "completed_courses", joinColumns = @JoinColumn(name = "username"))
 //    @Column(name = "course")
     @Transient
