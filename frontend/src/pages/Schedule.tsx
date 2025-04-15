@@ -74,6 +74,9 @@ const Schedule = () => {
         {courses.map((course, index) => <CourseListing key={index} course={course} clickEvent={removeCourse(course)}/>)}
         {courses && <p>Nothing to see here, try adding a course!</p>}
         <h1 id="export">Export</h1>
+        <p>Email Schedule</p>
+        <p>Export to PDF</p>
+        <p>Export to Google Calendar</p>
         </main>
     );
 }
