@@ -29,7 +29,7 @@ const Schedule = () => {
     const getCourseByTime = (currentTime: number, day: number) => {
         for (const course of courses){
             const startTime = course.startTime[day];
-            if (startTime == -1){ continue; }
+            if (startTime === -1){ continue; }
             if (startTime <= currentTime && startTime+course.duration >= currentTime){
                 //return course
                 return `${course.department} ${course.courseCode}${course.section}`
@@ -48,8 +48,7 @@ const Schedule = () => {
     return (
         <main>
         <h1>My Schedule</h1>
-        <p>Here is where you can view your schedule.</p>
-        <table style={{ tableLayout: "fixed", width: "100%", textAlign: "center" }}>
+        <table style={{ tableLayout: "fixed", width: "80%", textAlign: "center" }}>
             <thead>
             <tr>
                 <th>Time</th>
@@ -72,9 +71,12 @@ const Schedule = () => {
             </tbody>
         </table>
         <h1>Classes</h1>
-        <p>This is where you can see a list of your classes</p>
         {courses.map((course, index) => <CourseListing key={index} course={course} clickEvent={removeCourse(course)}/>)}
+        {courses && <p>Nothing to see here, try adding a course!</p>}
         <h1 id="export">Export</h1>
+        <p>Email Schedule</p>
+        <p>Export to PDF</p>
+        <p>Export to Google Calendar</p>
         </main>
     );
 }
