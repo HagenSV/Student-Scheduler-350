@@ -70,7 +70,7 @@ const Schedule = () => {
             </tbody>
         </table>
         <h1>Classes</h1>
-        <CourseTable courses={courses} />
+        <CourseTable courses={courses} remove={removeCourse}/>
         {courses && <p>Nothing to see here, try adding a course!</p>}
         <h1 id="export">Export</h1>
         <p>Email Schedule</p>

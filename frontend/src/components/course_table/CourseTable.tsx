@@ -1,12 +1,13 @@
-import React, { MouseEventHandler } from 'react';
+import React from 'react';
 //import './courseTable.css'
 import { Course, formatTime } from '../../interface/course';
 
 interface CourseTableProps {
     courses: Course[]
+    remove: Function
 }
 
-const CourseTable: React.FC<CourseTableProps> = ({ courses }) => {
+const CourseTable: React.FC<CourseTableProps> = ({ courses, remove }) => {
    return (
         <table style={{ tableLayout: "fixed", width: "100%", textAlign: "center" }}>
             <thead>
@@ -22,7 +23,7 @@ const CourseTable: React.FC<CourseTableProps> = ({ courses }) => {
             <tbody>
                 {courses.map((course, index) => (
                     <tr key={index}>
-                        <td> {index + 1} </td>
+                        <td onClick={remove}> {index + 1} </td>
                         <td> {course.department} {course.courseCode}{course.section} </td>
                         <td> {course.name} </td>
                         <td> {formatTime(course)} </td>
