@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import CourseListing from '../components/course_listing/CourseListing';
 import scheduleAPI from '../api/schedule';
 import search from '../api/search';
@@ -12,19 +12,18 @@ const Schedule = () => {
     const [courses,setCourses] = useState<Course[]>([]);
 
     useEffect(() => {
-        try {
-            const result = await search("COMP 141")
-            //const result = await scheduleAPI.getSchedule()
-            setCourses(result);
-        } catch (e){
-            console.log(e)
-            Console.log("Failed to get schedule")
+        const fetchData = async() => {
+            try {
+                const result = await search("COMP 141")
+                //const result = await scheduleAPI.getSchedule()
+                setCourses(result);
+            } catch (e) {
+                console.log(e)
+                Console.log("Failed to get schedule")
+            }
         }
-    }
-
-    if (!scheduleQueried){
-        getSchedule()
-    }
+        fetchData();
+    },[]);
 
     const getCourseByTime = (currentTime: number, day: number) => {
         for (const course of courses){
@@ -71,7 +70,7 @@ const Schedule = () => {
             </tbody>
         </table>
         <h1>Classes</h1>
-        <CourseTable course={courses} />
+        <CourseTable courses={courses} />
         {courses && <p>Nothing to see here, try adding a course!</p>}
         <h1 id="export">Export</h1>
         <p>Email Schedule</p>
