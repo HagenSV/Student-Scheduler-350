@@ -25,10 +25,12 @@ jobs:
       # Step 3: Install dependencies
       - name: Install dependencies
         run: npm install
+        working-directory: frontend
 
       # Step 4: Run the export script
       - name: Run export script
         run: npm run export
+        working-directory: frontend
 
       # Step 5: Commit and push changes
       - name: Commit and push changes
