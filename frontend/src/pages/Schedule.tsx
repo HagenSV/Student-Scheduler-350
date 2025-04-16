@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import CourseListing from '../components/course_listing/CourseListing';
 import scheduleAPI from '../api/schedule';
+import search from '../api/search';
 import { Course, toTimeString } from '../interface/course';
+import CourseTable from '../components/courseTable/CourseTable';
 
 const days = [0,1,2,3,4]
 const times = [0, 15, 30, 45, 60, 75, 90, 105, 120, 135, 150, 165, 180, 195, 210, 225, 240, 255, 270, 285, 300, 315, 330, 345, 360, 375, 390, 405, 420, 435, 450, 465, 480, 495, 510, 525, 540, 555, 570, 585, 600, 615, 630, 645, 660, 675, 690, 705, 720, 735, 750, 765, 780, 795, 810]
@@ -13,7 +15,8 @@ const Schedule = () => {
     const getSchedule = async () => {
         setQueried(true)
         try {
-            const result = await scheduleAPI.getSchedule()
+            const result = await search("COMP 141")
+            //const result = await scheduleAPI.getSchedule()
             if (result !== courses){
                 setCourses(result);
             }
@@ -71,7 +74,7 @@ const Schedule = () => {
             </tbody>
         </table>
         <h1>Classes</h1>
-        {courses.map((course, index) => <CourseListing key={index} course={course} clickEvent={removeCourse(course)}/>)}
+        <CourseTable course={courses} />
         {courses && <p>Nothing to see here, try adding a course!</p>}
         <h1 id="export">Export</h1>
         <p>Email Schedule</p>
