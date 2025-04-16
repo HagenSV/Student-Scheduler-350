@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import CourseListing from '../components/course_listing/CourseListing';
 import scheduleAPI from '../api/schedule';
 import search from '../api/search';
 import { Course, toTimeString } from '../interface/course';
