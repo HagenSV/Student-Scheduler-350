@@ -1,6 +1,5 @@
 import React from 'react';
 import { Course, formatTime } from '../../interface/course';
-import { Container, Row, Col } from 'react-bootstrap';
 
 interface CoursePreviewParams {
     course: Course | null
