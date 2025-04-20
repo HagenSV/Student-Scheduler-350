@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 import com.google.api.services.gmail.Gmail;
@@ -26,15 +27,15 @@ import org.apache.commons.codec.binary.Base64;
 public class User {
     private String username;
     private String password;
-    private ArrayList<String> majors;
-    private ArrayList<String> minors;
+    private List<String> majors;
+    private List<String> minors;
     private int yearJoinedMajor;
     private int yearJoinedMinor;
     private Schedule schedule;
-    private ArrayList<Course> completedCourses;
+    private List<Course> completedCourses;
     private String email;
 
-    public User(String name, String password, ArrayList<String> majors, ArrayList<String> minors, ArrayList<Course> completedCourses) {
+    public User(String name, String password, List<String> majors, List<String> minors, List<Course> completedCourses) {
         this.username = name;
         this.password = password;
         this.majors = majors;
@@ -114,11 +115,11 @@ public class User {
         return username;
     }
 
-    public ArrayList<String> getMajors() {
+    public List<String> getMajors() {
         return majors;
     }
 
-    public ArrayList<String> getMinors() {
+    public List<String> getMinors() {
         return minors;
     }
 

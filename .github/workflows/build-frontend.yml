@@ -1,0 +1,44 @@
+name: Build Frontend
+
+on:
+  pull_request:
+    branches:
+      - master
+    types:
+      - opened
+
+jobs:
+  export-and-commit:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Step 2: Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        run: npm install
+        working-directory: frontend
+
+      # Step 4: Run the export script
+      - name: Run export script
+        run: npm run export
+        working-directory: frontend
+
+      # Step 5: Commit and push changes
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "Automated export changes"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

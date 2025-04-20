@@ -20,7 +20,6 @@ const Search = () => {
     const selectCourse = (course: Course) => {
         const click: MouseEventHandler = () => {
             setCourse(course)
-            scheduleAPI.addCourse(course)
         }
         return click;
     }

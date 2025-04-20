@@ -1,14 +1,17 @@
 package edu.gcc;
 
+import org.mindrot.jbcrypt.BCrypt;
+
 import java.util.List;
 import java.util.Scanner;
 
 public class ConsoleDriver {
 
     private static final Scanner s = new Scanner(System.in);
-    private static User currentUser = null;
+    private static dbUser currentUser = null;
     private static Search search = null;
     private static final int RESULTS_PER_PAGE = 5;
+    private static User tempUser;
 
     // The following methods act as a private API for the ConsoleDriver class
     // They will be updated in the future to interact with the database once complete
@@ -16,11 +19,14 @@ public class ConsoleDriver {
     /**
      * Attempts to find a user in the database
      * @param username the username of the user
-     * @param password the password of the user
      * @return User object if username/password match found, null otherwise
      */
-    private static User getUser(String username, String password){
-        return null;
+    private static dbUser getUser(String username){
+        SearchDatabase db = new SearchDatabase();
+        dbUser user =  db.getUser(username);
+        db.close();
+        return user;
+
     }
 
     /**
@@ -29,7 +35,7 @@ public class ConsoleDriver {
      * @param password password of new user
      */
     private static void addUser(String username, String password){
-
+        currentUser = new dbUser(username,password,null,null,null,1);
     }
 
     /**
@@ -52,11 +58,47 @@ public class ConsoleDriver {
 
         //Loop until account is found
         while (currentUser == null) {
-            //Prompt user for name
-            System.out.print("Enter your username: ");
-            String username = s.nextLine();
-            currentUser = new User(username,"",null,null,null);
-            currentUser.loadSchedule();
+            System.out.println("Would you like to Login, or Create Account? (type: login/create)");
+            String input = s.nextLine();
+            if(input.equals("create")){
+                System.out.println("Enter your enter desired username?");
+                String username = s.next();
+                System.out.println("Enter your desired password?");
+                String password = s.next();
+
+
+                dbUser user = getUser(username);
+                if(user != null){
+                    System.out.println("This username already exists");
+                } else {
+                    addUser(username, password);
+                }
+
+            } else if (input.equals("login")) {
+                System.out.print("Enter your username: ");
+                String username = s.nextLine();
+                dbUser user = getUser(username);
+                if (user == null){
+                    System.out.println("Invalid username");
+                    continue;
+                } else {
+                    while(true) {
+                        System.out.println("Enter your password: ");
+                        String password = s.nextLine();
+                        if (BCrypt.checkpw(password.trim(), user.getPassword())) {
+                            System.out.println("Welcome back " + user.getName());
+                            currentUser = user;
+                            tempUser = new User(currentUser.getName(), currentUser.getPassword(), currentUser.getMajors(), currentUser.getMinors(), null);
+                            tempUser.loadSchedule();
+                            break;
+                        } else {
+                            System.out.println("Invalid password");
+                        }
+                    }
+                }
+            } else {
+                System.out.println("Invalid input");
+            }
         }
 
         System.out.printf("Welcome to Student Scheduler %s!\n",currentUser.getName());
@@ -254,7 +296,7 @@ public class ConsoleDriver {
                 }
                 System.out.printf("Run 'add %s replace' to remove conflicts and add course\n",options[1]);
             }
-            currentUser.saveSchedule();
+            tempUser.saveSchedule();
             if (added){
                 System.out.printf("Successfully added %s %s%s to schedule\n",
                         add.getDepartment(),add.getCourseCode(),add.getSection());
@@ -278,7 +320,7 @@ public class ConsoleDriver {
             Course remove = getCourse(cid);
             if (remove == null) { return; }
             boolean removed = currentUser.getSchedule().removeCourse(remove);
-            currentUser.saveSchedule();
+            tempUser.saveSchedule();
             if (removed){
                 System.out.printf("Successfully removed %s %s%s from schedule\n",
                         remove.getDepartment(),remove.getCourseCode(),remove.getSection());

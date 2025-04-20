@@ -10,7 +10,7 @@ const scheduleAPI = {
     },
     addCourse: async (course: Course) => {
         const id = course.cid
-        const response = await fetch("http://localhost:8080/api/v1/schedule/add",{
+        await fetch("http://localhost:8080/api/v1/schedule/add",{
             method: "POST",
             headers: {
                 'Content-Type': 'application/json',
@@ -20,7 +20,7 @@ const scheduleAPI = {
     },
     removeCourse: async (course: Course) => {
         const id = course.cid
-        const response = await fetch("http://localhost:8080/api/v1/schedule/remove",{
+        await fetch("http://localhost:8080/api/v1/schedule/remove",{
             method: "POST",
             headers: {
                 'Content-Type': 'application/json',

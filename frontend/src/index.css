@@ -12,8 +12,9 @@ main {
     margin: 20px 5%;
 }
 
-h1, h2, h3 {
-    color: var(--primary-color)
+h1 {
+    color: var(--primary-color);
+    font-weight: bold;
 }
 
 form {
@@ -57,7 +58,7 @@ form > .btn {
 }
 
 .btn.primary {
-    color: var(--background-color);
+    color: var(--secondary-color);
     background-color: var(--primary-color);
 }
 

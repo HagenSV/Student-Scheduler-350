@@ -35,7 +35,7 @@ const formatTimeMWF = (course: Course) => {
     const days = ["M","T","W","R","F"];
     let time = ["",""]
     for (let i = 0; i < 5; i += 2){
-        if (course.startTime[i] != -1){
+        if (course.startTime[i] !== -1){
             time[0] += days[i];
             time[1] = `${toTimeString(course.startTime[i])} - ${toTimeString(course.startTime[i]+course.duration)}`
         }
@@ -47,7 +47,7 @@ const formatTimeTR = (course: Course) => {
     const days = ["M","T","W","R","F"];
     let time = ["",""]
     for (let i = 1; i < 5; i += 2){
-        if (course.startTime[i] != -1){
+        if (course.startTime[i] !== -1){
             time[0] += days[i];
             time[1] = `${toTimeString(course.startTime[i])} - ${toTimeString(course.startTime[i]+course.duration)}`
         }
