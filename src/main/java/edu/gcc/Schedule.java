@@ -31,14 +31,122 @@ import java.util.*;
 public class Schedule {
     private final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
     private ArrayList<Course> courses;
+    private ArrayList<ScheduleEvent> nonAcademicEvents;
     private String semester;
 
     public Schedule() {
         courses = new ArrayList<>();
+        nonAcademicEvents = new ArrayList<>();
     }
 
-    public Schedule(ArrayList<Course> courses) {
+    public Schedule(ArrayList<Course> courses, ArrayList<ScheduleEvent> nonAcademicEvents) {
         this.courses = courses;
+        this.nonAcademicEvents = nonAcademicEvents;
+    }
+
+    /**
+     * Adds a specified scheduleEvent to the schedule and calls the logger function
+     *
+     * @param scheduleEvent the scheduleEvent to be added
+     * @return whether the course was added successfully false if it conflicts with the other courses in the schedule
+     */
+    public boolean addCourse(ScheduleEvent scheduleEvent) {
+        if (!this.getConflicts(scheduleEvent).isEmpty()) {
+            return false;
+        }
+        if (scheduleEvent instanceof Course course) {
+            if (course.getNumSeats() < 1)
+                return false;
+            this.courses.add(course);
+        }
+        else {
+            this.nonAcademicEvents.add(scheduleEvent);
+        }
+        // Log the addition of the course
+        logger(true, scheduleEvent);
+        return true;
+    }
+
+    /**
+     * Removes the specified scheduleEvent from the schedule and adds it to the logger
+     *
+     * @param scheduleEvent the scheduleEvent to be removed
+     * @return whether the course was successfully removed, false if it did not exist in the schedule
+     */
+    public boolean removeCourse(ScheduleEvent scheduleEvent) {
+        if (scheduleEvent instanceof Course course)
+            if (courses.remove(course)) {
+                logger(false, course);
+                return true;
+            } else {
+                return false;
+            }
+        else {
+            if (nonAcademicEvents.remove(scheduleEvent)) {
+                logger(false, scheduleEvent);
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+
+    /**
+     * Generates a schedule based on the search queries and found courses
+     *
+     * @param searchQueries array of search queries
+     * @param foundCourses arraylist of courses that were found
+     * @param semester semester to filter the courses by
+     * @return arraylist of generated schedules
+     */
+    public ArrayList<Schedule> generateSchedule(String[] searchQueries, ArrayList<Course> foundCourses, String semester) {
+        if (foundCourses == null)
+            return null;
+
+        ArrayList<Course> deepCopyCourses = new ArrayList<>(foundCourses);
+        deepCopyCourses.removeIf(c -> !c.getSemester().equals(semester));
+        ArrayList<Schedule> generatedSchedules = new ArrayList<>();
+        ArrayList<ArrayList<Course>> domains = new ArrayList<>();
+
+        Map<String, ArrayList<Course>> courseMap = new HashMap<>();
+        for (String query : searchQueries) {
+            String[] queries = query.split(" ");
+            for (Course c : deepCopyCourses) {
+                if (c.getDepartment().equals(queries[0])
+                        && c.getCourseCode().equals(queries[1])) {
+                    if (courseMap.containsKey(query))
+                        courseMap.get(query).add(c);
+                    else {
+                        ArrayList<Course> newEntry = new ArrayList<>();
+                        newEntry.add(c);
+                        courseMap.put(query, newEntry);
+                    }
+                }
+            }
+        }
+
+        // Print out courses that don't exist in the query
+        for (String s: searchQueries) {
+            boolean exists = false;
+            for (String str : courseMap.keySet()) {
+                if (s.equals(str)) {
+                    exists = true;
+                    break;
+                }
+            }
+            if (!exists)
+                System.err.println("Could not find course: " + s);
+        }
+
+        for (String s : courseMap.keySet())
+            domains.add(courseMap.get(s));
+
+        // Call backtracking search, if domains not found, courses are null
+        Schedule schedule = new Schedule();
+        for (ScheduleEvent c: nonAcademicEvents)
+            schedule.addCourse(c);
+        backtrack(generatedSchedules, schedule, domains);
+        return generatedSchedules;
     }
 
     /**
@@ -88,94 +196,19 @@ public class Schedule {
 
                     // Domain is valid, call backtrack again with deepCopy of forward checked domains
                 } else {
-                    backtrack(generatedSchedules, new Schedule(new ArrayList<>(schedule.getCourses())), domainCopy);
+                    backtrack(generatedSchedules, new Schedule(new ArrayList<>(schedule.getCourses()), new ArrayList<>(schedule.getNonAcademicEvents())), domainCopy);
                 }
                 schedule.removeCourse(c);
             }
         }
     }
 
-    /**
-     * Adds a specified course to the schedule and calls the logger function
-     *
-     * @param course the course to be added
-     * @return whether the course was added successfully false if it conflicts with the other courses in the schedule
-     */
-    public boolean addCourse(Course course) {
-        if (course.getNumSeats() < 1)
-            return false;
-        if (!this.getConflicts(course).isEmpty()) {
-            return false;
-        }
-        this.courses.add(course);
-        // Log the addition of the course
-        logger(true, course);
-        return true;
-    }
-
-    /**
-     * Removes the specified course from the schedule and adds it to the logger
-     *
-     * @param course the course to be removed
-     * @return whether the course was successfully removed, false if it did not exist in the schedule
-     */
-    public boolean removeCourse(Course course) {
-        if (courses.remove(course)) {
-            logger(false, course);
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public ArrayList<Schedule> generateSchedule(String[] searchQueries, ArrayList<Course> foundCourses, String semester) {
-        if (foundCourses == null)
-            return null;
-
-        foundCourses.removeIf(c -> !c.getSemester().equals(semester));
-        ArrayList<Schedule> generatedSchedules = new ArrayList<>();
-        ArrayList<ArrayList<Course>> domains = new ArrayList<>();
-
-        Map<String, ArrayList<Course>> courseMap = new HashMap<>();
-        for (String query : searchQueries) {
-            String[] queries = query.split(" ");
-            for (Course c : foundCourses) {
-                if (c.getDepartment().equals(queries[0])
-                        && c.getCourseCode().equals(queries[1])) {
-                    if (courseMap.containsKey(query))
-                        courseMap.get(query).add(c);
-                    else {
-                        ArrayList<Course> newEntry = new ArrayList<>();
-                        newEntry.add(c);
-                        courseMap.put(query, newEntry);
-                    }
-                }
-            }
-        }
-
-        // Print out courses that don't exist in the query
-        for (String s: searchQueries) {
-            boolean exists = false;
-            for (String str : courseMap.keySet()) {
-                if (s.equals(str)) {
-                    exists = true;
-                    break;
-                }
-            }
-            if (!exists)
-                System.err.println("Could not find course: " + s);
-        }
-
-        for (String s : courseMap.keySet())
-            domains.add(courseMap.get(s));
-
-        // Call backtracking search, if domains not found, courses are null
-        backtrack(generatedSchedules, new Schedule(), domains);
-        return generatedSchedules;
-    }
-
     public ArrayList<Course> getCourses() {
         return courses;
+    }
+
+    public ArrayList<ScheduleEvent> getNonAcademicEvents() {
+        return nonAcademicEvents;
     }
 
     /**
@@ -183,9 +216,16 @@ public class Schedule {
      *
      * @return arraylist of courses that conflict
      */
-    public ArrayList<Course> getConflicts(Course course) {
-        ArrayList<Course> conflicts = new ArrayList<>();
+    public ArrayList<ScheduleEvent> getConflicts(ScheduleEvent course) {
+        ArrayList<ScheduleEvent> conflicts = new ArrayList<>();
+
         for (Course c : courses) {
+            if (c.hasConflict(course)) {
+                conflicts.add(c);
+            }
+        }
+
+        for (ScheduleEvent c: nonAcademicEvents) {
             if (c.hasConflict(course)) {
                 conflicts.add(c);
             }
@@ -194,32 +234,26 @@ public class Schedule {
     }
 
     /**
-     * Removes the last course added to the schedule
+     * Logs the addition or removal of a course to a log file
      *
-     * @return whether the undo was successful
+     * @param type true if added, false if removed
+     * @param event the course or event that was added or removed
      */
-    public boolean undo() {
-        if (!courses.isEmpty()) {
-            courses.remove(courses.size() - 1);
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Logs to a file the course that was added or removed
-     * to a saved textile named log.txt
-     */
-    public void logger(boolean type, Course course) {
+    public void logger(boolean type, ScheduleEvent event) {
         String action = type ? "Added" : "Removed";
-        String log = action + " " + course.getDepartment() + " " + course.getCourseCode() + " " + course.getSection() + "\n";
+        String log;
+        if (event instanceof Course) {
+            Course course = (Course) event;
+            log = action + " " + course.getDepartment() + " " + course.getCourseCode() + " " + course.getSection() + "\n";
+        } else {
+            log = action + " Non-Academic Event: " + event.getName() + " (CID: " + event.getCID() + ")\n";
+        }
         try {
             FileWriter writer = new FileWriter("log.txt", true);
             writer.write(log);
             writer.close();
         } catch (Exception e) {
-            System.out.println("An error occurred while writing to the log file.");
-            e.printStackTrace();
+            System.out.println("An error occurred while writing to the log file: " + e.getMessage());
         }
     }
 
@@ -237,25 +271,27 @@ public class Schedule {
                     .build();
 
             // Check if there are any courses to export
-            if (courses.isEmpty()) {
-                System.out.println("No courses in the schedule to export.");
+            if (courses.isEmpty() && nonAcademicEvents.isEmpty()) {
+                System.out.println("No courses or events in the schedule to export.");
                 return;
             }
 
             // Iterate over courses and create events
             for (Course course : courses) {
-                createCourseEvents(service, course);
+                createCalendarEvent(service, course);
             }
+
+            for (ScheduleEvent scheduleEvent: nonAcademicEvents) {
+                createCalendarEvent(service, scheduleEvent);
+            }
+
             System.out.println("Schedule successfully exported to Google Calendar!");
         } catch (GeneralSecurityException e) {
             System.err.println("Security error while exporting to Google Calendar: " + e.getMessage());
-            e.printStackTrace();
         } catch (IOException e) {
             System.err.println("IO error while exporting to Google Calendar: " + e.getMessage());
-            e.printStackTrace();
         } catch (Exception e) {
             System.err.println("Unexpected error while exporting to Google Calendar: " + e.getMessage());
-            e.printStackTrace();
         }
     }
 
@@ -267,7 +303,6 @@ public class Schedule {
      * @throws IOException If there is an error reading the credentials file or during authorization.
      */
     private Credential getCredentials(final NetHttpTransport httpTransport) throws IOException {
-        // Load client secrets from the project root using FileReader
         String CREDENTIALS_FILE_PATH = "credentials.json";
         File credentialsFile = new File(CREDENTIALS_FILE_PATH);
         if (!credentialsFile.exists()) {
@@ -275,7 +310,6 @@ public class Schedule {
         }
         GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new FileReader(credentialsFile));
 
-        // Build flow and trigger user authorization request
         String TOKENS_DIRECTORY_PATH = "tokens";
         List<String> SCOPES = Collections.singletonList("https://www.googleapis.com/auth/calendar.events");
         GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
@@ -284,22 +318,68 @@ public class Schedule {
                 .setAccessType("offline")
                 .build();
 
-        LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(8888).build();
-        return new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
+        File tokenDir = new File(TOKENS_DIRECTORY_PATH);
+        File tokenFile = new File(tokenDir, "StoredCredential");
+
+        // Load existing credentials
+        Credential credential = flow.loadCredential("user");
+
+        if (credential != null) {
+            // Check if token is expired or invalid
+            Long expiresInSeconds = credential.getExpiresInSeconds();
+            if (expiresInSeconds == null || expiresInSeconds <= 0) {
+                try {
+                    System.out.println("Access token expired. Attempting to refresh...");
+                    if (credential.refreshToken()) {
+                        System.out.println("Token refreshed successfully.");
+                        return credential;
+                    } else {
+                        System.out.println("Failed to refresh token. Tokens may be invalid or revoked.");
+                    }
+                } catch (Exception e) {
+                    System.err.println("Error refreshing token: " + e.getMessage());
+                }
+
+                // Delete invalid tokens
+                if (tokenFile.exists()) {
+                    if (tokenFile.delete()) {
+                        System.out.println("Deleted invalid token file: " + tokenFile.getAbsolutePath());
+                    } else {
+                        System.err.println("Failed to delete token file: " + tokenFile.getAbsolutePath());
+                    }
+                }
+                credential = null; // Force re-authentication
+            }
+        }
+
+        // If no valid credentials, prompt for re-authentication
+        if (credential == null) {
+            System.out.println("No valid credentials found. Opening browser for OAuth2 authentication...");
+            System.out.println("Please authorize the application in your browser to access Google Calendar.");
+            LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(8888).build();
+            try {
+                credential = new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
+                System.out.println("Authentication successful. New tokens stored.");
+            } finally {
+                receiver.stop(); // Ensure the receiver is stopped
+            }
+        }
+
+        return credential;
     }
 
     /**
      * Creates recurring events for a course in Google Calendar.
      *
      * @param service The Google Calendar service instance.
-     * @param course  The course to create events for.
+     * @param scheduleEvent  The course to create events for.
      * @throws IOException If there is an error communicating with the Google Calendar API.
      */
-    private void createCourseEvents(Calendar service, Course course) throws IOException {
+    private void createCalendarEvent(Calendar service, ScheduleEvent scheduleEvent) throws IOException {
         String[] daysOfWeek = {"MO", "TU", "WE", "TH", "FR"};
-        boolean[] daysMeet = course.getDaysMeet();
-        int[] startTimes = course.getStartTime();
-        int duration = course.getDuration();
+        boolean[] daysMeet = scheduleEvent.getDaysMeet();
+        int[] startTimes = scheduleEvent.getStartTime();
+        int duration = scheduleEvent.getDuration();
 
         // Define semester dates (adjust as needed)
         LocalDate startSemester = LocalDate.of(2025, 1, 13);
@@ -307,11 +387,13 @@ public class Schedule {
 
         for (int i = 0; i < daysMeet.length; i++) {
             if (daysMeet[i] && startTimes[i] != -1) {
+                Event event;
                 // Create the event
-                Event event = new Event()
-                        .setSummary(course.getDepartment() + " " + course.getCourseCode() + " - " + course.getName())
-                        .setLocation(getCleanLocation(course, i))
-                        .setDescription("Professor: " + String.join(", ", course.getProfessor()));
+                if (scheduleEvent instanceof Course course) {
+                    event = createEventCourse(course, i);
+                } else {
+                    event = createEventScheduleEvent(scheduleEvent);
+                }
 
                 // Calculate start and end times
                 LocalTime startTime = LocalTime.of(8, 0).plusMinutes(startTimes[i]);
@@ -339,6 +421,36 @@ public class Schedule {
                 service.events().insert("primary", event).execute();
             }
         }
+    }
+
+    /**
+     * Creates a calendar event for a course.
+     *
+     * @param course The course to create an event for.
+     * @param day    The day of the week (0 = Monday, 1 = Tuesday, ..., 4 = Friday).
+     * @return The created event.
+     */
+    public Event createEventCourse(Course course, int day) {
+        // Create the event
+        Event event = new Event()
+                .setSummary(course.getDepartment() + " " + course.getCourseCode() + " - " + course.getName())
+                .setLocation(getCleanLocation(course, day))
+                .setDescription("Professor: " + String.join(", ", course.getProfessor()));
+        return event;
+    }
+
+    /**
+     * Creates a calendar event for a schedule event.
+     *
+     * @param scheduleEvent The schedule event to create an event for.
+     * @return The created event.
+     */
+    public Event createEventScheduleEvent(ScheduleEvent scheduleEvent) {
+        // Create the event
+        Event event = new Event()
+                .setSummary(scheduleEvent.getName())
+                .setLocation(scheduleEvent.getLocation());
+        return event;
     }
 
     /**
@@ -377,7 +489,7 @@ public class Schedule {
                 // Set larger font for time and day labels
                 contentStream.setFont(PDType1Font.HELVETICA_BOLD, 10);
 
-                // Draw time labels (8:00 AM to 8:00 PM) closer to the grid
+                // Draw time labels (8:00 AM to 9:00 PM) closer to the grid
                 for (int i = 0; i <= numHours; i++) {
                     float yPosition = yStart - (i * rowHeight);
                     contentStream.beginText();
@@ -457,6 +569,38 @@ public class Schedule {
                             contentStream.showText(truncateString(course.getName(), 20)); // Course name (e.g., "COMP PROGRAM...")
                             contentStream.newLineAtOffset(0, -10); // Move down for the third line
                             contentStream.showText(truncateString(getCleanLocation(course, day), 25)); // Course location (e.g., "Room 101")
+                            contentStream.endText();
+                        }
+                    }
+                }
+
+                // Draw nonacademic event blocks
+                for (ScheduleEvent scheduleEvent : nonAcademicEvents) {
+                    boolean[] daysMeet = scheduleEvent.getDaysMeet();
+                    int[] startTimes = scheduleEvent.getStartTime();
+                    int duration = scheduleEvent.getDuration();
+
+                    for (int day = 0; day < daysMeet.length; day++) {
+                        if (daysMeet[day] && startTimes[day] != -1) {
+                            // Calculate the position and size of the course block
+                            float x = xStart + timeColumnWidth + (day * dayColumnWidth);
+                            float startHour = startTimes[day] / 60.0f; // Convert minutes to hours
+                            float durationHours = duration / 60.0f; // Duration in hours
+                            float y = yStart - (startHour * rowHeight);
+                            float blockHeight = durationHours * rowHeight;
+
+                            // Draw the course block (rectangle)
+                            contentStream.setNonStrokingColor(0.9f, 0.9f, 0.9f);
+                            contentStream.addRect(x + 2, y - blockHeight, dayColumnWidth - 4, blockHeight);
+                            contentStream.fill();
+                            contentStream.setNonStrokingColor(0, 0, 0); // Reset to black for text
+
+                            // Add course details inside the block
+                            contentStream.beginText();
+                            contentStream.newLineAtOffset(x + 5, y - 10); // Starting position for the first line
+                            contentStream.showText(truncateString(scheduleEvent.getName(), 20)); // Event name (e.g., "COMP PROGRAM...")
+                            contentStream.newLineAtOffset(0, -10); // Move down for the second line
+                            contentStream.showText(truncateString(scheduleEvent.getLocation(), 25)); // Event location (e.g., "Room 101")
                             contentStream.endText();
                         }
                     }

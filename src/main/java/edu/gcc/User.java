@@ -265,7 +265,7 @@ public class User {
 
                     courses.add(new Course(cid, name, startTime, duration, isOpen, professors, MWForTR, daysMeet, department, courseCode, credits, numSeats, section, isLab, semester, location));
                 }
-                schedule = new Schedule(courses);
+                schedule = new Schedule(courses, new ArrayList<>());
             } catch (Exception e) {
                 System.err.println(e.getMessage());
             }

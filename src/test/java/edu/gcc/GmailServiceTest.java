@@ -62,6 +62,25 @@ public class GmailServiceTest {
     }
 
     @Test
+    void testSendEmailWithBigScheduleNonAcademicEvent() throws IOException, GeneralSecurityException, jakarta.mail.MessagingException {
+        Schedule schedule = new Schedule();
+        ArrayList<Schedule> generatedSchedules = schedule.generateSchedule(new String[]{"COMP 340", "COMP 350", "COMP 445", "COMP 314"}, Main.getCourses("data_wolfe.json"), "Spring");
+        assertFalse(generatedSchedules.isEmpty(), "There should be at least one valid schedule");
+        schedule = generatedSchedules.get(0);
+        // Add non-academic event (Monday 10:00-11:00 AM)
+        boolean[] daysMeetEvent = {false, true, false, true, false}; // Monday
+        int[] startTimesEvent = {-1, 360, -1, 360, -1}; // 10:00 AM
+        ScheduleEvent event = new ScheduleEvent(100, "Club Meeting", startTimesEvent, 120,
+                daysMeetEvent, "Spring", "Room 201");
+        schedule.addCourse(event);
+        user.updateSchedule(schedule);
+
+        user.sendEmail();
+
+        System.out.println("Email sent to eclipsegames20@gmail.com with multiple courses (COMP 340, COMP 350, COMP 445, COMP 314) schedule. Please check the inbox.");
+    }
+
+    @Test
     void testSendEmailWithEmptySchedule() throws IOException, GeneralSecurityException, jakarta.mail.MessagingException {
         Schedule schedule = new Schedule();
         user.updateSchedule(schedule);
