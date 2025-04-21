@@ -142,7 +142,9 @@ public class Schedule {
      * @return whether the course was successfully removed, false if it did not exist in the schedule
      */
     public boolean removeCourse(Course course) {
-        if (courses.remove(course)) {
+        UpdateDatabaseContents udb = new UpdateDatabaseContents();
+        if (udb.removeCourse(course, username, semester)) {
+            courses.remove(course);
             logger(false, course);
             return true;
         } else {
