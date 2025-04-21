@@ -43,7 +43,7 @@ public class dbUser {
         this.majors = majors;
         this.minors = minors;
         this.completedCourses = completedCourses;
-        this.schedule = new Schedule();
+        this.schedule = null;
     }
 
 
@@ -53,7 +53,7 @@ public class dbUser {
         this.majors = majors;
         this.minors = minors;
         this.completedCourses = completedCourses;
-        this.schedule = new Schedule();
+        this.schedule = null;
         if (addToDatabase == 1) {
             UpdateDatabaseContents updateDatabase = new UpdateDatabaseContents();
             updateDatabase.addUser(this);
