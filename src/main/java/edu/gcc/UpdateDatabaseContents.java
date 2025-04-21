@@ -461,5 +461,27 @@ public class UpdateDatabaseContents {
             System.out.println(e.getMessage());
         }
     }
+
+
+    public boolean removeCourse(Course course, String username, String semester){
+        try {
+            Connection connection = DriverManager.getConnection(url);
+            String sql = "DELETE FROM courses_in_schedule WHERE cid = ? and username = ? and semester = ?";
+            PreparedStatement ps = connection.prepareStatement(sql);
+
+            ps.setInt(1, course.getCID());
+            ps.setString(2, username);
+            ps.setString(3, semester);
+
+            int rowsDeleted = ps.executeUpdate();
+            if(rowsDeleted > 0){
+                return true;
+            }
+            return false;
+        } catch(SQLException e){
+            e.printStackTrace();
+            return false;
+        }
+    }
 }
 
