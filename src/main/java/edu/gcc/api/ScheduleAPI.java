@@ -14,7 +14,7 @@ import java.util.List;
 @RestController
 public class ScheduleAPI {
 
-    private final Schedule schedule = new Schedule();
+    private final Schedule schedule = new Schedule(null, null);
 
     @GetMapping("/api/v1/schedule")
     public List<Course> getSchedule() {
