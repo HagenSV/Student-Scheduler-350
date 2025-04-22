@@ -68,7 +68,7 @@ public class dbUser {
         this.majors = majors;
         this.minors = minors;
         this.completedCourses = completedCourses;
-        this.schedule = new Schedule();
+        this.schedule = null;
     }
 
     public dbUser(String name, String password, List<String> majors, List<String> minors, List<Course> completedCourses, int addToDatabase) {
@@ -77,7 +77,7 @@ public class dbUser {
         this.majors = majors;
         this.minors = minors;
         this.completedCourses = completedCourses;
-        this.schedule = new Schedule();
+        this.schedule = null;
         if (addToDatabase == 1) {
             UpdateDatabaseContents.addUser(this);
         }
