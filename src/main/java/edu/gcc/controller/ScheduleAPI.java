@@ -1,7 +1,6 @@
 package edu.gcc.controller;
 
 import edu.gcc.*;
-import edu.gcc.service.UserService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -58,6 +57,22 @@ public class ScheduleAPI {
         //Course course = query.getCourse();
         if (course == null || schedule == null) return;
         schedule.removeCourse(course);
+    }
+
+    @PostMapping("/api/v1/schedule/export?type=google")
+    public void exportCalendar(){
+        // This method will handle exporting the schedule to a calendar
+        Schedule schedule = getScheduleFromUser();
+        if (schedule == null) return;
+        schedule.exportToCalendar();
+    }
+
+    @PostMapping("/api/v1/schedule/export?format=pdf")
+    public void exportPDF(){
+        // This method will handle exporting the schedule to a PDF
+        Schedule schedule = getScheduleFromUser();
+        if (schedule == null) return;
+        schedule.exportToPDF();
     }
 
     public Course getCourse(int id){
