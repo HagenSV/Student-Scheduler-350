@@ -49,7 +49,6 @@ public class Schedule {
     public ArrayList<Course> getCoursesFromDB(){
         SearchDatabase sd = SearchDatabase.getInstance();
         ArrayList<Course> toReturn = sd.getScheduleFromDB(username, semester);
-        sd.close();
 
         System.out.println("Returned from DB");
         for(Course c : toReturn){

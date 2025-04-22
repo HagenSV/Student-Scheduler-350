@@ -25,9 +25,7 @@ public class ConsoleDriver {
      */
     private static dbUser getUser(String username){
         SearchDatabase db = SearchDatabase.getInstance();
-        dbUser user =  db.getUser(username);
-        db.close();
-        return user;
+        return db.getUser(username);
 
     }
 
