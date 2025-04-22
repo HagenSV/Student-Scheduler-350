@@ -1,7 +1,6 @@
 import HeaderNav from './components/header_nav/HeaderNav.tsx';
 import Schedule from './pages/Schedule.tsx';
 import Search from './pages/Search.tsx';
-import Account from './pages/Account.tsx';
 import Profile from './pages/Profile.tsx';
 import Login from './pages/Login.tsx';
 import Register from './pages/Register.tsx';
