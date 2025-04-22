@@ -1,5 +1,5 @@
 import React from 'react';
-//import './courseTable.css'
+import './CourseTable.css'
 import { Course, formatTime } from '../../interface/course';
 
 interface CourseTableProps {
@@ -9,7 +9,7 @@ interface CourseTableProps {
 
 const CourseTable: React.FC<CourseTableProps> = ({ courses, remove }) => {
    return (
-        <table style={{ tableLayout: "fixed", width: "100%", textAlign: "center" }}>
+        <table className="courseTable">
             <thead>
             <tr>
                 <th> </th>
@@ -23,7 +23,7 @@ const CourseTable: React.FC<CourseTableProps> = ({ courses, remove }) => {
             <tbody>
                 {courses.map((course, index) => (
                     <tr key={index}>
-                        <td onClick={remove}> {index + 1} </td>
+                        <td onClick={remove(course)}> {index + 1} </td>
                         <td> {course.department} {course.courseCode}{course.section} </td>
                         <td> {course.name} </td>
                         <td> {formatTime(course)} </td>
