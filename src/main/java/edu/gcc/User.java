@@ -189,8 +189,8 @@ public class User {
                 stringBuilder.append(c.getCredits()).append("_");
                 stringBuilder.append(c.getNumSeats()).append("_");
                 stringBuilder.append(c.getSection()).append("_");
-                stringBuilder.append(c.getIsLab());
-                stringBuilder.append(c.getSemester());
+                stringBuilder.append(c.getIsLab()).append("_");
+                stringBuilder.append(c.getSemester()).append("_");
                 stringBuilder.append(c.getLocation());
 
                 // Finally write course into line
