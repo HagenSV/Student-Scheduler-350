@@ -20,8 +20,9 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
+    "clean-static": "rimraf ../src/main/resources/static/*",
     "copy-build": "copyfiles -u 1 build/**/* ../src/main/resources/static/",
-    "export": "npm run build && npm run copy-build"
+    "export": "npm run build && npm run clean-static && npm run copy-build"
   },
   "eslintConfig": {
     "extends": [
