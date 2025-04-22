@@ -31,26 +31,30 @@ import java.util.*;
 public class Schedule {
     private final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
     private ArrayList<Course> courses;
-    private String username;
     private ArrayList<ScheduleEvent> nonAcademicEvents;
+    private String username;
     private String semester;
 
     public Schedule(String username, String semester) {
         this.username = username;
         this.semester = semester;
         courses = getCoursesFromDB();
-
-    public Schedule() {
-        courses = new ArrayList<>();
         nonAcademicEvents = new ArrayList<>();
     }
 
-    public Schedule(ArrayList<Course> courses, ArrayList<ScheduleEvent> nonAcademicEvents) {
+    public Schedule(String username, String semester, ArrayList<Course> courses, ArrayList<ScheduleEvent> nonAcademicEvents) {
         this.courses = courses;
+        this.nonAcademicEvents = nonAcademicEvents;
+        this.username = username;
+        this.semester = semester;
     }
 
-
-    public ArrayList<Course> getCoursesFromDB(){
+    /**
+     * Gets the courses from the database
+     *
+     * @return arraylist of courses
+     */
+    public ArrayList<Course> getCoursesFromDB() {
         SearchDatabase sd = new SearchDatabase();
         ArrayList<Course> toReturn = sd.getScheduleFromDB(username, semester);
         sd.close();
@@ -61,58 +65,48 @@ public class Schedule {
         }
         return toReturn;
     }
+
     /**
-     * Backtracking search with MRV heuristic and forward checking
+     * Adds a specified scheduleEvent to the schedule and updates the database and calls the logger function
      *
-     * @param schedule schedule that is being generated
-     * @param domains domain of each Course variable
-     * */
-    public void backtrack(ArrayList<Schedule> generatedSchedules, Schedule schedule, ArrayList<ArrayList<Course>> domains) {
-        // Base case, all variables assigned
-        if (domains.isEmpty()) {
-            generatedSchedules.add(schedule);
-            return;
+     * @param scheduleEvent the scheduleEvent to be added
+     * @return whether the course was added successfully false if it conflicts with the other courses in the schedule
+     */
+    public boolean addCourse(ScheduleEvent scheduleEvent) {
+
+        // Course or Event conflicts with the current schedule
+        if (!this.getConflicts(scheduleEvent).isEmpty()) {
+            return false;
         }
 
-        // MRV Heuristic choose from ArrayList with the smallest size
-        domains.sort(Comparator.comparing(ArrayList::size));
-        ArrayList<Course> currentDomain = domains.get(0);
-        for (Course c : currentDomain) {
-            if (schedule.addCourse(c)) {
-                // Create copy of domains
-                ArrayList<ArrayList<Course>> domainCopy = new ArrayList<>();
-                for (int i = 1; i < domains.size(); i++) {
-                    domainCopy.add(new ArrayList<>(domains.get(i)));
-                }
-
-                // Forward Checking remove conflicts from domains
-                for (ArrayList<Course> variable : domainCopy) {
-                    for (Course course : variable) {
-                        if (course.hasConflict(c))
-                            variable.remove(c);
-                    }
-                }
-
-                // Check if any domains are empty
-                boolean valid = true;
-                for (ArrayList<Course> variable : domainCopy) {
-                    if (variable.isEmpty()) {
-                        valid = false;
-                        break;
-                    }
-                }
-
-                // Domain isn't valid remove from schedule and go to next value
-                if (!valid) {
-                    schedule.removeCourse(c);
-
-                    // Domain is valid, call backtrack again with deepCopy of forward checked domains
-                } else {
-                    backtrack(generatedSchedules, new Schedule(new ArrayList<>(schedule.getCourses())), domainCopy);
-                }
-                schedule.removeCourse(c);
+        // The ScheduleEvent is a Course object
+        if (scheduleEvent instanceof Course course) {
+            if (course.getNumSeats() < 1)
+                return false;
+            // Check if the course is in the same semester
+            if (this.courses.contains(course)) {
+                System.out.println("You are trying to add a course that is already in your schedule");
+                return false;
             }
+            // Check if the course is in the same semester
+            if (!course.getSemester().equals(semester)) {
+                System.out.println("You are trying to add a course that is in a different semester");
+                return false;
+            }
+            this.courses.add(course);
+            UpdateDatabaseContents addCourseToSchedule = new UpdateDatabaseContents();
+            addCourseToSchedule.addCourseToSchedule(course.getCID(), username, semester);
+        } else {
+        // The ScheduleEvent is a ScheduleEvent object
+            if (this.nonAcademicEvents.contains(scheduleEvent)) {
+                System.out.println("You are trying to add an event that is already in your schedule");
+                return false;
+            }
+            this.nonAcademicEvents.add(scheduleEvent);
         }
+        // Log the addition of the course or event
+        logger(true, scheduleEvent);
+        return true;
     }
 
     /**
@@ -121,31 +115,67 @@ public class Schedule {
      * @param scheduleEvent the scheduleEvent to be added
      * @return whether the course was added successfully false if it conflicts with the other courses in the schedule
      */
-    public boolean addCourse(ScheduleEvent scheduleEvent) {
+    public boolean addCourseNoDatabase(ScheduleEvent scheduleEvent) {
+
+        // Course or Event conflicts with the current schedule
         if (!this.getConflicts(scheduleEvent).isEmpty()) {
             return false;
-        if (!this.getConflicts(course).isEmpty()) {
-            return false;
         }
-        if (!course.getSemester().equals(semester)){
-            System.out.println("You are trying to add a course that is in a different semester");
-            return false;
-        }
-        this.courses.add(course);
-        UpdateDatabaseContents addCourseToSchedule = new UpdateDatabaseContents();
-        addCourseToSchedule.addCourseToSchedule(course.getCID(), username, semester);
-        }
+
+        // The ScheduleEvent is a Course object
         if (scheduleEvent instanceof Course course) {
             if (course.getNumSeats() < 1)
                 return false;
+            // Check if the course is in the same semester
+            if (this.courses.contains(course)) {
+                System.out.println("You are trying to add a course that is already in your schedule");
+                return false;
+            }
+            // Check if the course is in the same semester
+            if (!course.getSemester().equals(semester)) {
+                System.out.println("You are trying to add a course that is in a different semester");
+                return false;
+            }
             this.courses.add(course);
-        }
-        else {
+        } else {
+            // The ScheduleEvent is a ScheduleEvent object
+            if (this.nonAcademicEvents.contains(scheduleEvent)) {
+                System.out.println("You are trying to add an event that is already in your schedule");
+                return false;
+            }
             this.nonAcademicEvents.add(scheduleEvent);
         }
-        // Log the addition of the course
+        // Log the addition of the course or event
         logger(true, scheduleEvent);
         return true;
+    }
+
+    /**
+     * Removes the specified scheduleEvent from the schedule and updates the database and adds it to the logger
+     *
+     * @param scheduleEvent the scheduleEvent to be removed
+     * @return whether the course was successfully removed, false if it did not exist in the schedule
+     */
+    public boolean removeCourse(ScheduleEvent scheduleEvent) {
+
+        // ScheduleEvent is a Course object
+        if (scheduleEvent instanceof Course course) {
+            UpdateDatabaseContents udb = new UpdateDatabaseContents();
+            if (udb.removeCourse(course, username, semester)) {
+                courses.remove(course);
+                logger(false, course);
+                return true;
+            }
+            return false;
+        } else {
+            // ScheduleEvent is a ScheduleEvent object
+            if (nonAcademicEvents.remove(scheduleEvent)) {
+                // Need to change this section to support database change
+                logger(false, scheduleEvent);
+                return true;
+            }
+            return false;
+        }
     }
 
     /**
@@ -154,29 +184,22 @@ public class Schedule {
      * @param scheduleEvent the scheduleEvent to be removed
      * @return whether the course was successfully removed, false if it did not exist in the schedule
      */
-    public boolean removeCourse(Course course) {
-        UpdateDatabaseContents udb = new UpdateDatabaseContents();
-        if (udb.removeCourse(course, username, semester)) {
-            courses.remove(course);
-            logger(false, course);
-            return true;
-        } else {
-            return false;
-    public boolean removeCourse(ScheduleEvent scheduleEvent) {
-        if (scheduleEvent instanceof Course course)
+    public boolean removeCourseNoDatabase(ScheduleEvent scheduleEvent) {
+
+        // ScheduleEvent is a Course object
+        if (scheduleEvent instanceof Course course) {
             if (courses.remove(course)) {
                 logger(false, course);
                 return true;
-            } else {
-                return false;
             }
-        else {
+            return false;
+        } else {
+            // ScheduleEvent is a ScheduleEvent object
             if (nonAcademicEvents.remove(scheduleEvent)) {
                 logger(false, scheduleEvent);
                 return true;
-            } else {
-                return false;
             }
+            return false;
         }
     }
 
@@ -231,9 +254,8 @@ public class Schedule {
             domains.add(courseMap.get(s));
 
         // Call backtracking search, if domains not found, courses are null
-        Schedule schedule = new Schedule(username, semester);
-        for (ScheduleEvent c: nonAcademicEvents)
-            schedule.addCourse(c);
+        ArrayList<Course> emptyCourses = new ArrayList<>();
+        Schedule schedule = new Schedule(username, semester, emptyCourses, nonAcademicEvents);
         backtrack(generatedSchedules, schedule, domains);
         return generatedSchedules;
     }
@@ -255,7 +277,7 @@ public class Schedule {
         domains.sort(Comparator.comparing(ArrayList::size));
         ArrayList<Course> currentDomain = domains.get(0);
         for (Course c : currentDomain) {
-            if (schedule.addCourse(c)) {
+            if (schedule.addCourseNoDatabase(c)) {
                 // Create copy of domains
                 ArrayList<ArrayList<Course>> domainCopy = new ArrayList<>();
                 for (int i = 1; i < domains.size(); i++) {
@@ -281,13 +303,13 @@ public class Schedule {
 
                 // Domain isn't valid remove from schedule and go to next value
                 if (!valid) {
-                    schedule.removeCourse(c);
+                    schedule.removeCourseNoDatabase(c);
 
                     // Domain is valid, call backtrack again with deepCopy of forward checked domains
                 } else {
-                    backtrack(generatedSchedules, new Schedule(new ArrayList<>(schedule.getCourses()), new ArrayList<>(schedule.getNonAcademicEvents())), domainCopy);
+                    backtrack(generatedSchedules, new Schedule(username, semester, new ArrayList<>(schedule.getCourses()), nonAcademicEvents), domainCopy);
                 }
-                schedule.removeCourse(c);
+                schedule.removeCourseNoDatabase(c);
             }
         }
     }
@@ -296,8 +318,16 @@ public class Schedule {
         return courses;
     }
 
+    public void setCourses(ArrayList<Course> courses) {
+        this.courses = courses;
+    }
+
     public ArrayList<ScheduleEvent> getNonAcademicEvents() {
         return nonAcademicEvents;
+    }
+
+    public void setNonAcademicEvents(ArrayList<ScheduleEvent> nonAcademicEvents) {
+        this.nonAcademicEvents = nonAcademicEvents;
     }
 
     /**
@@ -471,8 +501,15 @@ public class Schedule {
         int duration = scheduleEvent.getDuration();
 
         // Define semester dates (adjust as needed)
-        LocalDate startSemester = LocalDate.of(2025, 1, 13);
-        LocalDate endSemester = LocalDate.of(2025, 5, 1);
+        LocalDate startSemester;
+        LocalDate endSemester;
+        if (semester.equals("Spring")) {
+            startSemester = LocalDate.of(2025, 1, 13);
+            endSemester = LocalDate.of(2025, 5, 1);
+        } else {
+            startSemester = LocalDate.of(2025, 8, 25);
+            endSemester = LocalDate.of(2025, 12, 10);
+        }
 
         for (int i = 0; i < daysMeet.length; i++) {
             if (daysMeet[i] && startTimes[i] != -1) {
@@ -557,7 +594,7 @@ public class Schedule {
                 contentStream.setFont(PDType1Font.HELVETICA_BOLD, 14);
 
                 // Center the title
-                String title = "Course Schedule - Spring 2025";
+                String title = "Course Schedule - " + semester + " 2025";
                 float titleWidth = PDType1Font.HELVETICA_BOLD.getStringWidth(title) / 1000 * 14;
                 float pageWidth = page.getMediaBox().getWidth();
                 float titleX = (pageWidth - titleWidth) / 2;

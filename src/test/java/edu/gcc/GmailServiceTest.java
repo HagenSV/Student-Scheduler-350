@@ -36,8 +36,10 @@ public class GmailServiceTest {
     }
 
     @Test
-    void testSendEmailWithSchedule() throws IOException, GeneralSecurityException, jakarta.mail.MessagingException {
-        Schedule schedule = new Schedule();
+    void testSendEmailWithSchedule() {
+        ArrayList<Course> emptyCourses = new ArrayList<>();
+        ArrayList<ScheduleEvent> emptyEvents = new ArrayList<>();
+        Schedule schedule = new Schedule(user.getName(), "Spring", emptyCourses, emptyEvents);
         ArrayList<Schedule> generatedSchedules = schedule.generateSchedule(new String[]{"COMP 340"}, Main.getCourses("data_wolfe.json"), "Spring");
         assertFalse(generatedSchedules.isEmpty(), "There should be at least one valid schedule");
         schedule = generatedSchedules.get(0);
@@ -49,8 +51,10 @@ public class GmailServiceTest {
     }
 
     @Test
-    void testSendEmailWithBigSchedule() throws IOException, GeneralSecurityException, jakarta.mail.MessagingException {
-        Schedule schedule = new Schedule();
+    void testSendEmailWithBigSchedule() {
+        ArrayList<Course> emptyCourses = new ArrayList<>();
+        ArrayList<ScheduleEvent> emptyEvents = new ArrayList<>();
+        Schedule schedule = new Schedule(user.getName(), "Spring", emptyCourses, emptyEvents);
         ArrayList<Schedule> generatedSchedules = schedule.generateSchedule(new String[]{"COMP 340", "COMP 350", "COMP 445", "COMP 314"}, Main.getCourses("data_wolfe.json"), "Spring");
         assertFalse(generatedSchedules.isEmpty(), "There should be at least one valid schedule");
         schedule = generatedSchedules.get(0);
@@ -62,8 +66,10 @@ public class GmailServiceTest {
     }
 
     @Test
-    void testSendEmailWithBigScheduleNonAcademicEvent() throws IOException, GeneralSecurityException, jakarta.mail.MessagingException {
-        Schedule schedule = new Schedule();
+    void testSendEmailWithBigScheduleNonAcademicEvent() {
+        ArrayList<Course> emptyCourses = new ArrayList<>();
+        ArrayList<ScheduleEvent> emptyEvents = new ArrayList<>();
+        Schedule schedule = new Schedule(user.getName(), "Spring", emptyCourses, emptyEvents);
         ArrayList<Schedule> generatedSchedules = schedule.generateSchedule(new String[]{"COMP 340", "COMP 350", "COMP 445", "COMP 314"}, Main.getCourses("data_wolfe.json"), "Spring");
         assertFalse(generatedSchedules.isEmpty(), "There should be at least one valid schedule");
         schedule = generatedSchedules.get(0);
@@ -72,7 +78,7 @@ public class GmailServiceTest {
         int[] startTimesEvent = {-1, 360, -1, 360, -1}; // 10:00 AM
         ScheduleEvent event = new ScheduleEvent(100, "Club Meeting", startTimesEvent, 120,
                 daysMeetEvent, "Spring", "Room 201");
-        schedule.addCourse(event);
+        schedule.addCourseNoDatabase(event);
         user.updateSchedule(schedule);
 
         user.sendEmail();
@@ -81,8 +87,10 @@ public class GmailServiceTest {
     }
 
     @Test
-    void testSendEmailWithEmptySchedule() throws IOException, GeneralSecurityException, jakarta.mail.MessagingException {
-        Schedule schedule = new Schedule();
+    void testSendEmailWithEmptySchedule() {
+        ArrayList<Course> emptyCourses = new ArrayList<>();
+        ArrayList<ScheduleEvent> emptyEvents = new ArrayList<>();
+        Schedule schedule = new Schedule(user.getName(), "Spring", emptyCourses, emptyEvents);
         user.updateSchedule(schedule);
 
         user.sendEmail();

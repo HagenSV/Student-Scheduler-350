@@ -20,7 +20,9 @@ class ScheduleCalendarTest {
         }
 
         // Initialize schedule
-        schedule = new Schedule();
+        ArrayList<Course> emptyCourses = new ArrayList<>();
+        ArrayList<ScheduleEvent> emptyEvents = new ArrayList<>();
+        schedule = new Schedule("Caleb", "Spring", emptyCourses, emptyEvents);
     }
 
     @Test
@@ -46,7 +48,7 @@ class ScheduleCalendarTest {
         int[] startTimesEvent = {-1, 360, -1, 360, -1}; // 10:00 AM
         ScheduleEvent event = new ScheduleEvent(100, "Club Meeting", startTimesEvent, 120,
                 daysMeetEvent, "Spring", "Room 201");
-        schedule.addCourse(event);
+        schedule.addCourseNoDatabase(event);
 
         // Export to Google Calendar - success if no exceptions are thrown
         schedule.exportToCalendar();

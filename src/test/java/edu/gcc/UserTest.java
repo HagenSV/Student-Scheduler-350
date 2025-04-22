@@ -36,8 +36,10 @@ public class UserTest {
         sampleCourse = new Course(0, "Intro to Programming", startTimes, 50, true,
                 professors, true, daysMeet, "COMP", "141", 3, 30, "A", false, "Spring", "Room 101");
 
-        schedule = new Schedule();
-        schedule.addCourse(sampleCourse);
+        ArrayList<Course> emptyCourses = new ArrayList<>();
+        ArrayList<ScheduleEvent> emptyEvents = new ArrayList<>();
+        schedule = new Schedule("testUser", "Spring", emptyCourses, emptyEvents);
+        schedule.addCourseNoDatabase(sampleCourse);
 
         user = new User("testUser", "password123", majors, minors, completedCourses);
     }

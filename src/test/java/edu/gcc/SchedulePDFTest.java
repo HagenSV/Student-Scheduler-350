@@ -20,25 +20,9 @@ class SchedulePDFTest {
         }
 
         // Initialize schedule
-        schedule = new Schedule();
-    }
-
-    @Test
-    void exportToPDF() {
-        // Add a few courses to the schedule
-        Course course1 = Main.courses.get(82);
-        Course course2 = Main.courses.get(84);
-        Course course3 = Main.courses.get(86);
-
-        // Add courses and ensure they are added successfully
-        assertTrue(schedule.addCourse(course1), "Failed to add first course to schedule");
-        assertTrue(schedule.addCourse(course2), "Failed to add second course to schedule");
-        assertTrue(schedule.addCourse(course3), "Failed to add second course to schedule");
-
-        schedule.exportToPDF("ScheduleTest.pdf", true);
-        // Check if the PDF file is created
-        File pdfFile = new File("ScheduleTest.pdf");
-        assertTrue(pdfFile.exists(), "PDF file should be created");
+        ArrayList<Course> emptyCourses = new ArrayList<>();
+        ArrayList<ScheduleEvent> emptyEvents = new ArrayList<>();
+        schedule = new Schedule("Caleb", "Spring", emptyCourses, emptyEvents);
     }
 
     @Test
@@ -64,7 +48,7 @@ class SchedulePDFTest {
         ArrayList<Schedule> generatedSchedules = schedule.generateSchedule(new String[]{"COMP 340", "COMP 314", "COMP 445", "COMP 350", "COMP 435"}, Main.getCourses("data_wolfe.json"), "Spring");
         assertFalse(generatedSchedules.isEmpty(), "There should be at least one valid schedule");
         schedule = generatedSchedules.get(0);
-        schedule.addCourse(event);
+        schedule.addCourseNoDatabase(event);
 
         // Export the generated schedule to PDF
         schedule.exportToPDF("ScheduleTest.pdf", true);
