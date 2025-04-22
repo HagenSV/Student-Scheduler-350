@@ -123,7 +123,7 @@ public class Schedule {
         if (!this.getConflicts(course).isEmpty()) {
             return false;
         }
-        if (!course.getSemester().equals(semester)){
+        if (!course.getSemester().equalsIgnoreCase(semester)){
             System.out.println("You are trying to add a course that is in a different semester");
             return false;
         }
