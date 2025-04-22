@@ -21,7 +21,6 @@ public class UpdateDatabaseContents {
     //private static String username = "user";
     private static String url = "jdbc:postgresql://aws-0-us-east-1.pooler.supabase.com:5432/postgres?user=postgres.chhgjsqthhxqsvutshqi&password=Comp350dics";
 
-
     public UpdateDatabaseContents(){
         // Constructor
     }
@@ -76,7 +75,7 @@ public class UpdateDatabaseContents {
             try {
                 PreparedStatement preparedStatement = connection.prepareStatement(sql);
                 preparedStatement.setString(1, username);
-                preparedStatement.setString(2, semester);
+                preparedStatement.setString(2, semester.toLowerCase());
 
                 int rowsInserted = preparedStatement.executeUpdate();
                 if(rowsInserted > 0) {
@@ -449,7 +448,7 @@ public class UpdateDatabaseContents {
 
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setInt(1, cid);
-            preparedStatement.setString(2, semester);
+            preparedStatement.setString(2, semester.toLowerCase());
             preparedStatement.setString(3, username);
 
             int rowsInserted = preparedStatement.executeUpdate();
