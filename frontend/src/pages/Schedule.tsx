@@ -73,8 +73,8 @@ const Schedule = () => {
         {!courses && <p>Nothing to see here, try adding a course!</p>}
         <h1 id="export">Export</h1>
         <p>Email Schedule</p>
-        <p>Export to PDF</p>
-        <p>Export to Google Calendar</p>
+        <a href="/api/v1/schedule/export?type=google">Export to PDF</a>
+        <a href="/api/v1/schedule/export?type=pdf">Export to Google Calendar</a>
         </main>
     );
 }
