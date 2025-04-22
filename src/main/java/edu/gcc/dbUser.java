@@ -51,7 +51,7 @@ public class dbUser {
         this.majors = new ArrayList<>();
         this.minors = new ArrayList<>();
         this.completedCourses = new ArrayList<>();
-        this.schedule = new Schedule();
+        this.schedule = new Schedule(name,"fall");
     }
 
     /**
