@@ -31,8 +31,14 @@ import java.util.*;
 public class Schedule {
     private final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
     private ArrayList<Course> courses;
+    private String username;
     private ArrayList<ScheduleEvent> nonAcademicEvents;
     private String semester;
+
+    public Schedule(String username, String semester) {
+        this.username = username;
+        this.semester = semester;
+        courses = getCoursesFromDB();
 
     public Schedule() {
         courses = new ArrayList<>();
@@ -41,7 +47,72 @@ public class Schedule {
 
     public Schedule(ArrayList<Course> courses, ArrayList<ScheduleEvent> nonAcademicEvents) {
         this.courses = courses;
-        this.nonAcademicEvents = nonAcademicEvents;
+    }
+
+
+    public ArrayList<Course> getCoursesFromDB(){
+        SearchDatabase sd = new SearchDatabase();
+        ArrayList<Course> toReturn = sd.getScheduleFromDB(username, semester);
+        sd.close();
+
+        System.out.println("Returned from DB");
+        for(Course c : toReturn){
+            System.out.println(c.getName());
+        }
+        return toReturn;
+    }
+    /**
+     * Backtracking search with MRV heuristic and forward checking
+     *
+     * @param schedule schedule that is being generated
+     * @param domains domain of each Course variable
+     * */
+    public void backtrack(ArrayList<Schedule> generatedSchedules, Schedule schedule, ArrayList<ArrayList<Course>> domains) {
+        // Base case, all variables assigned
+        if (domains.isEmpty()) {
+            generatedSchedules.add(schedule);
+            return;
+        }
+
+        // MRV Heuristic choose from ArrayList with the smallest size
+        domains.sort(Comparator.comparing(ArrayList::size));
+        ArrayList<Course> currentDomain = domains.get(0);
+        for (Course c : currentDomain) {
+            if (schedule.addCourse(c)) {
+                // Create copy of domains
+                ArrayList<ArrayList<Course>> domainCopy = new ArrayList<>();
+                for (int i = 1; i < domains.size(); i++) {
+                    domainCopy.add(new ArrayList<>(domains.get(i)));
+                }
+
+                // Forward Checking remove conflicts from domains
+                for (ArrayList<Course> variable : domainCopy) {
+                    for (Course course : variable) {
+                        if (course.hasConflict(c))
+                            variable.remove(c);
+                    }
+                }
+
+                // Check if any domains are empty
+                boolean valid = true;
+                for (ArrayList<Course> variable : domainCopy) {
+                    if (variable.isEmpty()) {
+                        valid = false;
+                        break;
+                    }
+                }
+
+                // Domain isn't valid remove from schedule and go to next value
+                if (!valid) {
+                    schedule.removeCourse(c);
+
+                    // Domain is valid, call backtrack again with deepCopy of forward checked domains
+                } else {
+                    backtrack(generatedSchedules, new Schedule(new ArrayList<>(schedule.getCourses())), domainCopy);
+                }
+                schedule.removeCourse(c);
+            }
+        }
     }
 
     /**
@@ -53,6 +124,16 @@ public class Schedule {
     public boolean addCourse(ScheduleEvent scheduleEvent) {
         if (!this.getConflicts(scheduleEvent).isEmpty()) {
             return false;
+        if (!this.getConflicts(course).isEmpty()) {
+            return false;
+        }
+        if (!course.getSemester().equals(semester)){
+            System.out.println("You are trying to add a course that is in a different semester");
+            return false;
+        }
+        this.courses.add(course);
+        UpdateDatabaseContents addCourseToSchedule = new UpdateDatabaseContents();
+        addCourseToSchedule.addCourseToSchedule(course.getCID(), username, semester);
         }
         if (scheduleEvent instanceof Course course) {
             if (course.getNumSeats() < 1)
@@ -73,6 +154,14 @@ public class Schedule {
      * @param scheduleEvent the scheduleEvent to be removed
      * @return whether the course was successfully removed, false if it did not exist in the schedule
      */
+    public boolean removeCourse(Course course) {
+        UpdateDatabaseContents udb = new UpdateDatabaseContents();
+        if (udb.removeCourse(course, username, semester)) {
+            courses.remove(course);
+            logger(false, course);
+            return true;
+        } else {
+            return false;
     public boolean removeCourse(ScheduleEvent scheduleEvent) {
         if (scheduleEvent instanceof Course course)
             if (courses.remove(course)) {
@@ -142,7 +231,7 @@ public class Schedule {
             domains.add(courseMap.get(s));
 
         // Call backtracking search, if domains not found, courses are null
-        Schedule schedule = new Schedule();
+        Schedule schedule = new Schedule(username, semester);
         for (ScheduleEvent c: nonAcademicEvents)
             schedule.addCourse(c);
         backtrack(generatedSchedules, schedule, domains);

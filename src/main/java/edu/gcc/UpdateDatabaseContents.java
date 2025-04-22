@@ -15,7 +15,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class UpdateDatabaseContents {
+
+    //private static String url = "jdbc:mysql://10.31.103.200:3306/my_database";
+    //private static String password = "password";
+    //private static String username = "user";
     private static String url = "jdbc:postgresql://aws-0-us-east-1.pooler.supabase.com:5432/postgres?user=postgres.chhgjsqthhxqsvutshqi&password=Comp350dics";
+
 
     public UpdateDatabaseContents(){
         // Constructor
@@ -52,12 +57,40 @@ public class UpdateDatabaseContents {
             int rowsInserted = preparedStatement.executeUpdate();
             if (rowsInserted > 0) {
                 System.out.println(user.getUsername() + " was inserted successfully!");
+                createSchedules(connection, user.getUsername());
                 return true;
             }
+
+
         } catch (SQLException e) {
             System.err.println("Error inserting " + user.getUsername() + ": " + e.getMessage());
         }
         return false;
+    }
+
+    public static void createSchedules(Connection connection, String username){
+        String[] semesters = {"Fall", "Winter_Online", "Spring", "Early_Summer", "Late_Summer "};
+        int count = 0;
+        for(String semester : semesters){
+            String sql = "INSERT INTO schedule (username, semester) VALUES (?,?)";
+            try {
+                PreparedStatement preparedStatement = connection.prepareStatement(sql);
+                preparedStatement.setString(1, username);
+                preparedStatement.setString(2, semester);
+
+                int rowsInserted = preparedStatement.executeUpdate();
+                if(rowsInserted > 0) {
+                    count += rowsInserted;
+                } else {
+                    System.out.println(semester + " was not added to schedule.");
+                }
+            }catch(SQLException e){
+                System.out.println(e.getMessage());
+            }
+            if(count == 5){
+                System.out.println("Schedule successfully created.");
+            }
+        }
     }
 
     public static void addMinor(Connection connection, dbUser user){
@@ -66,6 +99,7 @@ public class UpdateDatabaseContents {
     public static void addMajor(Connection connection, dbUser user){
         // TODO create a connection and then add the minor to the database if needed if not add to user_minor table
     }
+
 
     public static void JsonIntoDatabase(Connection connection){
         wipeDatabase(connection);
@@ -115,13 +149,6 @@ public class UpdateDatabaseContents {
         } catch (SQLException e) {
             System.err.println("Error deleting course_department: " + e.getMessage());
         }
-        sql = "DELETE FROM department";
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.executeUpdate();
-        } catch (SQLException e) {
-            System.err.println("Error deleting department: " + e.getMessage());
-        }
 
         sql = "DELETE FROM professor";
         try {
@@ -137,6 +164,13 @@ public class UpdateDatabaseContents {
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             System.err.println("Error deleting course: " + e.getMessage());
+        }
+        sql = "DELETE FROM department";
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            System.err.println("Error deleting department: " + e.getMessage());
         }
 
         System.out.println("Entries successfully delted");
@@ -405,6 +439,48 @@ public class UpdateDatabaseContents {
             }
         } catch (SQLException e) {
             System.err.println("Error inserting Course-Professor relationship: " + e.getMessage());
+        }
+    }
+
+    public void addCourseToSchedule(int cid, String username, String semester){
+        try{
+            Connection connection = DriverManager.getConnection(url);
+            String sql = "INSERT INTO courses_in_schedule(cid, semester, username) VALUES(?, ?,?)";
+
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setInt(1, cid);
+            preparedStatement.setString(2, semester);
+            preparedStatement.setString(3, username);
+
+            int rowsInserted = preparedStatement.executeUpdate();
+            if(rowsInserted > 0){
+                System.out.println("Successfully added course to the user's schedule");
+            }
+
+        } catch(SQLException e){
+            System.out.println(e.getMessage());
+        }
+    }
+
+
+    public boolean removeCourse(Course course, String username, String semester){
+        try {
+            Connection connection = DriverManager.getConnection(url);
+            String sql = "DELETE FROM courses_in_schedule WHERE cid = ? and username = ? and semester = ?";
+            PreparedStatement ps = connection.prepareStatement(sql);
+
+            ps.setInt(1, course.getCID());
+            ps.setString(2, username);
+            ps.setString(3, semester);
+
+            int rowsDeleted = ps.executeUpdate();
+            if(rowsDeleted > 0){
+                return true;
+            }
+            return false;
+        } catch(SQLException e){
+            e.printStackTrace();
+            return false;
         }
     }
 }

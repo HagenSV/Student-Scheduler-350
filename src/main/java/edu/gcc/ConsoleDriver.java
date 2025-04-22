@@ -12,6 +12,8 @@ public class ConsoleDriver {
     private static Search search = null;
     private static final int RESULTS_PER_PAGE = 5;
     private static User tempUser;
+    private static String semester = "Fall";
+    private static Schedule schedule;
 
     // The following methods act as a private API for the ConsoleDriver class
     // They will be updated in the future to interact with the database once complete
@@ -89,7 +91,8 @@ public class ConsoleDriver {
                             System.out.println("Welcome back " + user.getName());
                             currentUser = user;
                             tempUser = new User(currentUser.getName(), currentUser.getPassword(), currentUser.getMajors(), currentUser.getMinors(), null);
-                            tempUser.loadSchedule();
+                            //tempUser.loadSchedule();
+                            schedule = new Schedule(username, semester);
                             break;
                         } else {
                             System.out.println("Invalid password");
@@ -105,7 +108,7 @@ public class ConsoleDriver {
 
         //Main program loop
         while (!cmd.equals("exit")){
-            System.out.println("Please enter a command or 'help' for options");
+            System.out.println("Please enter a command or 'help' for options \n\t Current Schedule: " + semester);
             System.out.print("> ");
             String[] input = s.nextLine().split(" ");
             cmd = input[0];
@@ -134,6 +137,9 @@ public class ConsoleDriver {
                     break;
                 case "exit":
                     break;
+                case "change semester":
+                    changeSemester();
+                    break;
                 default:
                     //Provide feedback on invalid command
                     System.out.println("Unknown Command: "+cmd);
@@ -154,6 +160,7 @@ public class ConsoleDriver {
         System.out.println("  calendar - display schedule as calendar");
         System.out.println("  search - search for classes");
         System.out.println("  results <page> - view page of search results");
+        System.out.println("  change semester -  change the semester of the schedule that you are working on.");
         System.out.println("  exit - exits the program");
     }
 
@@ -208,13 +215,24 @@ public class ConsoleDriver {
      * @param options
      */
     private static void listCourses(String[] options){
-        List<Course> enrolled = currentUser.getSchedule().getCourses();
+        List<Course> enrolled = schedule.getCourses();
         if (enrolled.isEmpty()){
             System.out.println("You are not enrolled in any courses");
         }
         for (Course c : enrolled){
             //Needs to string defined
             System.out.println(c);
+        }
+    }
+
+    private static void changeSemester(){
+        while(true) {
+            System.out.println("Enter the semester you would like to work on, (Fall, Winter_Online, Spring, Early_Summer, Late_Summer");
+            String input = s.next();
+            if(input.equals("Fall") || input.equals("Winter_Online") || input.equals("Spring") || input.equals("Early_Summer") || input.equals("Late_Summer")){
+                semester = input;
+                schedule = new Schedule(currentUser.getUsername(), semester);
+            }
         }
     }
 
@@ -230,7 +248,7 @@ public class ConsoleDriver {
             System.out.print(" |");
             for (int j = 0; j < 5; j++){
                 boolean timeFilled = false;
-                for (Course c : currentUser.getSchedule().getCourses()){
+                for (Course c : schedule.getCourses()){
                     int startTime = c.getStartTime()[j];
                     if (startTime == -1){ continue; }
                     if (startTime <= currentTime && startTime+c.getDuration() >= currentTime){
@@ -266,7 +284,6 @@ public class ConsoleDriver {
         boolean replace = options.length >= 3 && options[2].equalsIgnoreCase("replace");
 
         try {
-            Schedule schedule = currentUser.getSchedule();
             int cid = Integer.parseInt(options[1]);
             Course add = getCourse(cid);
             if (add == null){ return; }
@@ -296,7 +313,7 @@ public class ConsoleDriver {
                 }
                 System.out.printf("Run 'add %s replace' to remove conflicts and add course\n",options[1]);
             }
-            tempUser.saveSchedule();
+            //tempUser.saveSchedule();
             if (added){
                 System.out.printf("Successfully added %s %s%s to schedule\n",
                         add.getDepartment(),add.getCourseCode(),add.getSection());
@@ -319,8 +336,8 @@ public class ConsoleDriver {
             int cid = Integer.parseInt(options[1]);
             Course remove = getCourse(cid);
             if (remove == null) { return; }
-            boolean removed = currentUser.getSchedule().removeCourse(remove);
-            tempUser.saveSchedule();
+            boolean removed = schedule.removeCourse(remove);
+            //tempUser.saveSchedule();
             if (removed){
                 System.out.printf("Successfully removed %s %s%s from schedule\n",
                         remove.getDepartment(),remove.getCourseCode(),remove.getSection());
