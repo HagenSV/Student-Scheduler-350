@@ -17,16 +17,11 @@ public class SearchDatabase {
     private static String url = "jdbc:postgresql://aws-0-us-east-1.pooler.supabase.com:5432/postgres?user=postgres.chhgjsqthhxqsvutshqi&password=Comp350dics";
 
     private SearchDatabase(){
-        try{
-            this.connection = DriverManager.getConnection(url);
-
-        } catch(SQLException e){
-            System.out.println("Connection failed: " + e.getMessage());
-        }
+        this.connection = DbConnection.getConnection();
     }
 
     public static SearchDatabase getInstance(){
-        if(instance == null){
+        if(instance == null || instance.connection == null) {
             instance = new SearchDatabase();
         }
         return instance;
