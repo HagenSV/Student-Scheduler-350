@@ -24,7 +24,7 @@ public class ConsoleDriver {
      * @return User object if username/password match found, null otherwise
      */
     private static dbUser getUser(String username){
-        SearchDatabase db = new SearchDatabase();
+        SearchDatabase db = SearchDatabase.getInstance();
         dbUser user =  db.getUser(username);
         db.close();
         return user;

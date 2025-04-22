@@ -47,7 +47,7 @@ public class Schedule {
 
 
     public ArrayList<Course> getCoursesFromDB(){
-        SearchDatabase sd = new SearchDatabase();
+        SearchDatabase sd = SearchDatabase.getInstance();
         ArrayList<Course> toReturn = sd.getScheduleFromDB(username, semester);
         sd.close();
 

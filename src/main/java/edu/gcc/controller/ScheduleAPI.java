@@ -18,7 +18,7 @@ public class ScheduleAPI {
         if (user == null) {
             return null;
         }
-        ArrayList<Course> courses = new SearchDatabase().getScheduleFromDB(user,semester);
+        ArrayList<Course> courses = SearchDatabase.getInstance().getScheduleFromDB(user,semester);
 
         Schedule s = new Schedule(user,semester);
         for (Course course : courses){
