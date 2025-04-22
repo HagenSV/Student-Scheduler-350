@@ -18,13 +18,8 @@ public class ScheduleAPI {
         if (user == null) {
             return null;
         }
-        ArrayList<Course> courses = SearchDatabase.getInstance().getScheduleFromDB(user,semester);
 
-        Schedule s = new Schedule(user,semester);
-        for (Course course : courses){
-            s.addCourse(course);
-        }
-        return s;
+        return new Schedule(user,semester);
     }
 
     @GetMapping("/api/v1/schedule")
@@ -59,20 +54,22 @@ public class ScheduleAPI {
         schedule.removeCourse(course);
     }
 
-    @PostMapping("/api/v1/schedule/export?type=google")
-    public void exportCalendar(){
+    @GetMapping("/api/v1/schedule/export?type=google")
+    public String exportCalendar(){
         // This method will handle exporting the schedule to a calendar
         Schedule schedule = getScheduleFromUser();
-        if (schedule == null) return;
+        if (schedule == null) return "redirect:/error";
         schedule.exportToCalendar();
+        return "redirect:/success";
     }
 
-    @PostMapping("/api/v1/schedule/export?format=pdf")
-    public void exportPDF(){
+    @GetMapping("/api/v1/schedule/export?format=pdf")
+    public String exportPDF(){
         // This method will handle exporting the schedule to a PDF
         Schedule schedule = getScheduleFromUser();
-        if (schedule == null) return;
+        if (schedule == null) return "redirect:/error";
         schedule.exportToPDF();
+        return "redirect:/success";
     }
 
     public Course getCourse(int id){
