@@ -78,6 +78,9 @@ public class SearchDatabase {
         }catch (SQLException e){
             e.printStackTrace();
         }
+        if(toReturn.isEmpty()){
+            return new ArrayList<>();
+        }
         return toReturn;
     }
 
