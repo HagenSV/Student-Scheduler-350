@@ -23,7 +23,7 @@ public class User {
         this.majors = majors;
         this.minors = minors;
         this.completedCourses = completedCourses;
-        this.schedule = new Schedule();
+        this.schedule = null;
     }
 
     /**

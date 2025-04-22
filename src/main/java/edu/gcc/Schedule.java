@@ -31,16 +31,32 @@ import java.util.*;
 public class Schedule {
     private final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
     private ArrayList<Course> courses;
+    private String username;
     private String semester;
 
-    public Schedule() {
-        courses = new ArrayList<>();
+    public Schedule(String username, String semester) {
+        this.username = username;
+        this.semester = semester;
+        courses = getCoursesFromDB();
+
     }
 
     public Schedule(ArrayList<Course> courses) {
         this.courses = courses;
     }
 
+
+    public ArrayList<Course> getCoursesFromDB(){
+        SearchDatabase sd = new SearchDatabase();
+        ArrayList<Course> toReturn = sd.getScheduleFromDB(username, semester);
+        sd.close();
+
+        System.out.println("Returned from DB");
+        for(Course c : toReturn){
+            System.out.println(c.getName());
+        }
+        return toReturn;
+    }
     /**
      * Backtracking search with MRV heuristic and forward checking
      *
@@ -107,7 +123,13 @@ public class Schedule {
         if (!this.getConflicts(course).isEmpty()) {
             return false;
         }
+        if (!course.getSemester().equals(semester)){
+            System.out.println("You are trying to add a course that is in a different semester");
+            return false;
+        }
         this.courses.add(course);
+        UpdateDatabaseContents addCourseToSchedule = new UpdateDatabaseContents();
+        addCourseToSchedule.addCourseToSchedule(course.getCID(), username, semester);
         // Log the addition of the course
         logger(true, course);
         return true;
@@ -120,7 +142,9 @@ public class Schedule {
      * @return whether the course was successfully removed, false if it did not exist in the schedule
      */
     public boolean removeCourse(Course course) {
-        if (courses.remove(course)) {
+        UpdateDatabaseContents udb = new UpdateDatabaseContents();
+        if (udb.removeCourse(course, username, semester)) {
+            courses.remove(course);
             logger(false, course);
             return true;
         } else {
@@ -170,7 +194,7 @@ public class Schedule {
             domains.add(courseMap.get(s));
 
         // Call backtracking search, if domains not found, courses are null
-        backtrack(generatedSchedules, new Schedule(), domains);
+        backtrack(generatedSchedules, new Schedule(username, semester), domains);
         return generatedSchedules;
     }
 
