@@ -69,7 +69,7 @@ public class ScheduleAPI {
         Schedule schedule = getScheduleFromUser();
         if (schedule == null) return "redirect:/error";
         schedule.exportToCalendar();
-        return "redirect:/success";
+        return "redirect:/#export";
     }
 
     @GetMapping("/api/v1/schedule/export?format=pdf")
@@ -77,8 +77,16 @@ public class ScheduleAPI {
         // This method will handle exporting the schedule to a PDF
         Schedule schedule = getScheduleFromUser();
         if (schedule == null) return "redirect:/error";
-        schedule.exportToPDF();
-        return "redirect:/success";
+        //schedule.exportToPDF();
+        return "redirect:/#export";
+    }
+
+    @GetMapping("/api/v1/schedule/export?format=email")
+    public String emailSchedule(){
+        // This method will handle exporting the schedule to a PDF
+        Schedule schedule = getScheduleFromUser();
+        if (schedule == null) return "redirect:/error";
+        return "redirect:/#export";
     }
 
     public Course getCourse(int id){
