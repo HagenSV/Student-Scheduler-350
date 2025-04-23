@@ -40,7 +40,7 @@ public class Schedule {
 
     public Schedule(String username, String semester) {
         this.username = username;
-        this.semester = semester;
+        this.semester = semester.toLowerCase();
         courses = getCoursesFromDB();
         nonAcademicEvents = new ArrayList<>();
     }
@@ -92,7 +92,7 @@ public class Schedule {
                 throw new ScheduleConflictException(course);
             }
             // Check if the course is in the same semester
-            if (!course.getSemester().equalsIgnoreCase(semester)) {
+            if (!course.getSemester().equals(semester)) {
                 throw new SemesterMismatchException(course);
             }
             this.courses.add(course);
