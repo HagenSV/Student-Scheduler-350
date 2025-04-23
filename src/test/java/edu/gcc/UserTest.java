@@ -39,7 +39,9 @@ public class UserTest {
         ArrayList<Course> emptyCourses = new ArrayList<>();
         ArrayList<ScheduleEvent> emptyEvents = new ArrayList<>();
         schedule = new Schedule("testUser", "Spring", emptyCourses, emptyEvents);
-        schedule.addCourseNoDatabase(sampleCourse);
+        try {
+            schedule.addCourseNoDatabase(sampleCourse);
+        } catch (Exception e){}
 
         user = new User("testUser", "password123", majors, minors, completedCourses);
         Schedule schedule = new Schedule(user.getName(), "Spring", new ArrayList<>(), new ArrayList<>());

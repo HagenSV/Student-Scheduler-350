@@ -15,6 +15,9 @@ import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventDateTime;
 
+import edu.gcc.exception.CourseFullException;
+import edu.gcc.exception.ScheduleConflictException;
+import edu.gcc.exception.SemesterMismatchException;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -55,9 +58,8 @@ public class Schedule {
      * @return arraylist of courses
      */
     public ArrayList<Course> getCoursesFromDB() {
-        SearchDatabase sd = new SearchDatabase();
+        SearchDatabase sd = SearchDatabase.getInstance();
         ArrayList<Course> toReturn = sd.getScheduleFromDB(username, semester);
-        sd.close();
 
         System.out.println("Returned from DB");
         for(Course c : toReturn){
@@ -72,26 +74,26 @@ public class Schedule {
      * @param scheduleEvent the scheduleEvent to be added
      * @return whether the course was added successfully false if it conflicts with the other courses in the schedule
      */
-    public boolean addCourse(ScheduleEvent scheduleEvent) {
+    public boolean addCourse(ScheduleEvent scheduleEvent) throws CourseFullException, ScheduleConflictException, SemesterMismatchException {
 
         // Course or Event conflicts with the current schedule
         if (!this.getConflicts(scheduleEvent).isEmpty()) {
-            return false;
+            throw new ScheduleConflictException(scheduleEvent);
         }
 
         // The ScheduleEvent is a Course object
         if (scheduleEvent instanceof Course course) {
-            if (course.getNumSeats() < 1)
-                return false;
+            if (course.getNumSeats() < 1) {
+                    throw new CourseFullException(course);
+            }
             // Check if the course is in the same semester
             if (this.courses.contains(course)) {
                 System.out.println("You are trying to add a course that is already in your schedule");
-                return false;
+                throw new ScheduleConflictException(course);
             }
             // Check if the course is in the same semester
-            if (!course.getSemester().equals(semester)) {
-                System.out.println("You are trying to add a course that is in a different semester");
-                return false;
+            if (!course.getSemester().equalsIgnoreCase(semester)) {
+                throw new SemesterMismatchException(course);
             }
             this.courses.add(course);
             UpdateDatabaseContents addCourseToSchedule = new UpdateDatabaseContents();
@@ -115,26 +117,26 @@ public class Schedule {
      * @param scheduleEvent the scheduleEvent to be added
      * @return whether the course was added successfully false if it conflicts with the other courses in the schedule
      */
-    public boolean addCourseNoDatabase(ScheduleEvent scheduleEvent) {
+    public boolean addCourseNoDatabase(ScheduleEvent scheduleEvent) throws CourseFullException, ScheduleConflictException, SemesterMismatchException {
 
         // Course or Event conflicts with the current schedule
         if (!this.getConflicts(scheduleEvent).isEmpty()) {
-            return false;
+            throw new ScheduleConflictException(scheduleEvent);
         }
 
         // The ScheduleEvent is a Course object
         if (scheduleEvent instanceof Course course) {
-            if (course.getNumSeats() < 1)
-                return false;
+            if (course.getNumSeats() < 1) {
+                throw new CourseFullException(course);
+            }
             // Check if the course is in the same semester
             if (this.courses.contains(course)) {
                 System.out.println("You are trying to add a course that is already in your schedule");
-                return false;
+                throw new ScheduleConflictException(course);
             }
             // Check if the course is in the same semester
-            if (!course.getSemester().equals(semester)) {
-                System.out.println("You are trying to add a course that is in a different semester");
-                return false;
+            if (!course.getSemester().equalsIgnoreCase(semester)) {
+                throw new SemesterMismatchException(course);
             }
             this.courses.add(course);
         } else {
@@ -277,40 +279,42 @@ public class Schedule {
         domains.sort(Comparator.comparing(ArrayList::size));
         ArrayList<Course> currentDomain = domains.get(0);
         for (Course c : currentDomain) {
-            if (schedule.addCourseNoDatabase(c)) {
-                // Create copy of domains
-                ArrayList<ArrayList<Course>> domainCopy = new ArrayList<>();
-                for (int i = 1; i < domains.size(); i++) {
-                    domainCopy.add(new ArrayList<>(domains.get(i)));
-                }
-
-                // Forward Checking remove conflicts from domains
-                for (ArrayList<Course> variable : domainCopy) {
-                    for (Course course : variable) {
-                        if (course.hasConflict(c))
-                            variable.remove(c);
+            try {
+                if (schedule.addCourseNoDatabase(c)) {
+                    // Create copy of domains
+                    ArrayList<ArrayList<Course>> domainCopy = new ArrayList<>();
+                    for (int i = 1; i < domains.size(); i++) {
+                        domainCopy.add(new ArrayList<>(domains.get(i)));
                     }
-                }
 
-                // Check if any domains are empty
-                boolean valid = true;
-                for (ArrayList<Course> variable : domainCopy) {
-                    if (variable.isEmpty()) {
-                        valid = false;
-                        break;
+                    // Forward Checking remove conflicts from domains
+                    for (ArrayList<Course> variable : domainCopy) {
+                        for (Course course : variable) {
+                            if (course.hasConflict(c))
+                                variable.remove(c);
+                        }
                     }
-                }
 
-                // Domain isn't valid remove from schedule and go to next value
-                if (!valid) {
+                    // Check if any domains are empty
+                    boolean valid = true;
+                    for (ArrayList<Course> variable : domainCopy) {
+                        if (variable.isEmpty()) {
+                            valid = false;
+                            break;
+                        }
+                    }
+
+                    // Domain isn't valid remove from schedule and go to next value
+                    if (!valid) {
+                        schedule.removeCourseNoDatabase(c);
+
+                        // Domain is valid, call backtrack again with deepCopy of forward checked domains
+                    } else {
+                        backtrack(generatedSchedules, new Schedule(username, semester, new ArrayList<>(schedule.getCourses()), nonAcademicEvents), domainCopy);
+                    }
                     schedule.removeCourseNoDatabase(c);
-
-                    // Domain is valid, call backtrack again with deepCopy of forward checked domains
-                } else {
-                    backtrack(generatedSchedules, new Schedule(username, semester, new ArrayList<>(schedule.getCourses()), nonAcademicEvents), domainCopy);
                 }
-                schedule.removeCourseNoDatabase(c);
-            }
+            } catch (Exception ignored){}
         }
     }
 

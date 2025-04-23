@@ -1,0 +1,94 @@
+Added COMP 141
+Removed COMP 141
+Added COMP 141
+Added COMM 488
+Added ACCT 201
+Removed ACCT 201
+Added COMP 141
+Added ACCT 201
+Added ART 390
+Removed ART 390
+Added COMP 141
+Added BIOL 101
+Added ACCT 201
+Added COMP 141
+Added ACCT 201
+Added ART 390
+Added ART 390
+Added ART 390
+Removed COMP 141
+Added ACCT 201 C
+Added ACCT 301 A
+Added ACCT 303 A
+Added ACCT 310 A
+Added ACCT 402 A
+Added ACCT 403 A
+Added ART 105 A
+Added ART 207 A
+Added ART 390 A
+Added ASTR 301 L
+Added BIOL 101 L
+Added BIOL 101 L
+Added BIOL 101 L
+Added BIOL 101 N
+Added ACCT 201 C
+Added ACCT 201 C
+Removed ACCT 201 C
+Removed ACCT 201 C
+Removed ACCT 201 C
+Removed BIOL 101 L
+Removed BIOL 101 L
+Added ASTR 301 L
+Removed ASTR 301 L
+Added ACCT 201 C
+Added ASTR 206 B
+Added BIOL 101 O
+Added BIOL 101 R
+Added BIOL 101 S
+Added BIOL 208 A
+Added BIOL 305 A
+Removed ACCT 402 A
+Removed ART 390 A
+Added BIOL 101 P
+Added ACCT 402 A
+Added ART 390 A
+Removed ACCT 402 A
+Removed ART 390 A
+Added BIOL 101 P
+Removed BIOL 101 P
+Added ACCT 402 A
+Added ART 390 A
+Removed ACCT 402 A
+Removed ART 390 A
+Added BIOL 101 P
+Removed BIOL 101 P
+Added ACCT 402 A
+Added ART 390 A
+Added ART 105 A
+Added ACCT 201 A
+Added ACCT 201 A
+Added ACCT 201 A
+Added ACCT 201 A
+Added COMP 141 B
+Removed COMP 141 B
+Added COMP 141 B
+Removed COMP 141 B
+Added COMP 141 D
+Removed COMP 141 D
+Added COMP 141 B
+Added COMP 314 A
+Removed COMP 314 A
+Added COMP 350 B
+Added EXER 377 A
+Removed EXER 377 A
+Added DESI 210 A
+Added COMM 444 A
+Removed COMM 444 A
+Removed DESI 210 A
+Added COMP 141 D
+Removed COMP 141 D
+Added COMP 141 B
+Added COMP 141 B
+Added COMP 141 B
+Added COMP 141 B
+Added COMP 141 B

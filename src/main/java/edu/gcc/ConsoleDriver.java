@@ -1,5 +1,8 @@
 package edu.gcc;
 
+import edu.gcc.exception.CourseFullException;
+import edu.gcc.exception.ScheduleConflictException;
+import edu.gcc.exception.SemesterMismatchException;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.List;
@@ -24,10 +27,8 @@ public class ConsoleDriver {
      * @return User object if username/password match found, null otherwise
      */
     private static dbUser getUser(String username){
-        SearchDatabase db = new SearchDatabase();
-        dbUser user =  db.getUser(username);
-        db.close();
-        return user;
+        SearchDatabase db = SearchDatabase.getInstance();
+        return db.getUser(username);
 
     }
 
@@ -283,44 +284,45 @@ public class ConsoleDriver {
 
         boolean replace = options.length >= 3 && options[2].equalsIgnoreCase("replace");
 
+        int cid = -1;
+
         try {
-            int cid = Integer.parseInt(options[1]);
-            Course add = getCourse(cid);
-            if (add == null){ return; }
-            boolean added = schedule.addCourse(add);
-            if (!added && replace){
-                List<ScheduleEvent> conflicts = schedule.getConflicts(add);
-                for (ScheduleEvent c : conflicts){
-                    schedule.removeCourse(c);
-                    if (c instanceof Course course)
-                        System.out.printf("Successfully removed %s %s%s from schedule\n", course.getDepartment(),course.getCourseCode(),course.getSection());
-                    else
-                        System.out.printf("Successfully removed %s from schedule\n",c.getName());
-                }
-                added = schedule.addCourse(add);
-                if (!added){
-                  System.out.println("An unknown error occurred");
-                }
-            } else if (!added) {
+            cid = Integer.parseInt(options[1]);
+        } catch (NumberFormatException e){
+            System.out.printf("Error: %s is not a number\n",options[1]);
+            return;
+        }
+        Course add = getCourse(cid);
+        if (add == null){ return; }
+        try {
+            schedule.addCourse(add);
+        } catch (CourseFullException | SemesterMismatchException e){
+            System.out.println(e.getMessage());
+        } catch (ScheduleConflictException e) {
+            if (!replace){
                 System.out.println("Failed to add course to schedule");
                 System.out.println("Time conflict(s) with:");
                 List<ScheduleEvent> conflicts = schedule.getConflicts(add);
-                for (ScheduleEvent c : conflicts) {
-                    if (c instanceof Course course)
-                        System.out.printf("  %s %s%s\n",course.getDepartment(),course.getCourseCode(),course.getSection());
-                    else
-                        System.out.printf("  %s\n",c.getName());
+                for (ScheduleEvent c : conflicts){
+                    System.out.printf("  %s\n",c.getName());
                 }
                 System.out.printf("Run 'add %s replace' to remove conflicts and add course\n",options[1]);
+                return;
             }
-            //tempUser.saveSchedule();
-            if (added){
-                System.out.printf("Successfully added %s %s%s to schedule\n",
-                        add.getDepartment(),add.getCourseCode(),add.getSection());
+            List<ScheduleEvent> conflicts = schedule.getConflicts(add);
+            for (ScheduleEvent c : conflicts) {
+                schedule.removeCourse(c);
+                System.out.printf("Successfully removed %s from schedule\n",
+                        c.getName());
             }
-        } catch (NumberFormatException e){
-            System.out.printf("Error: %s is not a number\n",options[1]);
+            try {
+                schedule.addCourse(add);
+            } catch (Exception e1){
+                System.out.println(e1.getMessage());
+            }
         }
+        System.out.printf("Successfully added %s %s%s to schedule\n",
+                    add.getDepartment(),add.getCourseCode(),add.getSection());
     }
 
     /**

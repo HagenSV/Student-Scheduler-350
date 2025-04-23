@@ -1,33 +1,28 @@
-import React, { useState } from 'react';
-import CourseListing from '../components/course_listing/CourseListing';
+import React, { useState, useEffect } from 'react';
 import scheduleAPI from '../api/schedule';
 import search from '../api/search';
 import { Course, toTimeString } from '../interface/course';
-import CourseTable from '../components/courseTable/CourseTable';
+import CourseTable from '../components/course_table/CourseTable';
 
 const days = [0,1,2,3,4]
 const times = [0, 15, 30, 45, 60, 75, 90, 105, 120, 135, 150, 165, 180, 195, 210, 225, 240, 255, 270, 285, 300, 315, 330, 345, 360, 375, 390, 405, 420, 435, 450, 465, 480, 495, 510, 525, 540, 555, 570, 585, 600, 615, 630, 645, 660, 675, 690, 705, 720, 735, 750, 765, 780, 795, 810]
 
 const Schedule = () => {
-    const [scheduleQueried, setQueried] = useState(false);
     const [courses,setCourses] = useState<Course[]>([]);
 
-    const getSchedule = async () => {
-        setQueried(true)
-        try {
-            const result = await search("COMP 141")
-            //const result = await scheduleAPI.getSchedule()
-            if (result !== courses){
+    useEffect(() => {
+        const fetchData = async() => {
+            try {
+                //const result = await search("COMP 141")
+                const result = await scheduleAPI.getSchedule()
                 setCourses(result);
+            } catch (e) {
+                console.log(e)
+                Console.log("Failed to get schedule")
             }
-        } catch (e){
-            console.log(e)
         }
-    }
-
-    if (!scheduleQueried){
-        getSchedule()
-    }
+        fetchData();
+    },[]);
 
     const getCourseByTime = (currentTime: number, day: number) => {
         for (const course of courses){
@@ -74,12 +69,12 @@ const Schedule = () => {
             </tbody>
         </table>
         <h1>Classes</h1>
-        <CourseTable course={courses} />
-        {courses && <p>Nothing to see here, try adding a course!</p>}
+        <CourseTable courses={courses} remove={removeCourse}/>
+        {!courses && <p>Nothing to see here, try adding a course!</p>}
         <h1 id="export">Export</h1>
-        <p>Email Schedule</p>
-        <p>Export to PDF</p>
-        <p>Export to Google Calendar</p>
+        <p><a>Email Schedule</a></p>
+        <p><a href="/api/v1/schedule/export?type=google">Export to PDF</a></p>
+        <p><a href="/api/v1/schedule/export?type=pdf">Export to Google Calendar</a></p>
         </main>
     );
 }

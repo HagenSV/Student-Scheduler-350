@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class SearchDatabase {
+
+    private static SearchDatabase instance;
     private Connection connection;
     //private static String url = "jdbc:mysql://10.31.103.200:3306/my_database";
     //private static String password = "password";
@@ -14,13 +16,15 @@ public class SearchDatabase {
 
     private static String url = "jdbc:postgresql://aws-0-us-east-1.pooler.supabase.com:5432/postgres?user=postgres.chhgjsqthhxqsvutshqi&password=Comp350dics";
 
-    public SearchDatabase(){
-        try{
-            this.connection = DriverManager.getConnection(url);
+    private SearchDatabase(){
+        this.connection = DbConnection.getConnection();
+    }
 
-        } catch(SQLException e){
-            System.out.println("Connection failed: " + e.getMessage());
+    public static SearchDatabase getInstance(){
+        if(instance == null || instance.connection == null) {
+            instance = new SearchDatabase();
         }
+        return instance;
     }
 
     public void close(){

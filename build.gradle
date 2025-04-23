@@ -35,6 +35,7 @@ dependencies {
     implementation 'org.postgresql:postgresql:42.7.2'
     implementation("org.mindrot:jbcrypt:0.4")
     implementation 'mysql:mysql-connector-java:8.0.33'
+    implementation 'org.postgresql:postgresql:42.6.0'
 
     // PDFBox
     implementation 'org.apache.pdfbox:pdfbox:2.0.27'

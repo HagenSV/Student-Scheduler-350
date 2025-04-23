@@ -1,6 +1,6 @@
 import React from 'react';
 import { Course, formatTime } from '../../interface/course';
-import { Container, Row, Col } from 'react-bootstrap';
+import scheduleAPI from '../../api/schedule';
 
 interface CoursePreviewParams {
     course: Course | null
@@ -9,6 +9,7 @@ interface CoursePreviewParams {
 const CoursePreview: React.FC<CoursePreviewParams> = ({ course }) => {
     const addCourse: MouseEventHandler = () => {
         scheduleAPI.addCourse(course)
+        Console.log("Course Added to Schedule")
     }
 
     const saveCompleted: MouseEventHandler = () => {
