@@ -1,6 +1,5 @@
 import React from 'react';
 import { Course, formatTime } from '../../interface/course';
-import scheduleAPI from '../../api/schedule';
 
 interface CoursePreviewParams {
     course: Course | null

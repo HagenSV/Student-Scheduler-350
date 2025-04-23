@@ -1,13 +1,10 @@
 package edu.gcc.controller;
 
-import edu.gcc.DbConnection;
 import edu.gcc.UpdateDatabaseContents;
 import edu.gcc.service.UserService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
-import java.sql.Connection;
 
 @Controller
 public class AuthenticationController {
