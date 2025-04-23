@@ -102,7 +102,7 @@ public class Main {
                 isLab = course.get("is_lab").getAsBoolean(); // Gets the lab status.
 
                 location = course.get("location").getAsString(); // Gets the location.
-                semester = getSemester(course); // Gets the semester.
+                semester = getSemester(course).toLowerCase(); // Gets the semester.
 
 
                 if(isOpen){ // Check if the course is open.

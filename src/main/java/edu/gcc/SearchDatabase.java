@@ -9,50 +9,42 @@ import java.util.Arrays;
 public class SearchDatabase {
 
     private static SearchDatabase instance;
-    private Connection connection;
-    //private static String url = "jdbc:mysql://10.31.103.200:3306/my_database";
-    //private static String password = "password";
-    //private static String username = "user";
-
-    private static String url = "jdbc:postgresql://aws-0-us-east-1.pooler.supabase.com:5432/postgres?user=postgres.chhgjsqthhxqsvutshqi&password=Comp350dics";
+    public static final String URL = "jdbc:mysql://10.31.105.110:3306/my_database";
+    public static final String password = "password";
+    public static final String usernameDB = "user";
 
     private SearchDatabase(){
-        this.connection = DbConnection.getConnection();
     }
 
     public static SearchDatabase getInstance(){
-        if(instance == null || instance.connection == null) {
+        if(instance == null) {
             instance = new SearchDatabase();
         }
         return instance;
     }
 
-    public void close(){
-        try {
-            connection.close();
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        }
-    }
+
 
 
     public ArrayList<Course> getScheduleFromDB(String username, String semester){
 
         ArrayList<Course> toReturn = new ArrayList<>();
-        String sql = "SELECT c.cid, c.name, c.section, c.starttime, c.mwfortr, c.duration, c.isopen, \n" +
-                "       c.daysmeet, c.department, c.coursecode, c.credits, c.numseats, \n" +
-                "       c.islab, c.semester, c.location, \n" +
-                "       STRING_AGG(p.name, '/') AS professors\n" +
-                "FROM course c\n" +
-                "JOIN course_professor cp ON c.cid = cp.cid\n" +
-                "JOIN professor p ON cp.pid = p.pid\n" +
-                "WHERE c.cid IN (\n" +
-                "    SELECT cid \n" +
-                "    FROM courses_in_schedule\n" +
-                "    WHERE username = ? AND semester = ?\n" +
-                ")\n" +
-                "GROUP BY c.cid;\n";
-        try{
+        String sql =
+                "SELECT c.cid, c.name, c.section, c.starttime, c.mwfortr, c.duration, c.isopen, \n" +
+                        "       c.daysmeet, c.department, c.coursecode, c.credits, c.numseats, \n" +
+                        "       c.islab, c.semester, c.location, \n" +
+                        "       GROUP_CONCAT(p.name SEPARATOR '/') AS professors \n" +
+                        "FROM course c \n" +
+                        "JOIN course_professor cp ON c.cid = cp.cid \n" +
+                        "JOIN professor p ON cp.pid = p.pid \n" +
+                        "WHERE c.cid IN ( \n" +
+                        "    SELECT cid \n" +
+                        "    FROM courses_in_schedule \n" +
+                        "    WHERE username = ? AND semester = ? \n" +
+                        ") \n" +
+                        "GROUP BY c.cid;";
+
+        try (Connection connection = DriverManager.getConnection(URL, usernameDB, password)) {
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setString(1, username.trim());
             ps.setString(2, semester.trim());
@@ -120,7 +112,7 @@ public class SearchDatabase {
     }
     public dbUser getUser(String username) {
         String sql = "SELECT * FROM users WHERE username = ?";
-        try{
+        try (Connection connection = DriverManager.getConnection(URL, usernameDB, password)) {
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, username.trim());
             ResultSet resultSet = preparedStatement.executeQuery();
