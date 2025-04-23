@@ -332,7 +332,7 @@ public class User {
             // PDF attachment part
             String pdfFileName = "EmailPDF.pdf";
             File pdfFile = new File(pdfFileName);
-            schedule.exportToPDF(pdfFileName, false);
+            Export.exportToPDF(pdfFileName, false, schedule);
 
             MimeBodyPart attachmentPart = new MimeBodyPart();
             attachmentPart.attachFile(pdfFile);
