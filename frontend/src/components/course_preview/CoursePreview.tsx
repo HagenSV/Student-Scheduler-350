@@ -4,18 +4,14 @@ import scheduleAPI from '../../api/schedule';
 
 interface CoursePreviewParams {
     course: Course | null
+    addCourse: MouseEventHandler
 }
 
-const CoursePreview: React.FC<CoursePreviewParams> = ({ course }) => {
-    const addCourse: MouseEventHandler = () => {
-        scheduleAPI.addCourse(course)
-        Console.log("Course Added to Schedule")
-    }
+const CoursePreview: React.FC<CoursePreviewParams> = ({ course, addCourse }) => {
 
     const saveCompleted: MouseEventHandler = () => {
         //TODO: api endpoint for saving completed courses
     }
-
 
     return (
         <>

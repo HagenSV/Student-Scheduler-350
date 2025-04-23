@@ -8,11 +8,27 @@ import search from '../api/search';
 
 const Search = () => {
     const [show, setShow] = useState(false);
+    const [canForceAdd, setCanForceAdd] = useState(false);
+    const [message, setMessage] = useState("");
     const [results, setResults] = useState<Course[]>([]);
     const [selectedCourse, setCourse] = useState<Course|null>(null);
 
     const handleClose = () => setShow(false);
    // const handleShow = () => setShow(true);
+
+   const addCourse = (course: Course) => {
+        const event: MouseEventHandler = () => {
+           response = scheduleAPI.addCourse(course)
+           if (!response.success) {
+               setMessage(response.message)
+               setShow(true)
+               if (response.conflicts.length > 0) {
+                   setCanForceAdd(true)
+               }
+           }
+        }
+        return event;
+   }
 
     const keyPress: KeyboardEventHandler<HTMLInputElement> = async (event: React.KeyboardEvent<HTMLInputElement>) => {
         const target = event.target as HTMLInputElement
@@ -33,11 +49,10 @@ const Search = () => {
             <Modal.Header closeButton>
               <Modal.Title>Failed to add course</Modal.Title>
             </Modal.Header>
-            <Modal.Body>Error Message</Modal.Body>
+            <Modal.Body>{ message }</Modal.Body>
             <Modal.Footer>
-              <button variant="secondary" onClick={handleClose}>
-                Close
-              </button>
+                {canForceAdd && <button variant="primary" onClick={addCourse}>Remove Conflicts Add</button>}
+                <button variant="secondary" onClick={handleClose}>Close</button>
             </Modal.Footer>
         </Modal>
         <Container>
@@ -48,7 +63,7 @@ const Search = () => {
                     {results.map((course, index) => (<CourseListing key={index} course={course} clickEvent={selectCourse(course)}/>))}
                 </Col>
                 <Col md={6} style={{ borderLeft: "1px solid black" }}>
-                    <CoursePreview course={ selectedCourse } />
+                    <CoursePreview course={ selectedCourse } addCourse={addCourse(selectCourse)} />
                 </Col>
             </Row>
         </Container>
