@@ -45,8 +45,8 @@ public class AuthenticationController {
         userService.registerUser(username, password);
 
         // Initialize user schedules
-        Connection db = DbConnection.getConnection();
-        UpdateDatabaseContents.createSchedules(db, username);
+        //Connection db = DbConnection.getConnection();
+        UpdateDatabaseContents.createSchedules(username);
 
 
         return "redirect:/login";
