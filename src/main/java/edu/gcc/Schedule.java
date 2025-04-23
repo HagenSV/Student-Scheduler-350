@@ -76,39 +76,43 @@ public class Schedule {
         domains.sort(Comparator.comparing(ArrayList::size));
         ArrayList<Course> currentDomain = domains.get(0);
         for (Course c : currentDomain) {
-            if (schedule.addCourse(c)) {
-                // Create copy of domains
-                ArrayList<ArrayList<Course>> domainCopy = new ArrayList<>();
-                for (int i = 1; i < domains.size(); i++) {
-                    domainCopy.add(new ArrayList<>(domains.get(i)));
-                }
-
-                // Forward Checking remove conflicts from domains
-                for (ArrayList<Course> variable : domainCopy) {
-                    for (Course course : variable) {
-                        if (course.hasConflict(c))
-                            variable.remove(c);
+            try {
+                if (schedule.addCourse(c)) {
+                    // Create copy of domains
+                    ArrayList<ArrayList<Course>> domainCopy = new ArrayList<>();
+                    for (int i = 1; i < domains.size(); i++) {
+                        domainCopy.add(new ArrayList<>(domains.get(i)));
                     }
-                }
 
-                // Check if any domains are empty
-                boolean valid = true;
-                for (ArrayList<Course> variable : domainCopy) {
-                    if (variable.isEmpty()) {
-                        valid = false;
-                        break;
+                    // Forward Checking remove conflicts from domains
+                    for (ArrayList<Course> variable : domainCopy) {
+                        for (Course course : variable) {
+                            if (course.hasConflict(c))
+                                variable.remove(c);
+                        }
                     }
-                }
 
-                // Domain isn't valid remove from schedule and go to next value
-                if (!valid) {
+                    // Check if any domains are empty
+                    boolean valid = true;
+                    for (ArrayList<Course> variable : domainCopy) {
+                        if (variable.isEmpty()) {
+                            valid = false;
+                            break;
+                        }
+                    }
+
+                    // Domain isn't valid remove from schedule and go to next value
+                    if (!valid) {
+                        schedule.removeCourse(c);
+
+                        // Domain is valid, call backtrack again with deepCopy of forward checked domains
+                    } else {
+                        backtrack(generatedSchedules, new Schedule(new ArrayList<>(schedule.getCourses())), domainCopy);
+                    }
                     schedule.removeCourse(c);
-
-                    // Domain is valid, call backtrack again with deepCopy of forward checked domains
-                } else {
-                    backtrack(generatedSchedules, new Schedule(new ArrayList<>(schedule.getCourses())), domainCopy);
                 }
-                schedule.removeCourse(c);
+            } catch (Exception e) {
+                //Ignore
             }
         }
     }
