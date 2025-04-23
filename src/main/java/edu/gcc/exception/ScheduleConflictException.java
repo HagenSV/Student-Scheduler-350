@@ -1,10 +1,10 @@
 package edu.gcc.exception;
 
-import edu.gcc.Course;
+import edu.gcc.ScheduleEvent;
 
 public class ScheduleConflictException extends Exception {
 
-    public ScheduleConflictException(Course course) {
-        super("Unable to add" + course.getName() + " as it conflicts with other events on the schedule.");
+    public ScheduleConflictException(ScheduleEvent event) {
+        super("Unable to add" + event.getName() + " as it conflicts with other events on the schedule.");
     }
 }
