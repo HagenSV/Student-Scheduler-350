@@ -10,18 +10,13 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.ArrayList;
 
-@SpringBootApplication
 public class Main {
 
-    private static final ArrayList<User> users = new ArrayList<>();
-    private static Search search;
-    private User[] user;
     public static ArrayList<Course> courses;
 
     public static void main(String[] args) {
         courses = getCourses("data_wolfe.json");
         ConsoleDriver.run();
-//        SpringApplication.run(Main.class,args);
     }
 
     /**
