@@ -71,9 +71,9 @@ const Schedule = () => {
         <CourseTable courses={courses} remove={removeCourse}/>
         {!courses && <p>Nothing to see here, try adding a course!</p>}
         <h1 id="export">Export</h1>
-        <p><a href="/api/v1/schedule/export?type=email">Email Schedule</a></p>
-        <p><a href="/api/v1/schedule/export?type=google">Export to PDF</a></p>
-        <p><a href="/api/v1/schedule/export?type=pdf">Export to Google Calendar</a></p>
+        <p><a href="/api/v1/schedule/export?format=email">Email Schedule</a></p>
+        <p><a href="/api/v1/schedule/export?format=pdf">Export to PDF</a></p>
+        <p><a href="/api/v1/schedule/export?format=google">Export to Google Calendar</a></p>
         </main>
     );
 }
