@@ -4,6 +4,7 @@ import edu.gcc.AuthenticatedUserUtil;
 import edu.gcc.Course;
 import edu.gcc.Main;
 import edu.gcc.Schedule;
+import edu.gcc.ScheduleEvent;
 import edu.gcc.service.UserService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -37,13 +38,13 @@ public class ScheduleAPI {
     }
 
     @PostMapping("/api/v1/schedule/add")
-    public List<Course> addCourse(@RequestBody ScheduleQuery query) {
+    public List<ScheduleEvent> addCourse(@RequestBody ScheduleQuery query) {
         // This method will handle adding a course to the schedule
         Course course = getCourse(query.id());
         Schedule schedule = getScheduleFromUser();
         //Course course = query.getCourse();
         if (course == null) return new ArrayList<>();
-        List<Course> conflicts = schedule.getConflicts(course);
+        List<ScheduleEvent> conflicts = schedule.getConflicts(course);
         schedule.addCourse(course);
         return conflicts;
     }

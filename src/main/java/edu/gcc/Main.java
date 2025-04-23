@@ -20,8 +20,8 @@ public class Main {
 
     public static void main(String[] args) {
         courses = getCourses("data_wolfe.json");
-        //ConsoleDriver.run();
-        SpringApplication.run(Main.class,args);
+        ConsoleDriver.run();
+//        SpringApplication.run(Main.class,args);
     }
 
     /**

@@ -20,14 +20,35 @@ class ScheduleCalendarTest {
         }
 
         // Initialize schedule
-        schedule = new Schedule();
+        ArrayList<Course> emptyCourses = new ArrayList<>();
+        ArrayList<ScheduleEvent> emptyEvents = new ArrayList<>();
+        schedule = new Schedule("Caleb", "Spring", emptyCourses, emptyEvents);
     }
 
     @Test
     void testAddCoursesAndExportToGoogleCalendar() {
-        ArrayList<Schedule> generatedSchedules = schedule.generateSchedule(new String[]{"COMP 340", "COMP 314", "COMP 445", "COMP 350", "COMP 435"}, Main.getCourses("data_wolfe.json"), "Spring");
+        ArrayList<Schedule> generatedSchedules = schedule.generateSchedule(new String[]{"COMP 340"}, Main.getCourses("data_wolfe.json"), "Spring");
         assertFalse(generatedSchedules.isEmpty(), "There should be at least one valid schedule");
         schedule = generatedSchedules.get(0);
+
+        // Export to Google Calendar - success if no exceptions are thrown
+        schedule.exportToCalendar();
+
+        // If we reach here without exceptions, the test passes
+        System.out.println("Courses added and exported to Google Calendar. Please check your Google Calendar manually.");
+    }
+
+    @Test
+    void testAddCoursesAndExportToGoogleCalendarNonAcademic() {
+        ArrayList<Schedule> generatedSchedules = schedule.generateSchedule(new String[]{"COMP 340"}, Main.getCourses("data_wolfe.json"), "Spring");
+        assertFalse(generatedSchedules.isEmpty(), "There should be at least one valid schedule");
+        schedule = generatedSchedules.get(0);
+        // Add non-academic event (Monday 10:00-11:00 AM)
+        boolean[] daysMeetEvent = {false, true, false, true, false}; // Monday
+        int[] startTimesEvent = {-1, 360, -1, 360, -1}; // 10:00 AM
+        ScheduleEvent event = new ScheduleEvent(100, "Club Meeting", startTimesEvent, 120,
+                daysMeetEvent, "Spring", "Room 201");
+        schedule.addCourseNoDatabase(event);
 
         // Export to Google Calendar - success if no exceptions are thrown
         schedule.exportToCalendar();

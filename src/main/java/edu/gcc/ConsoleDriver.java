@@ -289,11 +289,13 @@ public class ConsoleDriver {
             if (add == null){ return; }
             boolean added = schedule.addCourse(add);
             if (!added && replace){
-                List<Course> conflicts = schedule.getConflicts(add);
-                for (Course c : conflicts){
+                List<ScheduleEvent> conflicts = schedule.getConflicts(add);
+                for (ScheduleEvent c : conflicts){
                     schedule.removeCourse(c);
-                    System.out.printf("Successfully removed %s %s%s from schedule\n",
-                            c.getDepartment(),c.getCourseCode(),c.getSection());
+                    if (c instanceof Course course)
+                        System.out.printf("Successfully removed %s %s%s from schedule\n", course.getDepartment(),course.getCourseCode(),course.getSection());
+                    else
+                        System.out.printf("Successfully removed %s from schedule\n",c.getName());
                 }
                 added = schedule.addCourse(add);
                 if (!added){
@@ -302,9 +304,12 @@ public class ConsoleDriver {
             } else if (!added) {
                 System.out.println("Failed to add course to schedule");
                 System.out.println("Time conflict(s) with:");
-                List<Course> conflicts = schedule.getConflicts(add);
-                for (Course c : conflicts){
-                    System.out.printf("  %s %s%s\n",c.getDepartment(),c.getCourseCode(),c.getSection());
+                List<ScheduleEvent> conflicts = schedule.getConflicts(add);
+                for (ScheduleEvent c : conflicts) {
+                    if (c instanceof Course course)
+                        System.out.printf("  %s %s%s\n",course.getDepartment(),course.getCourseCode(),course.getSection());
+                    else
+                        System.out.printf("  %s\n",c.getName());
                 }
                 System.out.printf("Run 'add %s replace' to remove conflicts and add course\n",options[1]);
             }

@@ -45,13 +45,13 @@ public class dbUser {
         this("","");
     }
 
-    public dbUser(String name, String password){
+    public dbUser(String name, String password) {
         this.username = name;
         this.password = password;
         this.majors = new ArrayList<>();
         this.minors = new ArrayList<>();
         this.completedCourses = new ArrayList<>();
-        this.schedule = new Schedule();
+        this.schedule = new Schedule(username, "Fall");
     }
 
     /**
