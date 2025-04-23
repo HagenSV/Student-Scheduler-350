@@ -6,7 +6,10 @@ import java.sql.SQLException;
 
 public class DbConnection {
 
-    public static final String URL = "jdbc:postgresql://aws-0-us-east-1.pooler.supabase.com:5432/postgres?user=postgres.chhgjsqthhxqsvutshqi&password=Comp350dics";
+
+    public static final String URL = "jdbc:mysql://10.31.105.110:3306/my_database";
+    public static final String username = "user";
+    public static final String password = "password";
     private static Connection connection;
 
     private static void connect() {
@@ -14,9 +17,19 @@ public class DbConnection {
         // For example, using JDBC:
         // connection = DriverManager.getConnection(url, user, password);
         try {
-            connection = DriverManager.getConnection(URL);
+            connection = DriverManager.getConnection(URL, username, password);
         } catch (SQLException e){
             System.out.println("Failed to connect to database: " + e.getMessage());
+        }
+    }
+
+    public static void close(){
+        try {
+            if (connection != null && !connection.isClosed()) {
+                connection.close();
+            }
+        } catch (SQLException e) {
+            System.out.println("Failed to close the database connection: " + e.getMessage());
         }
     }
 
