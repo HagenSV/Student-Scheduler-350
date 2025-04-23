@@ -2,13 +2,17 @@ import React, { KeyboardEventHandler, MouseEventHandler, useState } from 'react'
 
 import CourseListing from '../components/course_listing/CourseListing';
 import CoursePreview from '../components/course_preview/CoursePreview';
-import { Container, Row, Col } from 'react-bootstrap';
+import { Container, Row, Col, Modal } from 'react-bootstrap';
 import { Course } from '../interface/course';
 import search from '../api/search';
 
 const Search = () => {
+    const [show, setShow] = useState(false);
     const [results, setResults] = useState<Course[]>([]);
     const [selectedCourse, setCourse] = useState<Course|null>(null);
+
+    const handleClose = () => setShow(false);
+    const handleShow = () => setShow(true);
 
     const keyPress: KeyboardEventHandler<HTMLInputElement> = async (event: React.KeyboardEvent<HTMLInputElement>) => {
         const target = event.target as HTMLInputElement
@@ -25,6 +29,17 @@ const Search = () => {
 
     return (
         <main>
+        <Modal show={show} onHide={handleClose}>
+            <Modal.Header closeButton>
+              <Modal.Title>Failed to add course</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>Error Message</Modal.Body>
+            <Modal.Footer>
+              <button variant="secondary" onClick={handleClose}>
+                Close
+              </button>
+            </Modal.Footer>
+        </Modal>
         <Container>
             <Row>
                 <Col md={6}>
