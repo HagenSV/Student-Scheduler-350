@@ -5,7 +5,6 @@ import CoursePreview from '../components/course_preview/CoursePreview';
 import { Container, Row, Col } from 'react-bootstrap';
 import { Course } from '../interface/course';
 import search from '../api/search';
-//import scheduleAPI from '../api/schedule';
 
 const Search = () => {
     const [results, setResults] = useState<Course[]>([]);
