@@ -17,6 +17,10 @@ const scheduleAPI = {
             },
             body: JSON.stringify({ id })  
         })
+        if (response.ok){
+            return await response.json();
+        }
+        return {message: "Error adding course to schedule", success: false, conflicts: []}
     },
     removeCourse: async (course: Course) => {
         const id = course.cid
