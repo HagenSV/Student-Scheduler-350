@@ -10,7 +10,7 @@ const scheduleAPI = {
     },
     addCourse: async (course: Course) => {
         const id = course.cid
-        await fetch("http://localhost:8080/api/v1/schedule/add",{
+        const response = await fetch("http://localhost:8080/api/v1/schedule/add",{
             method: "POST",
             headers: {
                 'Content-Type': 'application/json',

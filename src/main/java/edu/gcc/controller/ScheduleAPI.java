@@ -63,13 +63,13 @@ public class ScheduleAPI {
         schedule.removeCourse(course);
     }
 
-    @GetMapping("/api/v1/schedule/export?type=google")
+    @GetMapping("/api/v1/schedule/export?format=google")
     public String exportCalendar(){
         // This method will handle exporting the schedule to a calendar
         Schedule schedule = getScheduleFromUser();
         if (schedule == null) return "redirect:/error";
-        schedule.exportToCalendar("testUser");
-        return "redirect:/success";
+        Export.exportToCalendar(schedule,AuthenticatedUserUtil.getAuthenticatedUser());
+        return "redirect:/#export";
     }
 
     @GetMapping("/api/v1/schedule/export?format=pdf")
@@ -77,8 +77,17 @@ public class ScheduleAPI {
         // This method will handle exporting the schedule to a PDF
         Schedule schedule = getScheduleFromUser();
         if (schedule == null) return "redirect:/error";
-        schedule.exportToPDF("Schedule.pdf", true);
-        return "redirect:/success";
+        Export.exportToPDF("schedule.pdf",true, schedule);
+        return "redirect:/#export";
+    }
+
+    @GetMapping("/api/v1/schedule/export?format=email")
+    public String emailSchedule(){
+        // This method will handle exporting the schedule to a PDF
+        Schedule schedule = getScheduleFromUser();
+        if (schedule == null) return "redirect:/error";
+        //TODO
+        return "redirect:/#export";
     }
 
     public Course getCourse(int id){
