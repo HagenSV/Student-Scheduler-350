@@ -36,10 +36,14 @@ public class UserTest {
         sampleCourse = new Course(0, "Intro to Programming", startTimes, 50, true,
                 professors, true, daysMeet, "COMP", "141", 3, 30, "A", false, "Spring", "Room 101");
 
-        schedule = new Schedule();
-        schedule.addCourse(sampleCourse);
+        ArrayList<Course> emptyCourses = new ArrayList<>();
+        ArrayList<ScheduleEvent> emptyEvents = new ArrayList<>();
+        schedule = new Schedule("testUser", "Spring", emptyCourses, emptyEvents);
+        schedule.addCourseNoDatabase(sampleCourse);
 
         user = new User("testUser", "password123", majors, minors, completedCourses);
+        Schedule schedule = new Schedule(user.getName(), "Spring", new ArrayList<>(), new ArrayList<>());
+        user.updateSchedule(schedule);
     }
 
     @Test
@@ -157,7 +161,7 @@ public class UserTest {
     public void testLoadSchedule() throws IOException {
         File scheduleFile = new File(user.getName() + ".txt");
         try (FileWriter writer = new FileWriter(scheduleFile)) {
-            writer.write("0_Intro to Programming_2,-1,2,-1,2_true_50_Dr. Hutchins_true_TFTFT_COMP_141_3_30_A_false");
+            writer.write("0_Intro to Programming_2,-1,2,-1,2_true_50_Dr. Hutchins_true_TFTFT_COMP_141_3_30_A_false_Spring_Room 101");
         }
 
         user.loadSchedule();

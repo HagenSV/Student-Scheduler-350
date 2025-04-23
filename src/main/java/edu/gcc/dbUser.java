@@ -45,7 +45,7 @@ public class dbUser {
         this("","");
     }
 
-    public dbUser(String name, String password){
+    public dbUser(String name, String password) {
         this.username = name;
         this.password = password;
         this.majors = new ArrayList<>();

@@ -302,18 +302,18 @@ public class ConsoleDriver {
             if (!replace){
                 System.out.println("Failed to add course to schedule");
                 System.out.println("Time conflict(s) with:");
-                List<Course> conflicts = schedule.getConflicts(add);
-                for (Course c : conflicts){
-                    System.out.printf("  %s %s%s\n",c.getDepartment(),c.getCourseCode(),c.getSection());
+                List<ScheduleEvent> conflicts = schedule.getConflicts(add);
+                for (ScheduleEvent c : conflicts){
+                    System.out.printf("  %s\n",c.getName());
                 }
                 System.out.printf("Run 'add %s replace' to remove conflicts and add course\n",options[1]);
                 return;
             }
-            List<Course> conflicts = schedule.getConflicts(add);
-            for (Course c : conflicts) {
+            List<ScheduleEvent> conflicts = schedule.getConflicts(add);
+            for (ScheduleEvent c : conflicts) {
                 schedule.removeCourse(c);
-                System.out.printf("Successfully removed %s %s%s from schedule\n",
-                        c.getDepartment(), c.getCourseCode(), c.getSection());
+                System.out.printf("Successfully removed %s from schedule\n",
+                        c.getName());
             }
             try {
                 schedule.addCourse(add);

@@ -47,7 +47,7 @@ public class ScheduleAPI {
         } catch (CourseFullException | SemesterMismatchException e) {
             return new AddCourseResponse(e.getMessage(), false, new ArrayList<>());
         } catch (ScheduleConflictException e) {
-            List<Course> conflicts = schedule.getConflicts(course);
+            List<ScheduleEvent> conflicts = schedule.getConflicts(course);
             return new AddCourseResponse(e.getMessage(), false, conflicts);
         }
         return new AddCourseResponse("Course added successfully", true, new ArrayList<>());
@@ -92,5 +92,5 @@ public class ScheduleAPI {
 
     public record ScheduleQuery(int id){}
 
-    public record AddCourseResponse(String message, boolean success, List<Course> conflicts) {}
+    public record AddCourseResponse(String message, boolean success, List<ScheduleEvent> conflicts) {}
 }
