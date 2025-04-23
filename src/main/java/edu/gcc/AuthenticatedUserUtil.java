@@ -16,4 +16,14 @@ public class AuthenticatedUserUtil {
         }
         return null;
     }
+
+    public static Schedule getScheduleFromUser(){
+        String semester = "fall";
+        String user = AuthenticatedUserUtil.getAuthenticatedUser();
+        if (user == null) {
+            return null;
+        }
+
+        return new Schedule(user,semester);
+    }
 }
