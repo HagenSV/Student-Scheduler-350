@@ -12,7 +12,7 @@ const Search = () => {
     const [selectedCourse, setCourse] = useState<Course|null>(null);
 
     const handleClose = () => setShow(false);
-    const handleShow = () => setShow(true);
+   // const handleShow = () => setShow(true);
 
     const keyPress: KeyboardEventHandler<HTMLInputElement> = async (event: React.KeyboardEvent<HTMLInputElement>) => {
         const target = event.target as HTMLInputElement
