@@ -32,7 +32,8 @@ class SchedulePDFTest {
         schedule = generatedSchedules.get(0);
 
         // Export the generated schedule to PDF
-        schedule.exportToPDF("ScheduleTest.pdf", true);
+        Export.exportToPDF("ScheduleTest.pdf", true, schedule);
+//        schedule.exportToPDF("ScheduleTest.pdf", true);
         // Check if the PDF file is created
         File pdfFile = new File("ScheduleTest.pdf");
         assertTrue(pdfFile.exists(), "PDF file should be created");
@@ -53,7 +54,8 @@ class SchedulePDFTest {
         } catch (Exception ignored){}
 
         // Export the generated schedule to PDF
-        schedule.exportToPDF("ScheduleTest.pdf", true);
+        Export.exportToPDF("ScheduleTest.pdf", true, schedule);
+//        schedule.exportToPDF("ScheduleTest.pdf", true);
         // Check if the PDF file is created
         File pdfFile = new File("ScheduleTest.pdf");
         assertTrue(pdfFile.exists(), "PDF file should be created");
