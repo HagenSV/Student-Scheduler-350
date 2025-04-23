@@ -68,7 +68,7 @@ public class ScheduleAPI {
         // This method will handle exporting the schedule to a calendar
         Schedule schedule = getScheduleFromUser();
         if (schedule == null) return "redirect:/error";
-        schedule.exportToCalendar();
+        schedule.exportToCalendar("testUser");
         return "redirect:/success";
     }
 
@@ -77,7 +77,7 @@ public class ScheduleAPI {
         // This method will handle exporting the schedule to a PDF
         Schedule schedule = getScheduleFromUser();
         if (schedule == null) return "redirect:/error";
-        schedule.exportToPDF();
+        schedule.exportToPDF("Schedule.pdf", true);
         return "redirect:/success";
     }
 

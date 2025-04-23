@@ -384,12 +384,12 @@ public class Schedule {
      * Exports the schedule to Google Calendar by creating events for each course.
      * Helped largely in part by Grok AI
      */
-    public void exportToCalendar() {
+    public void exportToCalendar(String username) {
         try {
             // Build the HTTP transport and Calendar service
             NetHttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
             String APPLICATION_NAME = "Student Scheduler";
-            Calendar service = new Calendar.Builder(httpTransport, JSON_FACTORY, getCredentials(httpTransport))
+            Calendar service = new Calendar.Builder(httpTransport, JSON_FACTORY, getCredentials(httpTransport, username))
                     .setApplicationName(APPLICATION_NAME)
                     .build();
 
@@ -425,7 +425,7 @@ public class Schedule {
      * @return The user's credentials.
      * @throws IOException If there is an error reading the credentials file or during authorization.
      */
-    private Credential getCredentials(final NetHttpTransport httpTransport) throws IOException {
+    private Credential getCredentials(final NetHttpTransport httpTransport, String username) throws IOException {
         String CREDENTIALS_FILE_PATH = "credentials.json";
         File credentialsFile = new File(CREDENTIALS_FILE_PATH);
         if (!credentialsFile.exists()) {
@@ -433,7 +433,7 @@ public class Schedule {
         }
         GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new FileReader(credentialsFile));
 
-        String TOKENS_DIRECTORY_PATH = "tokens";
+        String TOKENS_DIRECTORY_PATH = "tokens/" + username;
         List<String> SCOPES = Collections.singletonList("https://www.googleapis.com/auth/calendar.events");
         GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
                 httpTransport, JSON_FACTORY, clientSecrets, SCOPES)

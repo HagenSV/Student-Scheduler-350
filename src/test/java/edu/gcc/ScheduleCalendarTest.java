@@ -32,7 +32,7 @@ class ScheduleCalendarTest {
         schedule = generatedSchedules.get(0);
 
         // Export to Google Calendar - success if no exceptions are thrown
-        schedule.exportToCalendar();
+        schedule.exportToCalendar("testUser");
 
         // If we reach here without exceptions, the test passes
         System.out.println("Courses added and exported to Google Calendar. Please check your Google Calendar manually.");
@@ -53,7 +53,7 @@ class ScheduleCalendarTest {
         } catch (Exception ignored) {}
 
         // Export to Google Calendar - success if no exceptions are thrown
-        schedule.exportToCalendar();
+        schedule.exportToCalendar("testUser");
 
         // If we reach here without exceptions, the test passes
         System.out.println("Courses added and exported to Google Calendar. Please check your Google Calendar manually.");
