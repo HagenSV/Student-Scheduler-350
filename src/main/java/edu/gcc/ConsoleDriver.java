@@ -1,5 +1,8 @@
 package edu.gcc;
 
+import edu.gcc.exception.CourseFullException;
+import edu.gcc.exception.ScheduleConflictException;
+import edu.gcc.exception.SemesterMismatchException;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.List;
@@ -281,23 +284,22 @@ public class ConsoleDriver {
 
         boolean replace = options.length >= 3 && options[2].equalsIgnoreCase("replace");
 
+        int cid = -1;
+
         try {
-            int cid = Integer.parseInt(options[1]);
-            Course add = getCourse(cid);
-            if (add == null){ return; }
-            boolean added = schedule.addCourse(add);
-            if (!added && replace){
-                List<Course> conflicts = schedule.getConflicts(add);
-                for (Course c : conflicts){
-                    schedule.removeCourse(c);
-                    System.out.printf("Successfully removed %s %s%s from schedule\n",
-                            c.getDepartment(),c.getCourseCode(),c.getSection());
-                }
-                added = schedule.addCourse(add);
-                if (!added){
-                  System.out.println("An unknown error occurred");
-                }
-            } else if (!added) {
+            cid = Integer.parseInt(options[1]);
+        } catch (NumberFormatException e){
+            System.out.printf("Error: %s is not a number\n",options[1]);
+            return;
+        }
+        Course add = getCourse(cid);
+        if (add == null){ return; }
+        try {
+            schedule.addCourse(add);
+        } catch (CourseFullException | SemesterMismatchException e){
+            System.out.println(e.getMessage());
+        } catch (ScheduleConflictException e) {
+            if (!replace){
                 System.out.println("Failed to add course to schedule");
                 System.out.println("Time conflict(s) with:");
                 List<Course> conflicts = schedule.getConflicts(add);
@@ -305,15 +307,22 @@ public class ConsoleDriver {
                     System.out.printf("  %s %s%s\n",c.getDepartment(),c.getCourseCode(),c.getSection());
                 }
                 System.out.printf("Run 'add %s replace' to remove conflicts and add course\n",options[1]);
+                return;
             }
-            //tempUser.saveSchedule();
-            if (added){
-                System.out.printf("Successfully added %s %s%s to schedule\n",
-                        add.getDepartment(),add.getCourseCode(),add.getSection());
+            List<Course> conflicts = schedule.getConflicts(add);
+            for (Course c : conflicts) {
+                schedule.removeCourse(c);
+                System.out.printf("Successfully removed %s %s%s from schedule\n",
+                        c.getDepartment(), c.getCourseCode(), c.getSection());
             }
-        } catch (NumberFormatException e){
-            System.out.printf("Error: %s is not a number\n",options[1]);
+            try {
+                schedule.addCourse(add);
+            } catch (Exception e1){
+                System.out.println(e1.getMessage());
+            }
         }
+        System.out.printf("Successfully added %s %s%s to schedule\n",
+                    add.getDepartment(),add.getCourseCode(),add.getSection());
     }
 
     /**

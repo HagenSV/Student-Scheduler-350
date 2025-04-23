@@ -15,6 +15,9 @@ import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventDateTime;
 
+import edu.gcc.exception.CourseFullException;
+import edu.gcc.exception.ScheduleConflictException;
+import edu.gcc.exception.SemesterMismatchException;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -116,15 +119,15 @@ public class Schedule {
      * @param course the course to be added
      * @return whether the course was added successfully false if it conflicts with the other courses in the schedule
      */
-    public boolean addCourse(Course course) {
-        if (course.getNumSeats() < 1)
-            return false;
+    public boolean addCourse(Course course) throws CourseFullException, ScheduleConflictException, SemesterMismatchException {
+        if (course.getNumSeats() < 1) {
+            throw new CourseFullException(course);
+        }
         if (!this.getConflicts(course).isEmpty()) {
-            return false;
+            throw new ScheduleConflictException(course);
         }
         if (!course.getSemester().equalsIgnoreCase(semester)){
-            System.out.println("You are trying to add a course that is in a different semester");
-            return false;
+            throw new SemesterMismatchException(course);
         }
         this.courses.add(course);
         UpdateDatabaseContents addCourseToSchedule = new UpdateDatabaseContents();

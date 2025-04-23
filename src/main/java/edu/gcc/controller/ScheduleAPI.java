@@ -1,6 +1,9 @@
 package edu.gcc.controller;
 
 import edu.gcc.*;
+import edu.gcc.exception.CourseFullException;
+import edu.gcc.exception.ScheduleConflictException;
+import edu.gcc.exception.SemesterMismatchException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -34,14 +37,20 @@ public class ScheduleAPI {
     }
 
     @PostMapping("/api/v1/schedule/add")
-    public List<Course> addCourse(@RequestBody ScheduleQuery query) {
+    public AddCourseResponse addCourse(@RequestBody ScheduleQuery query) {
         // This method will handle adding a course to the schedule
         Course course = getCourse(query.id());
         Schedule schedule = getScheduleFromUser();
-        if (course == null || schedule == null) return new ArrayList<>();
-        List<Course> conflicts = schedule.getConflicts(course);
-        schedule.addCourse(course);
-        return conflicts;
+        if (course == null || schedule == null) return new AddCourseResponse("An unknown error occurred", false, new ArrayList<>());
+        try {
+            schedule.addCourse(course);
+        } catch (CourseFullException | SemesterMismatchException e) {
+            return new AddCourseResponse(e.getMessage(), false, new ArrayList<>());
+        } catch (ScheduleConflictException e) {
+            List<Course> conflicts = schedule.getConflicts(course);
+            return new AddCourseResponse(e.getMessage(), false, conflicts);
+        }
+        return new AddCourseResponse("Course added successfully", true, new ArrayList<>());
     }
 
     @PostMapping("/api/v1/schedule/remove")
@@ -82,4 +91,6 @@ public class ScheduleAPI {
     }
 
     public record ScheduleQuery(int id){}
+
+    public record AddCourseResponse(String message, boolean success, List<Course> conflicts) {}
 }
