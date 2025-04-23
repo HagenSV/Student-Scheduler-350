@@ -9,7 +9,7 @@ import search from '../api/search';
 
 const Search = () => {
     const [show, setShow] = useState(false);
-    const [canForceAdd, setCanForceAdd] = useState(false);
+    const [conflicts, setConflicts] = useState<String[]>([]);
     const [message, setMessage] = useState("");
     const [results, setResults] = useState<Course[]>([]);
     const [selectedCourse, setCourse] = useState<Course|null>(null);
@@ -26,7 +26,10 @@ const Search = () => {
                setMessage(response.message)
                setShow(true)
                if (response.conflicts.length > 0) {
-                   setCanForceAdd(true)
+                   setConflicts(conflicts.map((conflict) => {
+                          return conflict.name
+                     })
+                   )
                }
            }
         }
@@ -53,9 +56,17 @@ const Search = () => {
             <Modal.Header closeButton>
               <Modal.Title>Failed to add course</Modal.Title>
             </Modal.Header>
-            <Modal.Body>{ message }</Modal.Body>
+            <Modal.Body>
+                <p>{ message }</p>
+                {conflicts && <><p>Conflicts with:</p>
+                <ul>
+                    {conflicts.map((conflict, index) => (
+                        <li key={index}>{conflict}</li>
+                    ))}
+                </ul></>}
+            </Modal.Body>
             <Modal.Footer>
-                {canForceAdd && <button variant="primary" onClick={addCourse}>Remove Conflicts Add</button>}
+                {conflicts && <button variant="primary" onClick={addCourse}>Remove Conflicts Add</button>}
                 <button variant="secondary" onClick={handleClose}>Close</button>
             </Modal.Footer>
         </Modal>
