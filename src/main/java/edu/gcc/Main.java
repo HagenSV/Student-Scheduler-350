@@ -16,7 +16,8 @@ public class Main {
 
     public static void main(String[] args) {
         courses = getCourses("data_wolfe.json");
-        ConsoleDriver.run();
+//        ConsoleDriver.run();
+        SpringMain.main(args);
     }
 
     /**

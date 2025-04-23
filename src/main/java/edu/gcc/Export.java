@@ -32,16 +32,18 @@ import java.util.List;
 
 public class Export {
     public static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
+    private static final String REDIRECT_URI = "http://localhost:8080/api/v1/export/oauth2callback";
+
     /**
      * Exports the schedule to Google Calendar by creating events for each course.
-     * Helped largely in part by Grok AI
      */
     public static void exportToCalendar(Schedule schedule, String username) {
         try {
             // Build the HTTP transport and Calendar service
             NetHttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
             String APPLICATION_NAME = "Student Scheduler";
-            Calendar service = new Calendar.Builder(httpTransport, JSON_FACTORY, getCredentials(httpTransport, username))
+            Credential credential = getCredentials(httpTransport, username, null);
+            Calendar service = new Calendar.Builder(httpTransport, JSON_FACTORY, credential)
                     .setApplicationName(APPLICATION_NAME)
                     .build();
 
@@ -56,7 +58,7 @@ public class Export {
                 createCalendarEvent(service, course, schedule);
             }
 
-            for (ScheduleEvent scheduleEvent: schedule.getNonAcademicEvents()) {
+            for (ScheduleEvent scheduleEvent : schedule.getNonAcademicEvents()) {
                 createCalendarEvent(service, scheduleEvent, schedule);
             }
 
@@ -74,10 +76,12 @@ public class Export {
      * Authenticate with Google and retrieve credentials.
      *
      * @param httpTransport The HTTP transport to use for authentication.
-     * @return The user's credentials.
+     * @param username      The username for token storage.
+     * @param authCode      The authorization code (null if initiating the flow).
+     * @return The user's credentials, or null if an authorization URL is needed.
      * @throws IOException If there is an error reading the credentials file or during authorization.
      */
-    private static Credential getCredentials(final NetHttpTransport httpTransport, String username) throws IOException {
+    public static Credential getCredentials(final NetHttpTransport httpTransport, String username, String authCode) throws IOException {
         String CREDENTIALS_FILE_PATH = "credentials.json";
         File credentialsFile = new File(CREDENTIALS_FILE_PATH);
         if (!credentialsFile.exists()) {
@@ -127,20 +131,56 @@ public class Export {
             }
         }
 
-        // If no valid credentials, prompt for re-authentication
-        if (credential == null) {
-            System.out.println("No valid credentials found. Opening browser for OAuth2 authentication...");
-            System.out.println("Please authorize the application in your browser to access Google Calendar.");
-            LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(8888).build();
+        // If no valid credentials and no auth code, return null to indicate authorization is needed
+        if (credential == null && authCode == null) {
+            return null;
+        }
+
+        // If an auth code is provided, exchange it for credentials
+        if (authCode != null) {
             try {
-                credential = new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
+                // Explicitly set the redirect_uri in the token request
+                credential = flow.createAndStoreCredential(
+                        flow.newTokenRequest(authCode).setRedirectUri(REDIRECT_URI).execute(),
+                        "user"
+                );
                 System.out.println("Authentication successful. New tokens stored.");
-            } finally {
-                receiver.stop(); // Ensure the receiver is stopped
+                return credential;
+            } catch (IOException e) {
+                System.err.println("Error exchanging authorization code: " + e.getMessage());
+                throw e;
             }
         }
 
         return credential;
+    }
+
+    /**
+     * Generates the OAuth2 authorization URL for the user to authenticate.
+     *
+     * @param httpTransport The HTTP transport to use for authentication.
+     * @param username      The username for token storage.
+     * @return The authorization URL.
+     * @throws IOException If there is an error reading the credentials file.
+     */
+    public static String getAuthorizationUrl(final NetHttpTransport httpTransport, String username) throws IOException {
+        String CREDENTIALS_FILE_PATH = "credentials.json";
+        File credentialsFile = new File(CREDENTIALS_FILE_PATH);
+        if (!credentialsFile.exists()) {
+            throw new IOException("Credentials file not found at: " + credentialsFile.getAbsolutePath() + ". Ensure it is in the project root.");
+        }
+        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new FileReader(credentialsFile));
+
+        List<String> SCOPES = Collections.singletonList("https://www.googleapis.com/auth/calendar.events");
+        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
+                httpTransport, JSON_FACTORY, clientSecrets, SCOPES)
+                .setAccessType("offline")
+                .build();
+
+        return flow.newAuthorizationUrl()
+                .setRedirectUri(REDIRECT_URI)
+                .setState(username) // Pass username as state to identify the user
+                .build();
     }
 
     /**
@@ -159,7 +199,7 @@ public class Export {
         // Define semester dates (adjust as needed)
         LocalDate startSemester;
         LocalDate endSemester;
-        if (schedule.getSemester().equals("Spring")) {
+        if (schedule.getSemester().equals("spring")) {
             startSemester = LocalDate.of(2025, 1, 13);
             endSemester = LocalDate.of(2025, 5, 1);
         } else {
