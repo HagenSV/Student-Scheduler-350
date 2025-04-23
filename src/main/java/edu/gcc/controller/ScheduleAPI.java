@@ -15,19 +15,9 @@ import java.util.List;
 @RestController
 public class ScheduleAPI {
 
-    public Schedule getScheduleFromUser(){
-        String semester = "fall";
-        String user = AuthenticatedUserUtil.getAuthenticatedUser();
-        if (user == null) {
-            return null;
-        }
-
-        return new Schedule(user,semester);
-    }
-
     @GetMapping("/api/v1/schedule")
     public List<Course> getSchedule() {
-        Schedule schedule = getScheduleFromUser();
+        Schedule schedule = AuthenticatedUserUtil.getScheduleFromUser();
         if (schedule == null){
             return new ArrayList<>();
         }
@@ -40,7 +30,7 @@ public class ScheduleAPI {
     public AddCourseResponse addCourse(@RequestBody ScheduleQuery query) {
         // This method will handle adding a course to the schedule
         Course course = getCourse(query.id());
-        Schedule schedule = getScheduleFromUser();
+        Schedule schedule = AuthenticatedUserUtil.getScheduleFromUser();
         if (course == null || schedule == null) return new AddCourseResponse("An unknown error occurred", false, new ArrayList<>());
         try {
             schedule.addCourse(course);
@@ -57,37 +47,10 @@ public class ScheduleAPI {
     public void removeCourse(@RequestBody ScheduleQuery query){
         // This method will handle removing a course from the schedule
         Course course = getCourse(query.id());
-        Schedule schedule = getScheduleFromUser();
+        Schedule schedule = AuthenticatedUserUtil.getScheduleFromUser();
         //Course course = query.getCourse();
         if (course == null || schedule == null) return;
         schedule.removeCourse(course);
-    }
-
-    @GetMapping("/api/v1/schedule/export?format=google")
-    public String exportCalendar(){
-        // This method will handle exporting the schedule to a calendar
-        Schedule schedule = getScheduleFromUser();
-        if (schedule == null) return "redirect:/error";
-        Export.exportToCalendar(schedule,AuthenticatedUserUtil.getAuthenticatedUser());
-        return "redirect:/#export";
-    }
-
-    @GetMapping("/api/v1/schedule/export?format=pdf")
-    public String exportPDF(){
-        // This method will handle exporting the schedule to a PDF
-        Schedule schedule = getScheduleFromUser();
-        if (schedule == null) return "redirect:/error";
-        Export.exportToPDF("schedule.pdf",true, schedule);
-        return "redirect:/#export";
-    }
-
-    @GetMapping("/api/v1/schedule/export?format=email")
-    public String emailSchedule(){
-        // This method will handle exporting the schedule to a PDF
-        Schedule schedule = getScheduleFromUser();
-        if (schedule == null) return "redirect:/error";
-        //TODO
-        return "redirect:/#export";
     }
 
     public Course getCourse(int id){
