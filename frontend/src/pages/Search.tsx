@@ -4,6 +4,7 @@ import CourseListing from '../components/course_listing/CourseListing';
 import CoursePreview from '../components/course_preview/CoursePreview';
 import { Container, Row, Col, Modal } from 'react-bootstrap';
 import { Course } from '../interface/course';
+import scheduleAPI from '../api/schedule';
 import search from '../api/search';
 
 const Search = () => {
@@ -17,8 +18,10 @@ const Search = () => {
    // const handleShow = () => setShow(true);
 
    const addCourse = (course: Course) => {
-        const event: MouseEventHandler = () => {
-           response = scheduleAPI.addCourse(course)
+        const event: MouseEventHandler = async () => {
+            console.log(course)
+           const response = await scheduleAPI.addCourse(course)
+           console.log(response)
            if (!response.success) {
                setMessage(response.message)
                setShow(true)
@@ -33,6 +36,7 @@ const Search = () => {
     const keyPress: KeyboardEventHandler<HTMLInputElement> = async (event: React.KeyboardEvent<HTMLInputElement>) => {
         const target = event.target as HTMLInputElement
         const res = await search(target.value)
+        console.log(res)
         setResults(res)
     }
 
@@ -63,7 +67,7 @@ const Search = () => {
                     {results.map((course, index) => (<CourseListing key={index} course={course} clickEvent={selectCourse(course)}/>))}
                 </Col>
                 <Col md={6} style={{ borderLeft: "1px solid black" }}>
-                    <CoursePreview course={ selectedCourse } addCourse={addCourse(selectCourse)} />
+                    <CoursePreview course={ selectedCourse } addCourse={ addCourse(selectedCourse) } />
                 </Col>
             </Row>
         </Container>
