@@ -2,12 +2,51 @@ import React, { useState, useEffect } from 'react';
 import scheduleAPI from '../api/schedule';
 import { Course, toTimeString } from '../interface/course';
 import CourseTable from '../components/course_table/CourseTable';
+import { Modal } from 'react-bootstrap';
 
 const days = [0, 1, 2, 3, 4];
 const times = [0, 60, 120, 180, 240, 300, 360, 420, 480, 540, 600, 660, 720, 780]; // Hourly intervals from 8:00 AM to 9:00 PM
 
+// Group courses by day and calculate their start and end positions
+const getCoursesByDay = (day: number, courses: Course[]) => {
+    const coursesOnDay: { course: Course; startHourIdx: number; endHourIdx: number }[] = [];
+    for (const course of courses) {
+        const startTime = course.startTime[day];
+        if (startTime === -1) {
+            continue;
+        }
+        const endTime = startTime + course.duration;
+        // Find the starting and ending hour indices
+        const startHourIdx = times.findIndex(t => startTime < t + 60) || 0;
+        const endHourIdx = times.findIndex(t => endTime <= t + 60) || times.length - 1;
+        coursesOnDay.push({ course, startHourIdx, endHourIdx });
+    }
+    return coursesOnDay;
+};
+
 const Schedule = () => {
     const [courses, setCourses] = useState<Course[]>([]);
+    const [show, setShow] = useState(false);
+    const [email, setEmail] = useState("");
+    const [emailError, setEmailError] = useState("");
+
+    const handleShow = () => setShow(true);
+
+    const validateEmail = (value: string) => {
+        const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+        if (!emailRegex.test(value)) {
+            setEmailError("Invalid email address");
+        } else {
+            setEmailError("");
+        }
+    };
+
+    const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        setEmail(value);
+        validateEmail(value);
+    };
+
 
     useEffect(() => {
         const fetchData = async () => {
@@ -22,23 +61,6 @@ const Schedule = () => {
         fetchData();
     }, []);
 
-    // Group courses by day and calculate their start and end positions
-    const getCoursesByDay = (day: number) => {
-        const coursesOnDay: { course: Course; startHourIdx: number; endHourIdx: number }[] = [];
-        for (const course of courses) {
-            const startTime = course.startTime[day];
-            if (startTime === -1) {
-                continue;
-            }
-            const endTime = startTime + course.duration;
-            // Find the starting and ending hour indices
-            const startHourIdx = times.findIndex(t => startTime < t + 60) || 0;
-            const endHourIdx = times.findIndex(t => endTime <= t + 60) || times.length - 1;
-            coursesOnDay.push({ course, startHourIdx, endHourIdx });
-        }
-        return coursesOnDay;
-    };
-
     const removeCourse = (course: Course) => {
         return async () => {
             await scheduleAPI.removeCourse(course);
@@ -46,8 +68,36 @@ const Schedule = () => {
         };
     };
 
+    const sendEmail = async () => {
+        const response = await fetch("/api/v1/export/email?dest=" + email)
+        setShow(false);
+    }
+
     return (
         <main>
+        <Modal show={show}>
+            <Modal.Header closeButton>
+              <Modal.Title>Email Schedule</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                <input type="text"
+                placeholder="Email"
+                value={email}
+                onChange={handleEmailChange}
+                style={{ borderColor: emailError ? "red" : undefined }}/>
+                {emailError && <p style={{ color: "red" }}>{emailError}</p>}
+
+            </Modal.Body>
+            <Modal.Footer>
+                <button
+                    className="btn primary"
+                    onClick={sendEmail}
+                    disabled={!!emailError || !email}
+                >
+                    Send
+                </button>
+            </Modal.Footer>
+        </Modal>
             <h1>My Schedule</h1>
             <table
                 style={{
@@ -84,7 +134,7 @@ const Schedule = () => {
                                 {toTimeString(time)}
                             </td>
                             {days.map((day, dayIndex) => {
-                                const coursesOnDay = getCoursesByDay(day);
+                                const coursesOnDay = getCoursesByDay(day,courses);
                                 return (
                                     <td
                                         key={dayIndex}
@@ -147,7 +197,15 @@ const Schedule = () => {
             <CourseTable courses={courses} remove={removeCourse} />
             {!courses.length && <p>Nothing to see here, try adding a course!</p>}
             <h1 id="export">Export</h1>
-            <p><a href="/api/v1/export/email">Email Schedule</a></p>
+            <p><button onClick={handleShow}
+            style={{
+                background: "none",
+                color: "blue",
+                border: "none",
+                padding: "0",
+                textDecoration: "underline",
+                cursor: "pointer",
+            }}>Email Schedule</button></p>
             <p><a href="/api/v1/export/pdf">Export to PDF</a></p>
             <p><a href="/api/v1/export/googleCalendar">Export to Google Calendar</a></p>
         </main>
