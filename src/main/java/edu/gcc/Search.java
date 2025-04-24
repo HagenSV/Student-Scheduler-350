@@ -22,12 +22,13 @@ public class Search {
     private ArrayList<Course> filteredResult; // the list of courses after filtering
     private ArrayList<String> listDep; // list of all departments
     private ArrayList<String> listProf; // list of all professors
-
+    private boolean filterCompletedCourses; // whether to filter completed courses or not
+    private String username;
     /**
      * Constructor for the Search class
      * @param query the search query
      */
-    public Search(String query){
+    public Search(String query, String username, boolean filterCompletedCourses){
         this.query = query.toLowerCase();
         this.query = query.replaceAll("[\\p{Punct}&&[^:]]", "");
         this.initialResult = Main.courses;
@@ -36,6 +37,8 @@ public class Search {
         setDepartments();
         setProfessors();
         filteredResult = new ArrayList<>();
+        this.filterCompletedCourses = filterCompletedCourses;
+        this.username = username;
     }
 
     /**
@@ -179,7 +182,22 @@ public class Search {
      * @return the filtered list of courses
      */
     public ArrayList<Course> getResult(){
+        if(filterCompletedCourses)
+            filterOutCompletedCourses();
         return filteredResult;
+
+    }
+
+    public void filterOutCompletedCourses(){
+        ArrayList<Course> completedCourses = SearchDatabase.getInstance().getCompletedCoursesFromDB(username);
+        for(Course completed : completedCourses){
+            for(Course course : filteredResult){
+                if(completed.getDepartment().equals(course.getDepartment()) && completed.getCourseCode().equals(course.getCourseCode())){
+                    filteredResult.remove(course);
+                    break;
+                }
+            }
+        }
     }
 
     /**
