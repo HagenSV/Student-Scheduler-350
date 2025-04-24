@@ -5,6 +5,7 @@ import edu.gcc.exception.ScheduleConflictException;
 import edu.gcc.exception.SemesterMismatchException;
 import org.mindrot.jbcrypt.BCrypt;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -17,6 +18,7 @@ public class ConsoleDriver {
     private static User tempUser;
     private static String semester = "Fall";
     private static Schedule schedule;
+    private static ArrayList<Course> completedCourses;
 
     // The following methods act as a private API for the ConsoleDriver class
     // They will be updated in the future to interact with the database once complete
@@ -94,6 +96,8 @@ public class ConsoleDriver {
                             tempUser = new User(currentUser.getName(), currentUser.getPassword(), currentUser.getMajors(), currentUser.getMinors(), null);
                             //tempUser.loadSchedule();
                             schedule = new Schedule(username, semester);
+                            SearchDatabase sb = SearchDatabase.getInstance();
+                            completedCourses = sb.getCompletedCoursesFromDB(username);
                             break;
                         } else {
                             System.out.println("Invalid password");
@@ -143,6 +147,10 @@ public class ConsoleDriver {
                     break;
                 case "completed":
                     markCompleted(input);
+                    break;
+                case "see_completed":
+                    seeCompletedCourses(input);
+                    break;
                 default:
                     //Provide feedback on invalid command
                     System.out.println("Unknown Command: "+cmd);
@@ -152,10 +160,33 @@ public class ConsoleDriver {
     }
 
 
-    public static void markCompleted(String[] options){
-        if (options.length < 2) {
-            System.out.println("Proper usage: completed <course_id>");
+    public static void seeCompletedCourses(String[] options){
+        if (completedCourses.isEmpty()){
+            System.out.println("You have no completed courses");
         }
+        for (Course c : completedCourses){
+            System.out.println(c.toString());
+        }
+    }
+    public static void markCompleted(String[] options){
+        if (options.length < 2){
+            System.out.println("Proper usage: completed <course_id>");
+            return;
+        }
+
+        int cid = -1;
+
+        try{
+            cid = Integer.parseInt(options[1]);
+        } catch (NumberFormatException e){
+            System.out.printf("Error: %s is not a number\n",options[1]);
+            return;
+        }
+
+        UpdateDatabaseContents ub = new UpdateDatabaseContents();
+        ub.addCompletedCourse(currentUser.getUsername(), Integer.toString(cid));
+        completedCourses.add(getCourse(cid));
+
 
     }
     /**
@@ -173,6 +204,7 @@ public class ConsoleDriver {
         System.out.println("  change semester -  change the semester of the schedule that you are working on.");
         System.out.println("  exit - exits the program");
         System.out.println("  completed <id> - marks a course as completed");
+        System.out.println("  see_completed - view completed courses");
     }
 
     private static void search(String[] options){
