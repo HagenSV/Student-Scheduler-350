@@ -24,7 +24,7 @@ public class GmailService {
     private static final String APPLICATION_NAME = "Student Scheduler";
     private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
     private static final String TOKENS_DIRECTORY_PATH = "gmail-tokens";
-    private static final String CREDENTIALS_FILE_PATH = "credentials.json";
+    private static final String CREDENTIALS_FILE_PATH = "credentials_email.json";
     private static final List<String> SCOPES = Collections.singletonList(GmailScopes.GMAIL_SEND);
     private static final String FROM_EMAIL = "studentschedulerunemployedcs@gmail.com";
 
