@@ -1,5 +1,6 @@
 package edu.gcc.controller;
 
+import edu.gcc.AuthenticatedUserUtil;
 import edu.gcc.Course;
 import edu.gcc.Search;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,7 +20,8 @@ public class SearchAPI {
         // You can process the search criteria and return the results
         // For now, we will just return a success message
         //System.out.println("Searching for: " + query.getQuery());
-        Search search = new Search(query.query());
+        String user = AuthenticatedUserUtil.getAuthenticatedUser();
+        Search search = new Search(query.query(), user, false);
         search.search();
         return search.getResult();
     }
