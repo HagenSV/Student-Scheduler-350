@@ -64,6 +64,24 @@ public class UpdateDatabaseContents {
         return false;
     }
 
+    public static void addCompletedCourse(String username, String cid){
+        String sql = "INSERT INTO completed_courses (cid, username) VALUES (?, ?)";
+        try (Connection connection = DriverManager.getConnection(URL, usernameDB, password)) {
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setString(1, cid);
+            preparedStatement.setString(2, username);
+
+            // Execute the insert statement
+            int rowsInserted = preparedStatement.executeUpdate();
+            if (rowsInserted > 0) {
+                System.out.println("Course " + cid + " was inserted successfully into completed courses!");
+            }
+        } catch (SQLException e) {
+            System.err.println("Error inserting course " + cid + " into completed courses: " + e.getMessage());
+        }
+    }
+
+
     public static void createSchedules(String username){
         String[] semesters = {"Fall", "Winter_Online", "Spring", "Early_Summer", "Late_Summer "};
         int count = 0;

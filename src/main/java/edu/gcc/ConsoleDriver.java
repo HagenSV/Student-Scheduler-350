@@ -141,6 +141,8 @@ public class ConsoleDriver {
                 case "change semester":
                     changeSemester();
                     break;
+                case "completed":
+                    markCompleted(input);
                 default:
                     //Provide feedback on invalid command
                     System.out.println("Unknown Command: "+cmd);
@@ -149,6 +151,13 @@ public class ConsoleDriver {
         System.out.println("Thank you for using Student Scheduler");
     }
 
+
+    public static void markCompleted(String[] options){
+        if (options.length < 2) {
+            System.out.println("Proper usage: completed <course_id>");
+        }
+
+    }
     /**
      * Prints a list of commands
      * @param options
@@ -163,6 +172,7 @@ public class ConsoleDriver {
         System.out.println("  results <page> - view page of search results");
         System.out.println("  change semester -  change the semester of the schedule that you are working on.");
         System.out.println("  exit - exits the program");
+        System.out.println("  completed <id> - marks a course as completed");
     }
 
     private static void search(String[] options){
