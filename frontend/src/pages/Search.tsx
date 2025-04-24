@@ -4,7 +4,6 @@ import CourseListing from '../components/course_listing/CourseListing';
 import CoursePreview from '../components/course_preview/CoursePreview';
 import { Container, Row, Col, Modal } from 'react-bootstrap';
 import { Course } from '../interface/course';
-import scheduleAPI from '../api/schedule';
 import search from '../api/search';
 
 const Search = () => {
