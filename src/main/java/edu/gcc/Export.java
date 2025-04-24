@@ -1,8 +1,6 @@
 package edu.gcc;
 
 import com.google.api.client.auth.oauth2.Credential;
-import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
-import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
@@ -549,7 +547,7 @@ public class Export {
     /**
      * Sends an email with the user's schedule to their email address from studentschedulerunemployedcs@gmail.com.
      */
-    public static void sendEmail(User user, String email) {
+    public static void sendEmail(String name, Schedule schedule, String email) {
         if (email == null || !email.matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")) {
             System.err.println("Invalid or missing user email: " + email);
         }
@@ -567,22 +565,22 @@ public class Export {
 
             // Build the email body with the schedule
             StringBuilder emailBody = new StringBuilder();
-            emailBody.append("Hello ").append(user.getName()).append(",\n\n");
+            emailBody.append("Hello ").append(name).append(",\n\n");
             emailBody.append("Here are you current courses:\n\n");
 
-            if (user.getSchedule().getCourses().isEmpty()) {
+            if (schedule.getCourses().isEmpty()) {
                 emailBody.append("No courses scheduled.\n");
             } else {
-                for (Course course : user.getSchedule().getCourses()) {
+                for (Course course : schedule.getCourses()) {
                     emailBody.append(course.getDepartment()).append(" ").append(course.getCourseCode());
                     emailBody.append(": ").append(course.getName()).append("\n");
                 }
             }
-            if (user.getSchedule().getNonAcademicEvents().isEmpty()) {
+            if (schedule.getNonAcademicEvents().isEmpty()) {
                 emailBody.append("\nNo non-academic events scheduled.\n");
             } else {
                 emailBody.append("\nNon-Academic Events:\n");
-                for (ScheduleEvent event : user.getSchedule().getNonAcademicEvents()) {
+                for (ScheduleEvent event : schedule.getNonAcademicEvents()) {
                     emailBody.append(event.getName()).append("\n");
                 }
             }
@@ -599,7 +597,7 @@ public class Export {
             // PDF attachment part
             String pdfFileName = "EmailPDF.pdf";
             File pdfFile = new File(pdfFileName);
-            Export.exportToPDF(pdfFileName, false, user.getSchedule());
+            Export.exportToPDF(pdfFileName, false, schedule);
 
             MimeBodyPart attachmentPart = new MimeBodyPart();
             attachmentPart.attachFile(pdfFile);

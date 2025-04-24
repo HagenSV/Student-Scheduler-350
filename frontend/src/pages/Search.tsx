@@ -17,24 +17,29 @@ const Search = () => {
     const handleClose = () => setShow(false);
    // const handleShow = () => setShow(true);
 
-   const addCourse = (course: Course) => {
+    const addCourse = (course: Course) => {
         const event: MouseEventHandler = async () => {
             console.log(course)
-           const response = await scheduleAPI.addCourse(course)
-           console.log(response)
-           if (!response.success) {
-               setMessage(response.message)
-               setShow(true)
-               if (response.conflicts.length > 0) {
-                   setConflicts(conflicts.map((conflict) => {
-                          return conflict.name
-                     })
-                   )
-               }
-           }
+            const response = await scheduleAPI.addCourse(course)
+            console.log(response)
+            if (!response.success) {
+                setMessage(response.message)
+                setShow(true)
+                if (response.conflicts.length > 0) {
+                    setConflicts(response.conflicts)
+                }
+            }
         }
         return event;
-   }
+    }
+
+    const forceAdd = async () => {
+        for (const conflict of conflicts) {
+            await scheduleAPI.removeCourse(conflict)
+        }
+        setShow(false)
+        await addCourse(selectedCourse)()
+    }
 
     const keyPress: KeyboardEventHandler<HTMLInputElement> = async (event: React.KeyboardEvent<HTMLInputElement>) => {
         const target = event.target as HTMLInputElement
@@ -61,13 +66,13 @@ const Search = () => {
                 {conflicts && <><p>Conflicts with:</p>
                 <ul>
                     {conflicts.map((conflict, index) => (
-                        <li key={index}>{conflict}</li>
+                        <li key={index}>{conflict.name}</li>
                     ))}
                 </ul></>}
             </Modal.Body>
             <Modal.Footer>
-                {conflicts && <button variant="primary" onClick={addCourse}>Remove Conflicts Add</button>}
-                <button variant="secondary" onClick={handleClose}>Close</button>
+                {conflicts && <button className="btn primary" onClick={forceAdd}>Remove Conflicts & Add</button>}
+                <button className="btn secondary" onClick={handleClose}>Close</button>
             </Modal.Footer>
         </Modal>
         <Container>
