@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import scheduleAPI from '../api/schedule';
-import { Course, toTimeString } from '../interface/course';
+import { Course } from '../interface/course';
 import CourseTable from '../components/course_table/CourseTable';
 import Calendar from '../components/calendar/Calendar';
 import { Modal } from 'react-bootstrap';
@@ -50,7 +50,7 @@ const Schedule = () => {
     };
 
     const sendEmail = async () => {
-        const response = await fetch("/api/v1/export/email?dest=" + email)
+        await fetch("/api/v1/export/email?dest=" + email)
         setShow(false);
     }
 
