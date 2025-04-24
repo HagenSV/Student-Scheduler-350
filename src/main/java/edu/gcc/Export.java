@@ -14,12 +14,22 @@ import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventDateTime;
+import com.google.api.services.gmail.Gmail;
+import com.google.api.services.gmail.model.Message;
+import jakarta.mail.Multipart;
+import jakarta.mail.Session;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeBodyPart;
+import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.internet.MimeMultipart;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 
 import java.awt.*;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -29,6 +39,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 
 public class Export {
     public static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
@@ -533,5 +544,85 @@ public class Export {
     private static String cleanLocationString(String location) {
         // Remove " w/multimedia" or similar suffixes (case-insensitive)
         return location.replaceAll("\\s+w/\\s*multimedia\\b", "").trim();
+    }
+
+    /**
+     * Sends an email with the user's schedule to their email address from studentschedulerunemployedcs@gmail.com.
+     */
+    public static void sendEmail(User user, String email) {
+        if (email == null || !email.matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")) {
+            System.err.println("Invalid or missing user email: " + email);
+        }
+
+        // Set up mail session properties
+        Properties props = new Properties();
+        Session session = Session.getDefaultInstance(props, null);
+
+        try {
+            // Create MimeMessage
+            MimeMessage mimeMessage = new MimeMessage(session);
+            mimeMessage.setFrom(new InternetAddress("studentschedulerunemployedcs@gmail.com"));
+            mimeMessage.addRecipient(jakarta.mail.Message.RecipientType.TO, new InternetAddress(email));
+            mimeMessage.setSubject("Your Course Schedule");
+
+            // Build the email body with the schedule
+            StringBuilder emailBody = new StringBuilder();
+            emailBody.append("Hello ").append(user.getName()).append(",\n\n");
+            emailBody.append("Here are you current courses:\n\n");
+
+            if (user.getSchedule().getCourses().isEmpty()) {
+                emailBody.append("No courses scheduled.\n");
+            } else {
+                for (Course course : user.getSchedule().getCourses()) {
+                    emailBody.append(course.getDepartment()).append(" ").append(course.getCourseCode());
+                    emailBody.append(": ").append(course.getName()).append("\n");
+                }
+            }
+            if (user.getSchedule().getNonAcademicEvents().isEmpty()) {
+                emailBody.append("\nNo non-academic events scheduled.\n");
+            } else {
+                emailBody.append("\nNon-Academic Events:\n");
+                for (ScheduleEvent event : user.getSchedule().getNonAcademicEvents()) {
+                    emailBody.append(event.getName()).append("\n");
+                }
+            }
+            emailBody.append("\nBest regards,\nStudent Scheduler Team");
+
+            // Create multipart message
+            Multipart multipart = new MimeMultipart();
+
+            // Text part
+            MimeBodyPart textPart = new MimeBodyPart();
+            textPart.setText(emailBody.toString());
+            multipart.addBodyPart(textPart);
+
+            // PDF attachment part
+            String pdfFileName = "EmailPDF.pdf";
+            File pdfFile = new File(pdfFileName);
+            Export.exportToPDF(pdfFileName, false, user.getSchedule());
+
+            MimeBodyPart attachmentPart = new MimeBodyPart();
+            attachmentPart.attachFile(pdfFile);
+            attachmentPart.setFileName("CourseSchedule.pdf");
+            multipart.addBodyPart(attachmentPart);
+
+            // Set multipart content
+            mimeMessage.setContent(multipart);
+
+            // Convert MimeMessage to Gmail API Message
+            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+            mimeMessage.writeTo(buffer);
+            byte[] rawMessageBytes = buffer.toByteArray();
+            String encodedEmail = Base64.encodeBase64URLSafeString(rawMessageBytes);
+            Message message = new Message();
+            message.setRaw(encodedEmail);
+
+            // Send the email
+            Gmail service = GmailService.getGmailService();
+            service.users().messages().send("me", message).execute();
+        } catch (Exception e) {
+            System.err.println("Failed to send email: " + e.getMessage());
+        }
+        System.out.println("Email sent to " + email);
     }
 }
