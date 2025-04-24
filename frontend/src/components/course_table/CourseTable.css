@@ -1,4 +1,31 @@
 .courseTable {
     width: 100%;
     text-align: center;
+    border-collapse: collapse;
+    border: 1px solid #333;
+}
+
+.courseTable th,
+.courseTable td {
+    border: 1px solid #333;
+    padding: 8px;
+}
+
+.hour-mark {
+    border-top: 2px solid #333;
+}
+
+.remove-button {
+    background: #ff4444;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.remove-button:hover {
+    background: #cc0000;
 }
