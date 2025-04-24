@@ -14,12 +14,22 @@ import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventDateTime;
+import com.google.api.services.gmail.Gmail;
+import com.google.api.services.gmail.model.Message;
+import jakarta.mail.Multipart;
+import jakarta.mail.Session;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeBodyPart;
+import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.internet.MimeMultipart;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 
 import java.awt.*;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -29,19 +39,22 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 
 public class Export {
     public static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
+    private static final String REDIRECT_URI = "http://localhost:8080/api/v1/export/oauth2callback";
+
     /**
      * Exports the schedule to Google Calendar by creating events for each course.
-     * Helped largely in part by Grok AI
      */
     public static void exportToCalendar(Schedule schedule, String username) {
         try {
             // Build the HTTP transport and Calendar service
             NetHttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
             String APPLICATION_NAME = "Student Scheduler";
-            Calendar service = new Calendar.Builder(httpTransport, JSON_FACTORY, getCredentials(httpTransport, username))
+            Credential credential = getCredentials(httpTransport, username, null);
+            Calendar service = new Calendar.Builder(httpTransport, JSON_FACTORY, credential)
                     .setApplicationName(APPLICATION_NAME)
                     .build();
 
@@ -56,7 +69,7 @@ public class Export {
                 createCalendarEvent(service, course, schedule);
             }
 
-            for (ScheduleEvent scheduleEvent: schedule.getNonAcademicEvents()) {
+            for (ScheduleEvent scheduleEvent : schedule.getNonAcademicEvents()) {
                 createCalendarEvent(service, scheduleEvent, schedule);
             }
 
@@ -74,10 +87,12 @@ public class Export {
      * Authenticate with Google and retrieve credentials.
      *
      * @param httpTransport The HTTP transport to use for authentication.
-     * @return The user's credentials.
+     * @param username      The username for token storage.
+     * @param authCode      The authorization code (null if initiating the flow).
+     * @return The user's credentials, or null if an authorization URL is needed.
      * @throws IOException If there is an error reading the credentials file or during authorization.
      */
-    private static Credential getCredentials(final NetHttpTransport httpTransport, String username) throws IOException {
+    public static Credential getCredentials(final NetHttpTransport httpTransport, String username, String authCode) throws IOException {
         String CREDENTIALS_FILE_PATH = "credentials.json";
         File credentialsFile = new File(CREDENTIALS_FILE_PATH);
         if (!credentialsFile.exists()) {
@@ -127,20 +142,56 @@ public class Export {
             }
         }
 
-        // If no valid credentials, prompt for re-authentication
-        if (credential == null) {
-            System.out.println("No valid credentials found. Opening browser for OAuth2 authentication...");
-            System.out.println("Please authorize the application in your browser to access Google Calendar.");
-            LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(8888).build();
+        // If no valid credentials and no auth code, return null to indicate authorization is needed
+        if (credential == null && authCode == null) {
+            return null;
+        }
+
+        // If an auth code is provided, exchange it for credentials
+        if (authCode != null) {
             try {
-                credential = new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
+                // Explicitly set the redirect_uri in the token request
+                credential = flow.createAndStoreCredential(
+                        flow.newTokenRequest(authCode).setRedirectUri(REDIRECT_URI).execute(),
+                        "user"
+                );
                 System.out.println("Authentication successful. New tokens stored.");
-            } finally {
-                receiver.stop(); // Ensure the receiver is stopped
+                return credential;
+            } catch (IOException e) {
+                System.err.println("Error exchanging authorization code: " + e.getMessage());
+                throw e;
             }
         }
 
         return credential;
+    }
+
+    /**
+     * Generates the OAuth2 authorization URL for the user to authenticate.
+     *
+     * @param httpTransport The HTTP transport to use for authentication.
+     * @param username      The username for token storage.
+     * @return The authorization URL.
+     * @throws IOException If there is an error reading the credentials file.
+     */
+    public static String getAuthorizationUrl(final NetHttpTransport httpTransport, String username) throws IOException {
+        String CREDENTIALS_FILE_PATH = "credentials.json";
+        File credentialsFile = new File(CREDENTIALS_FILE_PATH);
+        if (!credentialsFile.exists()) {
+            throw new IOException("Credentials file not found at: " + credentialsFile.getAbsolutePath() + ". Ensure it is in the project root.");
+        }
+        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new FileReader(credentialsFile));
+
+        List<String> SCOPES = Collections.singletonList("https://www.googleapis.com/auth/calendar.events");
+        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
+                httpTransport, JSON_FACTORY, clientSecrets, SCOPES)
+                .setAccessType("offline")
+                .build();
+
+        return flow.newAuthorizationUrl()
+                .setRedirectUri(REDIRECT_URI)
+                .setState(username) // Pass username as state to identify the user
+                .build();
     }
 
     /**
@@ -159,7 +210,7 @@ public class Export {
         // Define semester dates (adjust as needed)
         LocalDate startSemester;
         LocalDate endSemester;
-        if (schedule.getSemester().equals("Spring")) {
+        if (schedule.getSemester().equals("spring")) {
             startSemester = LocalDate.of(2025, 1, 13);
             endSemester = LocalDate.of(2025, 5, 1);
         } else {
@@ -493,5 +544,85 @@ public class Export {
     private static String cleanLocationString(String location) {
         // Remove " w/multimedia" or similar suffixes (case-insensitive)
         return location.replaceAll("\\s+w/\\s*multimedia\\b", "").trim();
+    }
+
+    /**
+     * Sends an email with the user's schedule to their email address from studentschedulerunemployedcs@gmail.com.
+     */
+    public static void sendEmail(User user, String email) {
+        if (email == null || !email.matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")) {
+            System.err.println("Invalid or missing user email: " + email);
+        }
+
+        // Set up mail session properties
+        Properties props = new Properties();
+        Session session = Session.getDefaultInstance(props, null);
+
+        try {
+            // Create MimeMessage
+            MimeMessage mimeMessage = new MimeMessage(session);
+            mimeMessage.setFrom(new InternetAddress("studentschedulerunemployedcs@gmail.com"));
+            mimeMessage.addRecipient(jakarta.mail.Message.RecipientType.TO, new InternetAddress(email));
+            mimeMessage.setSubject("Your Course Schedule");
+
+            // Build the email body with the schedule
+            StringBuilder emailBody = new StringBuilder();
+            emailBody.append("Hello ").append(user.getName()).append(",\n\n");
+            emailBody.append("Here are you current courses:\n\n");
+
+            if (user.getSchedule().getCourses().isEmpty()) {
+                emailBody.append("No courses scheduled.\n");
+            } else {
+                for (Course course : user.getSchedule().getCourses()) {
+                    emailBody.append(course.getDepartment()).append(" ").append(course.getCourseCode());
+                    emailBody.append(": ").append(course.getName()).append("\n");
+                }
+            }
+            if (user.getSchedule().getNonAcademicEvents().isEmpty()) {
+                emailBody.append("\nNo non-academic events scheduled.\n");
+            } else {
+                emailBody.append("\nNon-Academic Events:\n");
+                for (ScheduleEvent event : user.getSchedule().getNonAcademicEvents()) {
+                    emailBody.append(event.getName()).append("\n");
+                }
+            }
+            emailBody.append("\nBest regards,\nStudent Scheduler Team");
+
+            // Create multipart message
+            Multipart multipart = new MimeMultipart();
+
+            // Text part
+            MimeBodyPart textPart = new MimeBodyPart();
+            textPart.setText(emailBody.toString());
+            multipart.addBodyPart(textPart);
+
+            // PDF attachment part
+            String pdfFileName = "EmailPDF.pdf";
+            File pdfFile = new File(pdfFileName);
+            Export.exportToPDF(pdfFileName, false, user.getSchedule());
+
+            MimeBodyPart attachmentPart = new MimeBodyPart();
+            attachmentPart.attachFile(pdfFile);
+            attachmentPart.setFileName("CourseSchedule.pdf");
+            multipart.addBodyPart(attachmentPart);
+
+            // Set multipart content
+            mimeMessage.setContent(multipart);
+
+            // Convert MimeMessage to Gmail API Message
+            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+            mimeMessage.writeTo(buffer);
+            byte[] rawMessageBytes = buffer.toByteArray();
+            String encodedEmail = Base64.encodeBase64URLSafeString(rawMessageBytes);
+            Message message = new Message();
+            message.setRaw(encodedEmail);
+
+            // Send the email
+            Gmail service = GmailService.getGmailService();
+            service.users().messages().send("me", message).execute();
+        } catch (Exception e) {
+            System.err.println("Failed to send email: " + e.getMessage());
+        }
+        System.out.println("Email sent to " + email);
     }
 }

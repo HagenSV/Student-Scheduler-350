@@ -32,20 +32,19 @@ public class GmailServiceTest {
         minors.add("Artificial Intelligence");
         ArrayList<Course> completedCourses = new ArrayList<>();
         user = new User("Caleb Van Ee", "password", majors, minors, completedCourses);
-        user.setEmail("eclipsegames20@gmail.com");
     }
 
     @Test
     void testSendEmailWithSchedule() {
         ArrayList<Course> emptyCourses = new ArrayList<>();
         ArrayList<ScheduleEvent> emptyEvents = new ArrayList<>();
-        Schedule schedule = new Schedule(user.getName(), "Spring", emptyCourses, emptyEvents);
-        ArrayList<Schedule> generatedSchedules = schedule.generateSchedule(new String[]{"COMP 340"}, Main.getCourses("data_wolfe.json"), "Spring");
+        Schedule schedule = new Schedule(user.getName(), "spring", emptyCourses, emptyEvents);
+        ArrayList<Schedule> generatedSchedules = schedule.generateSchedule(new String[]{"COMP 340"}, Main.getCourses("data_wolfe.json"), "spring");
         assertFalse(generatedSchedules.isEmpty(), "There should be at least one valid schedule");
         schedule = generatedSchedules.get(0);
         user.updateSchedule(schedule);
 
-        user.sendEmail();
+        Export.sendEmail(user, "eclipsegames20@gmail.com");
 
         System.out.println("Email sent to eclipsegames20@gmail.com with COMP 340 schedule. Please check the inbox.");
     }
@@ -54,8 +53,8 @@ public class GmailServiceTest {
     void testSendEmailWithBigSchedule() {
         ArrayList<Course> emptyCourses = new ArrayList<>();
         ArrayList<ScheduleEvent> emptyEvents = new ArrayList<>();
-        Schedule schedule = new Schedule(user.getName(), "Spring", emptyCourses, emptyEvents);
-        ArrayList<Schedule> generatedSchedules = schedule.generateSchedule(new String[]{"COMP 340", "COMP 350", "COMP 445", "COMP 314"}, Main.getCourses("data_wolfe.json"), "Spring");
+        Schedule schedule = new Schedule(user.getName(), "spring", emptyCourses, emptyEvents);
+        ArrayList<Schedule> generatedSchedules = schedule.generateSchedule(new String[]{"COMP 340", "COMP 350", "COMP 445", "COMP 314"}, Main.getCourses("data_wolfe.json"), "spring");
         assertFalse(generatedSchedules.isEmpty(), "There should be at least one valid schedule");
         schedule = generatedSchedules.get(0);
         user.updateSchedule(schedule);
@@ -69,8 +68,8 @@ public class GmailServiceTest {
     void testSendEmailWithBigScheduleNonAcademicEvent() {
         ArrayList<Course> emptyCourses = new ArrayList<>();
         ArrayList<ScheduleEvent> emptyEvents = new ArrayList<>();
-        Schedule schedule = new Schedule(user.getName(), "Spring", emptyCourses, emptyEvents);
-        ArrayList<Schedule> generatedSchedules = schedule.generateSchedule(new String[]{"COMP 340", "COMP 350", "COMP 445", "COMP 314"}, Main.getCourses("data_wolfe.json"), "Spring");
+        Schedule schedule = new Schedule(user.getName(), "spring", emptyCourses, emptyEvents);
+        ArrayList<Schedule> generatedSchedules = schedule.generateSchedule(new String[]{"COMP 340", "COMP 350", "COMP 445", "COMP 314"}, Main.getCourses("data_wolfe.json"), "spring");
         assertFalse(generatedSchedules.isEmpty(), "There should be at least one valid schedule");
         schedule = generatedSchedules.get(0);
         // Add non-academic event (Monday 10:00-11:00 AM)
@@ -83,7 +82,7 @@ public class GmailServiceTest {
         } catch (Exception ignored){}
         user.updateSchedule(schedule);
 
-        user.sendEmail();
+        Export.sendEmail(user, "eclipsegames20@gmail.com");
 
         System.out.println("Email sent to eclipsegames20@gmail.com with multiple courses (COMP 340, COMP 350, COMP 445, COMP 314) schedule. Please check the inbox.");
     }
@@ -92,10 +91,10 @@ public class GmailServiceTest {
     void testSendEmailWithEmptySchedule() {
         ArrayList<Course> emptyCourses = new ArrayList<>();
         ArrayList<ScheduleEvent> emptyEvents = new ArrayList<>();
-        Schedule schedule = new Schedule(user.getName(), "Spring", emptyCourses, emptyEvents);
+        Schedule schedule = new Schedule(user.getName(), "spring", emptyCourses, emptyEvents);
         user.updateSchedule(schedule);
 
-        user.sendEmail();
+        Export.sendEmail(user, "eclipsegames20@gmail.com");
 
         System.out.println("Email sent to eclipsegames20@gmail.com with empty schedule. Please check the inbox.");
     }
