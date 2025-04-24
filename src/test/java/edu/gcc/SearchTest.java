@@ -34,7 +34,7 @@ public class SearchTest {
 
     @Test
     void testSetAndFilterDaysMeeting() {
-        Search search = new Search("query");
+        Search search = new Search("query", "", false);
         search.fillFilteredResult();
         answer = new ArrayList<>(Arrays.asList(testMWF, testClosedCourse, testMWFR));
 
@@ -43,7 +43,7 @@ public class SearchTest {
         assertNotNull(result);
         assertEquals(answer, result);
 
-        search = new Search("query");
+        search = new Search("query", "", false);
         search.fillFilteredResult();
         answer = new ArrayList<>(Arrays.asList(testLab, testTr, testT, testNoDays));
 
@@ -56,7 +56,7 @@ public class SearchTest {
 
     @Test
     void testSetAndFilterTime() {
-        Search search = new Search("query");
+        Search search = new Search("query", "", false);
         search.fillFilteredResult();
         answer = new ArrayList<>(Arrays.asList(testMWF, testNoDays));
 
@@ -65,7 +65,7 @@ public class SearchTest {
         assertNotNull(result);
         assertEquals(answer, result);
 
-        search = new Search("query");
+        search = new Search("query", "", false);
         search.fillFilteredResult();
         answer = new ArrayList<>(Arrays.asList(testMWF));
 
@@ -74,7 +74,7 @@ public class SearchTest {
         assertNotNull(result);
         assertEquals(answer, result);
 
-        search = new Search("query");
+        search = new Search("query", "", false);
         search.fillFilteredResult();
         answer = new ArrayList<>(Arrays.asList(testMWF, testLab, testClosedCourse, testTr, testMWFR, testT, testNoDays));
 
@@ -83,7 +83,7 @@ public class SearchTest {
         assertNotNull(result);
         assertEquals(answer, result);
 
-        search = new Search("query");
+        search = new Search("query", "", false);
         search.fillFilteredResult();
         answer = new ArrayList<>(Arrays.asList(testNoDays));
 
@@ -95,7 +95,7 @@ public class SearchTest {
 
     @Test
     void testSetAndFilterDesiredProfessor() {
-        Search search = new Search("query");
+        Search search = new Search("query", "", false);
         search.fillFilteredResult();
         answer = new ArrayList<>(Arrays.asList(testMWF));
 
@@ -104,7 +104,7 @@ public class SearchTest {
         assertNotNull(result);
         assertEquals(answer, result);
 
-        search = new Search("query");
+        search = new Search("query", "", false);
         search.fillFilteredResult();
         answer = new ArrayList<>();
 
@@ -117,7 +117,7 @@ public class SearchTest {
 
     @Test
     void testSetAndFilterDepartment() {
-        Search search = new Search("query");
+        Search search = new Search("query", "", false);
         //search.fillFilteredResult();
         answer = new ArrayList<>(Arrays.asList(testMWF));
 
@@ -126,7 +126,7 @@ public class SearchTest {
         assertNotNull(result);
         assertEquals(answer, result);
 
-        search = new Search("query");
+        search = new Search("query", "", false);
         answer = new ArrayList<>();
 
         // Act
@@ -134,13 +134,13 @@ public class SearchTest {
         assertNotNull(result);
         assertEquals(answer, result);
 
-        search = new Search("query");
+        search = new Search("query", "", false);
         answer = new ArrayList<>();
     }
 
     @Test
     void testSearch() {
-        Search search = new Search("csci 101 smith 9:00 mwf");
+        Search search = new Search("csci 101 smith 9:00 mwf", "" , false);
         search.fillFilteredResult();
         answer = new ArrayList<>(Arrays.asList(testMWF));
 
@@ -150,7 +150,7 @@ public class SearchTest {
         assertNotNull(result);
         assertEquals(answer, result);
 
-        search = new Search("query");
+        search = new Search("query", "", false);
         answer = new ArrayList<>();
 
         // Act
@@ -158,13 +158,13 @@ public class SearchTest {
         assertNotNull(result);
         assertEquals(answer, result);
 
-        search = new Search("query");
+        search = new Search("query", "", false);
         answer = new ArrayList<>();
     }
 
     @Test
     void testGetResult() {
-        Search search = new Search("query");
+        Search search = new Search("query", "", false);
         search.fillFilteredResult();
         answer = new ArrayList<>(Arrays.asList(testMWF, testLab, testClosedCourse, testTr, testMWFR, testT, testNoDays));
 
@@ -176,7 +176,7 @@ public class SearchTest {
 
     @Test
     void testSearchByDaysMeeting() {
-        Search search = new Search("query");
+        Search search = new Search("query", "", false);
         search.fillFilteredResult();
         answer = new ArrayList<>(Arrays.asList(testMWF, testClosedCourse, testMWFR));
 
@@ -186,7 +186,7 @@ public class SearchTest {
         assertNotNull(result);
         assertEquals(answer, result);
 
-        search = new Search("query");
+        search = new Search("query", "", false);
         search.fillFilteredResult();
         answer = new ArrayList<>(Arrays.asList(testLab, testTr, testT, testNoDays));
 
@@ -196,7 +196,7 @@ public class SearchTest {
         assertNotNull(result);
         assertEquals(answer, result);
 
-        search = new Search("");
+        search = new Search("", "", false);
         search.fillFilteredResult();
         answer = new ArrayList<>(Arrays.asList(testMWF, testLab, testClosedCourse, testTr, testMWFR, testT, testNoDays));
 
@@ -209,7 +209,7 @@ public class SearchTest {
 
     @Test
     void testSearchByDepartment() {
-        Search search = new Search("query");
+        Search search = new Search("query", "", false);
         answer = new ArrayList<>(Arrays.asList(testMWF));
 
         // Act
@@ -218,7 +218,7 @@ public class SearchTest {
         assertNotNull(result);
         assertEquals(answer, result);
 
-        search = new Search("");
+        search = new Search("", "", false);
         answer = new ArrayList<>();
 
         // Act
@@ -231,7 +231,7 @@ public class SearchTest {
 
     @Test
     void testSearchByProfessor() {
-        Search search = new Search("query");
+        Search search = new Search("query", "", false);
         search.fillFilteredResult();
         answer = new ArrayList<>(Arrays.asList(testMWF));
 
@@ -241,7 +241,7 @@ public class SearchTest {
         assertNotNull(result);
         assertEquals(answer, result);
 
-        search = new Search("");
+        search = new Search("", "", false);
         search.fillFilteredResult();
         answer = new ArrayList<>(Arrays.asList(testMWF, testLab, testClosedCourse, testTr, testMWFR, testT, testNoDays));
 
@@ -254,7 +254,7 @@ public class SearchTest {
 
     @Test
     void testSearchByCourseCode() {
-        Search search = new Search("query");
+        Search search = new Search("query", "", false);
         answer = new ArrayList<>(Arrays.asList(testMWF));
 
         // Act
@@ -263,7 +263,7 @@ public class SearchTest {
         assertNotNull(result);
         assertEquals(answer, result);
 
-        search = new Search("query");
+        search = new Search("query", "", false);
         answer = new ArrayList<>(Arrays.asList(testClosedCourse));
 
         // Act
@@ -272,7 +272,7 @@ public class SearchTest {
         assertNotNull(result);
         assertEquals(answer, result);
 
-        search = new Search("");
+        search = new Search("", "", false);
         answer = new ArrayList<>();
 
         // Act
@@ -284,7 +284,7 @@ public class SearchTest {
 
     @Test
     void testSearchByTime() {
-        Search search = new Search("query");
+        Search search = new Search("query", "", false);
         search.fillFilteredResult();
         answer = new ArrayList<>(Arrays.asList(testMWF));
 
@@ -294,7 +294,7 @@ public class SearchTest {
         assertNotNull(result);
         assertEquals(answer, result);
 
-        search = new Search("query");
+        search = new Search("query", "", false);
         search.fillFilteredResult();
         answer = new ArrayList<>(Arrays.asList(testMWF, testNoDays));
 
@@ -304,7 +304,7 @@ public class SearchTest {
         assertNotNull(result);
         assertEquals(answer, result);
 
-        search = new Search("");
+        search = new Search("", "", false);
         search.fillFilteredResult();
         answer = new ArrayList<>(Arrays.asList(testMWF, testLab, testClosedCourse, testTr, testMWFR, testT, testNoDays));
 
