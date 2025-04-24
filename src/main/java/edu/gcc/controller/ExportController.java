@@ -87,10 +87,13 @@ public class ExportController {
     }
 
     @GetMapping("/api/v1/export/email")
-    public String exportEmail() {
+    public String exportEmail(String dest) {
+        if (dest == null || !dest.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
+            return "redirect:/#export";
+        }
         Schedule schedule = AuthenticatedUserUtil.getScheduleFromUser();
         if (schedule == null) return "redirect:/error";
-        // Export.exportToEmail(schedule, AuthenticatedUserUtil.getAuthenticatedUser());
+        Export.sendEmail(AuthenticatedUserUtil.getAuthenticatedUser(), schedule, dest);
         return "redirect:/#export";
     }
 }
