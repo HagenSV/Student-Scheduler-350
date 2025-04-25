@@ -47,6 +47,7 @@ public class WebConfig {
             )
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers(
+                            "/api/v1/name", // Exclude the name API
                             "/api/v1/search", // Exclude the search API
                             "/static/**", // Exclude everything in the static directory
                             "/login",     // Exclude login endpoint

@@ -214,7 +214,7 @@ public class ConsoleDriver {
             query.append(" ");
         }
 
-        search = new Search(query.toString());
+        search = new Search(query.toString(), currentUser.getUsername(), false);
         search.search();
         results(new String[]{"results","1"});
     }

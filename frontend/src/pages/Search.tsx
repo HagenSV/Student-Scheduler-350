@@ -19,9 +19,7 @@ const Search = () => {
 
     const addCourse = (course: Course) => {
         const event: MouseEventHandler = async () => {
-            console.log(course)
             const response = await scheduleAPI.addCourse(course)
-            console.log(response)
             if (!response.success) {
                 setMessage(response.message)
                 setShow(true)
@@ -44,7 +42,6 @@ const Search = () => {
     const keyPress: KeyboardEventHandler<HTMLInputElement> = async (event: React.KeyboardEvent<HTMLInputElement>) => {
         const target = event.target as HTMLInputElement
         const res = await search(target.value)
-        console.log(res)
         setResults(res)
     }
 

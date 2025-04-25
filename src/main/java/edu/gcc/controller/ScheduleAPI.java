@@ -53,6 +53,32 @@ public class ScheduleAPI {
         schedule.removeCourse(course);
     }
 
+    @PostMapping("/api/v1/completed")
+    public List<Course> getCompletedCourses(){
+        // This method will handle getting the completed courses
+        String user = AuthenticatedUserUtil.getAuthenticatedUser();
+        if (user == null) return new ArrayList<>();
+        return SearchDatabase.getInstance().getCompletedCoursesFromDB(user);
+    }
+
+    @PostMapping("/api/v1/completed/add")
+    public void addCompletedCourse(@RequestBody ScheduleQuery body){
+        // This method will handle adding a course to the completed courses
+        Course course = getCourse(body.id());
+        String user = AuthenticatedUserUtil.getAuthenticatedUser();
+        if (course == null) return;
+        UpdateDatabaseContents.addCompletedCourse(user, String.valueOf(body.id()));
+    }
+
+    @PostMapping("/api/v1/completed/remove")
+    public void removeCompletedCourse(@RequestBody ScheduleQuery body){
+        // This method will handle removing a course from the completed courses
+        Course course = getCourse(body.id());
+        String user = AuthenticatedUserUtil.getAuthenticatedUser();
+        if (course == null) return;
+        //UpdateDatabaseContents.removeCompletedCourse(user,String.valueOf(body.id()));
+    }
+
     public Course getCourse(int id){
         System.out.println("Getting course with ID: " + id);
         try {

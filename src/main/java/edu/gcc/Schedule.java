@@ -59,13 +59,7 @@ public class Schedule {
      */
     public ArrayList<Course> getCoursesFromDB() {
         SearchDatabase sd = SearchDatabase.getInstance();
-        ArrayList<Course> toReturn = sd.getScheduleFromDB(username, semester);
-
-        System.out.println("Returned from DB");
-        for(Course c : toReturn){
-            System.out.println(c.getName());
-        }
-        return toReturn;
+        return sd.getScheduleFromDB(username, semester);
     }
 
     /**
