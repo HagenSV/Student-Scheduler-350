@@ -108,3 +108,5 @@ Added COMP 244 A
 Removed COMP 141 B
 Removed COMP 244 A
 Added COMP 244 A
+Removed COMP 141 D
+Removed COMP 141 B
