@@ -31,6 +31,41 @@ const scheduleAPI = {
             },
             body: JSON.stringify({ id })
         })
+    },
+
+    getCompleted: async () => {
+        const response = await fetch("/api/v1/completed",{
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        if (response.ok){
+            return await response.json() as Course[];
+        }
+        return [];
+    },
+
+    addCompleted: async (course: Course) => {
+        const id = course.cid
+        await fetch("/api/v1/completed/add",{
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ id })
+        })
+    },
+
+    removeCompleted: async (course: Course) => {
+        const id = course.cid
+        await fetch("/api/v1/completed/remove",{
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ id })
+        })
     }
 }
 
