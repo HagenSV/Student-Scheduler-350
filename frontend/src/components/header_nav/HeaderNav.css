@@ -13,6 +13,10 @@
       background-color: var(--primary-color);
     }
 
+    .profile-button {
+        margin-left: auto;
+    }
+
     li {
       float: left;
       a {

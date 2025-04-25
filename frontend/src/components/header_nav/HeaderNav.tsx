@@ -10,6 +10,7 @@ const HeaderNav: React.FC = () => {
         <li><a href="/">My Schedule</a></li>
         <li><a href="/search">Course Search</a></li>
         <li><a href="/#export">Export</a></li>
+        <li className="profile-button"><a href="/profile">Profile</a></li>
     </ul>
     </div>
   );
