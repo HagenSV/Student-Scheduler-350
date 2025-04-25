@@ -3,15 +3,19 @@ import './HeaderNav.css';
 const logo = require('./gcc-logo-primary.png');
 
 const HeaderNav: React.FC = () => {
-    const [name, setName] = useState<String>("Profile");
+    const [name, setName] = useState<String>("Login");
 
     useEffect(() => {
         const fetchData = async () =>{
-            const response = await fetch('/api/v1/name')
+            const response = await fetch('/api/v1/name');
 
             if (response.ok){
-                const json = await response.text()
-                setName(json);
+                const json = await response.text();
+                if (json){
+                    setName(json);
+                } else {
+                    setName("Login");
+                }
             }
         }
         fetchData()
