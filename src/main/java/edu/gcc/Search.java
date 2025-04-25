@@ -206,6 +206,10 @@ public class Search {
         if (filteredResult.size() == 0) {
             fillFilteredResult();
         }
+        searchBySemester();
+        if (filteredResult.size() == 0) {
+            fillFilteredResult();
+        }
         if (filteredResult.size() == initialResult.size())  {
             filteredResult = new ArrayList<>();
         }
@@ -475,6 +479,23 @@ public class Search {
             }
         }
     }
+
+    /**
+     * Filters courses by semester
+     * Currently just filters out all Spring courses
+     */
+    public void searchBySemester() {
+        Iterator<Course> iterator = filteredResult.iterator();
+        while (iterator.hasNext()) {
+            Course c = iterator.next();
+            String semester = c.getSemester().toLowerCase();
+            if (!semester.contains("fall")) {
+                iterator.remove();
+            }
+        }
+    }
+
+
 
     /**
      * Makes a list of the all the departments
